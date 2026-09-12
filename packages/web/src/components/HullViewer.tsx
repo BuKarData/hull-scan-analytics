@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef } from "react";
-import { Canvas, useThree, type ThreeEvent } from "@react-three/fiber";
-import { OrbitControls, FlyControls, Grid } from "@react-three/drei";
+import { Canvas, useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
+import { OrbitControls, Grid } from "@react-three/drei";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import * as THREE from "three";
 
@@ -203,6 +203,89 @@ function PickingThreshold({ value }: { value: number }) {
   return null;
 }
 
+/**
+ * Wlasny "swobodny lot" WASD + patrzenie przeciagnieciem myszy - BEZ stalego
+ * punktu obrotu (w odroznieniu od Orbity) i BEZ przechylania (roll), ktore w
+ * gotowym three.js FlyControls (mysleane pod symulator lotu) daje wrazenie
+ * "pijanego" bujania obrazu przy zwyklym rozgladaniu sie po modelu. Tu jest
+ * to zwykla kamera FPS: obrot tylko wokol osi pionowej (jaw) i poziomej
+ * (pitch), ruch wzgledem aktualnego kierunku patrzenia.
+ */
+function FreeFlyControls({ moveSpeed }: { moveSpeed: number }) {
+  const camera = useThree((s) => s.camera);
+  const gl = useThree((s) => s.gl);
+  const keys = useRef<Record<string, boolean>>({});
+  const yawPitch = useRef({ yaw: 0, pitch: 0 });
+  const dragging = useRef(false);
+  const last = useRef({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const euler = new THREE.Euler().setFromQuaternion(camera.quaternion, "YXZ");
+    yawPitch.current = { yaw: euler.y, pitch: euler.x };
+  }, [camera]);
+
+  useEffect(() => {
+    const dom = gl.domElement;
+    const onKeyDown = (e: KeyboardEvent) => {
+      keys.current[e.code] = true;
+    };
+    const onKeyUp = (e: KeyboardEvent) => {
+      keys.current[e.code] = false;
+    };
+    const onPointerDown = (e: PointerEvent) => {
+      dragging.current = true;
+      last.current = { x: e.clientX, y: e.clientY };
+    };
+    const onPointerUp = () => {
+      dragging.current = false;
+    };
+    const onPointerMove = (e: PointerEvent) => {
+      if (!dragging.current) return;
+      const dx = e.clientX - last.current.x;
+      const dy = e.clientY - last.current.y;
+      last.current = { x: e.clientX, y: e.clientY };
+      yawPitch.current.yaw -= dx * 0.0028;
+      yawPitch.current.pitch -= dy * 0.0028;
+      const limit = Math.PI / 2 - 0.02;
+      yawPitch.current.pitch = Math.max(-limit, Math.min(limit, yawPitch.current.pitch));
+    };
+    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("keyup", onKeyUp);
+    dom.addEventListener("pointerdown", onPointerDown);
+    window.addEventListener("pointerup", onPointerUp);
+    window.addEventListener("pointermove", onPointerMove);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("keyup", onKeyUp);
+      dom.removeEventListener("pointerdown", onPointerDown);
+      window.removeEventListener("pointerup", onPointerUp);
+      window.removeEventListener("pointermove", onPointerMove);
+    };
+  }, [gl]);
+
+  useFrame((_, delta) => {
+    const euler = new THREE.Euler(yawPitch.current.pitch, yawPitch.current.yaw, 0, "YXZ");
+    camera.quaternion.setFromEuler(euler);
+
+    const k = keys.current;
+    const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
+    const right = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion);
+    const move = new THREE.Vector3();
+    if (k.KeyW || k.ArrowUp) move.add(forward);
+    if (k.KeyS || k.ArrowDown) move.sub(forward);
+    if (k.KeyD || k.ArrowRight) move.add(right);
+    if (k.KeyA || k.ArrowLeft) move.sub(right);
+    if (k.KeyE) move.y += 1;
+    if (k.KeyQ) move.y -= 1;
+    if (move.lengthSq() > 0) {
+      move.normalize().multiplyScalar(moveSpeed * delta);
+      camera.position.add(move);
+    }
+  });
+
+  return null;
+}
+
 interface Bounds {
   center: [number, number, number];
   radius: number;
@@ -357,7 +440,7 @@ export function HullViewer({
             maxDistance={bounds.radius * 8}
           />
         ) : (
-          <FlyControls movementSpeed={bounds.radius * 0.6} rollSpeed={Math.PI / 8} dragToLook autoForward={false} />
+          <FreeFlyControls moveSpeed={bounds.radius * 0.7} />
         )}
       </Canvas>
     </div>
