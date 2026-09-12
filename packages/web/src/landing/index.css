@@ -1,0 +1,172 @@
+@import "tailwindcss";
+
+/* ============================================================
+   HullSight Landing — scoped theme. Clean, instrument-like.
+   One accent, hairlines, tabular data, serif display type.
+   ============================================================ */
+
+html,
+body {
+  margin: 0;
+  background: #070b12;
+}
+
+.hs-landing {
+  --ls-bg: #070b12;
+  --ls-bg-1: #0a0f17;
+  --ls-line: rgba(226, 232, 240, 0.09);
+  --ls-line-2: rgba(226, 232, 240, 0.16);
+  --ls-line-3: rgba(226, 232, 240, 0.3);
+  --ls-text: #edf1f7;
+  --ls-muted: #919db1;
+  --ls-dim: #5d6a7f;
+  --ls-accent: #3b9dff;
+  --ls-accent-dim: rgba(59, 157, 255, 0.14);
+  --ls-ok: #3ddc97;
+  --ls-warn: #ffb454;
+  --ls-bad: #ff5c6c;
+
+  color: var(--ls-text);
+  background: var(--ls-bg);
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+.hs-landing ::selection {
+  background: rgba(59, 157, 255, 0.3);
+}
+
+.font-hud {
+  font-family: ui-monospace, "SF Mono", "Cascadia Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.font-display {
+  font-family: "Iowan Old Style", "Palatino Linotype", "URW Palladio L", Georgia, "Times New Roman", serif;
+  font-variant-numeric: lining-nums;
+}
+
+.eyebrow {
+  display: block;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--ls-accent);
+}
+
+.num {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.015);
+  border: 1px solid var(--ls-line);
+}
+
+.accent-text {
+  color: var(--ls-accent);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 6px;
+  padding: 0.65rem 1.15rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+.btn-solid {
+  background: var(--ls-accent);
+  color: #04121f;
+}
+.btn-solid:hover {
+  background: #5daeff;
+  transform: translateY(-1px);
+}
+.btn-hair {
+  border: 1px solid var(--ls-line-3);
+  color: var(--ls-text);
+}
+.btn-hair:hover {
+  border-color: var(--ls-accent);
+  color: #fff;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border-radius: 3px;
+  border: 1px solid var(--ls-line);
+  padding: 0.22rem 0.5rem;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--ls-muted);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.section {
+  border-top: 1px solid var(--ls-line);
+  padding: 6rem 1.25rem;
+}
+@media (min-width: 768px) {
+  .section {
+    padding: 7.5rem 3rem;
+  }
+}
+.section-inner {
+  margin: 0 auto;
+  max-width: 1120px;
+}
+
+.hairline-row {
+  border-top: 1px solid var(--ls-line);
+}
+
+.hs-vignette {
+  background: radial-gradient(120% 90% at 50% 45%, transparent 55%, rgba(2, 5, 9, 0.55) 100%);
+}
+
+/* hero keyframes */
+@keyframes grain-shift {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(-4%, 3%); }
+  50% { transform: translate(3%, -4%); }
+  75% { transform: translate(-3%, -3%); }
+  100% { transform: translate(4%, 2%); }
+}
+.grain {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  animation: grain-shift 0.7s steps(4) infinite;
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.25; }
+}
+.anim-fade-up {
+  animation: fade-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.anim-fade-in {
+  animation: fade-in 0.9s ease both;
+}
+.anim-blink {
+  animation: blink 1.4s steps(2) infinite;
+}
