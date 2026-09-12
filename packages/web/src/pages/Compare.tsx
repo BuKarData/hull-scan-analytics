@@ -1,13 +1,15 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { useAsync } from "../hooks/useAsync";
 import { api } from "../lib/api";
 import { formatDate, formatMm, formatPct } from "../lib/format";
 import { StatTile } from "../components/StatTile";
-import { HullViewer, type PointLayer, type RenderMode } from "../components/HullViewer";
+import { HullViewer, type PointLayer, type RenderMode, type ControlMode } from "../components/HullViewer";
 import { RegionHeatmap } from "../components/RegionHeatmap";
 import { divergingRgb01, useResolvedPalette } from "../lib/theme";
 import { useLang } from "../lib/i18n";
+import { girthSectorIndex } from "../lib/geometry";
+import type { RegionCell } from "../lib/types";
 
 type ViewMode = "heatmap" | "overlay" | "raw-a" | "raw-b";
 
@@ -25,7 +27,9 @@ export function Compare() {
 
   const [mode, setMode] = useState<ViewMode>("heatmap");
   const [renderMode, setRenderMode] = useState<RenderMode>("mesh");
+  const [controlMode, setControlMode] = useState<ControlMode>("orbit");
   const [sizeScale, setSizeScale] = useState(1);
+  const [selectedCell, setSelectedCell] = useState<RegionCell | null>(null);
   const palette = useResolvedPalette();
 
   const loading = vesselQ.loading || scanAQ.loading || scanBQ.loading || cmpQ.loading;
@@ -33,7 +37,7 @@ export function Compare() {
 
   const heatmapColors = useMemo(() => {
     if (!cmpQ.data) return null;
-    const domain = Math.max(2, cmpQ.data.stats.maxAbsDeviationMm);
+    const domain = cmpQ.data.stats.maxAbsDeviationMm;
     const arr = new Float32Array(cmpQ.data.deviationMm.length * 3);
     cmpQ.data.deviationMm.forEach((dev, i) => {
       const [r, g, bch] = divergingRgb01(dev, domain, palette);
@@ -113,6 +117,25 @@ export function Compare() {
     ];
   }, [mode, cmpQ.data, scanAQ.data, scanBQ.data, heatmapColors]);
 
+  useEffect(() => setSelectedCell(null), [a, b]);
+
+  const highlightPositions = useMemo(() => {
+    if (!selectedCell || !scanBQ.data || !cmpQ.data) return undefined;
+    const { uv, positions } = scanBQ.data.pointCloud;
+    const rows = cmpQ.data.regionGrid.rows;
+    const out: number[] = [];
+    for (let i = 0; i < uv.length / 2; i++) {
+      const u = uv[i * 2];
+      const v = uv[i * 2 + 1];
+      const row = Math.min(rows - 1, Math.floor(u * rows));
+      const col = girthSectorIndex(v);
+      if (row === selectedCell.row && col === selectedCell.col) {
+        out.push(positions[i * 3], positions[i * 3 + 1], positions[i * 3 + 2]);
+      }
+    }
+    return out;
+  }, [selectedCell, scanBQ.data, cmpQ.data]);
+
   if (loading) return <div style={{ color: "var(--text-muted)" }}>{t.common.loadingCompare}</div>;
   if (error) return <div style={{ color: "var(--status-critical)" }}>{t.common.error}: {error}</div>;
   if (!cmpQ.data || !vesselQ.data) return null;
@@ -171,7 +194,7 @@ export function Compare() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2 mb-3">
+          <div className="flex items-center gap-2 mb-3 flex-wrap">
             <span className="text-xs" style={{ color: "var(--text-muted)" }}>
               {t.vessel.viewMode}:
             </span>
@@ -195,11 +218,41 @@ export function Compare() {
                 </button>
               ))}
             </div>
+            <span className="text-xs ml-2" style={{ color: "var(--text-muted)" }}>
+              {t.vessel.cameraMode}:
+            </span>
+            <div className="flex items-center gap-1 rounded-full p-1" style={{ background: "var(--surface-2)", border: "1px solid var(--border)" }}>
+              {(
+                [
+                  ["orbit", t.vessel.cameraModeOrbit],
+                  ["fly", t.vessel.cameraModeFly],
+                ] as [ControlMode, string][]
+              ).map(([m, label]) => (
+                <button
+                  key={m}
+                  onClick={() => setControlMode(m)}
+                  className="text-xs font-medium rounded-full px-2.5 py-1"
+                  style={{
+                    background: controlMode === m ? "var(--brand)" : "transparent",
+                    color: controlMode === m ? "white" : "var(--text-secondary)",
+                  }}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
           </div>
 
-          <HullViewer layers={layers} sizeScale={sizeScale} renderMode={renderMode} />
+          <HullViewer
+            layers={layers}
+            sizeScale={sizeScale}
+            renderMode={renderMode}
+            controlMode={controlMode}
+            resetViewKey={`${a}|${b}`}
+            highlightPositions={highlightPositions}
+          />
 
-          <div className="flex items-center gap-3 mt-3 text-xs" style={{ color: "var(--text-secondary)" }}>
+          <div className="flex items-center gap-3 mt-3 text-xs flex-wrap" style={{ color: "var(--text-secondary)" }}>
             {renderMode === "points" && (
               <label className="flex items-center gap-2">
                 {t.vessel.pointSize}
@@ -214,7 +267,7 @@ export function Compare() {
                 />
               </label>
             )}
-            <span style={{ color: "var(--text-muted)" }}>{t.vessel.controlsHint}</span>
+            <span style={{ color: "var(--text-muted)" }}>{controlMode === "orbit" ? t.vessel.controlsHintOrbit : t.vessel.controlsHintFly}</span>
           </div>
 
           {mode === "heatmap" || mode === "overlay" ? (
@@ -238,8 +291,11 @@ export function Compare() {
           <h2 className="text-sm font-semibold mb-1" style={{ color: "var(--text-primary)" }}>
             {t.compare.regionHeatmapTitle}
           </h2>
-          <p className="text-xs mb-3" style={{ color: "var(--text-muted)" }}>
+          <p className="text-xs mb-1" style={{ color: "var(--text-muted)" }}>
             {t.compare.regionHeatmapSubtitle}
+          </p>
+          <p className="text-xs mb-3" style={{ color: "var(--brand)" }}>
+            {t.compare.regionHeatmapClickHint}
           </p>
           <RegionHeatmap
             rows={regionGrid.rows}
@@ -248,6 +304,8 @@ export function Compare() {
             domainMaxMm={stats.maxAbsDeviationMm}
             rowLabels={t.region.lengthBands as unknown as string[]}
             colLabels={t.region.girthSectors as unknown as string[]}
+            selectedCell={selectedCell}
+            onCellClick={(cell) => setSelectedCell((prev) => (prev === cell ? null : cell))}
           />
         </div>
       </div>

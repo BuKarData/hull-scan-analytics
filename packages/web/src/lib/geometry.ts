@@ -1,6 +1,6 @@
 import type { Defect } from "./types";
 
-function girthSectorIndex(v01: number): number {
+export function girthSectorIndex(v01: number): number {
   const deg = ((v01 % 1) + 1) % 1;
   if (deg < 0.125 || deg >= 0.875) return 0;
   if (deg < 0.375) return 1;

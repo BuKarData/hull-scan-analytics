@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
-import type { VesselDetailResponse } from "../lib/types";
+import { useEffect, useMemo, useRef, useState } from "react";
+import type { ScanDetail, VesselDetailResponse } from "../lib/types";
 import { useAsync } from "../hooks/useAsync";
 import { api } from "../lib/api";
-import { HullViewer, type PickInfo, type RenderMode } from "./HullViewer";
+import { HullViewer, type PickInfo, type RenderMode, type ControlMode, type PointLayer } from "./HullViewer";
 import { TimelineSlider, type TimelineItem } from "./TimelineSlider";
 import { SeverityBadge } from "./SeverityBadge";
 import { Sparkline } from "./Sparkline";
@@ -12,6 +12,45 @@ import { useLang } from "../lib/i18n";
 
 const SEVERITY_RANK = { good: 0, warning: 1, serious: 2, critical: 3 } as const;
 type PhaseTab = "budowa" | "eksploatacja";
+const CROSSFADE_MS = 420;
+
+/** Zamiast twardo podmieniac geometrie przy kazdym kroku suwaka, przez chwile
+ *  renderujemy OBA skany naraz (stary znikajacy, nowy pojawiajacy sie), zeby
+ *  przejscie miedzy kolejnymi stanami bylo plynne, a nie jak "przeskok". */
+function useCrossfade(data: ScanDetail | null | undefined) {
+  const [state, setState] = useState<{ from: ScanDetail | null; to: ScanDetail | null; t: number }>({
+    from: null,
+    to: data ?? null,
+    t: 1,
+  });
+  const lastRef = useRef<ScanDetail | null | undefined>(data);
+  const rafRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (!data || lastRef.current?.id === data.id) return;
+    const prevTo = lastRef.current ?? null;
+    lastRef.current = data;
+    setState({ from: prevTo, to: data, t: prevTo ? 0 : 1 });
+  }, [data]);
+
+  useEffect(() => {
+    if (!state.from) return;
+    let start: number | null = null;
+    function step(ts: number) {
+      if (start === null) start = ts;
+      const t = Math.min(1, (ts - start) / CROSSFADE_MS);
+      setState((s) => (s.from ? { ...s, t } : s));
+      if (t < 1) rafRef.current = requestAnimationFrame(step);
+    }
+    rafRef.current = requestAnimationFrame(step);
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.to]);
+
+  return state;
+}
 
 export function HullTimelineExplorer({ vessel }: { vessel: VesselDetailResponse }) {
   const { lang, t } = useLang();
@@ -51,6 +90,7 @@ export function HullTimelineExplorer({ vessel }: { vessel: VesselDetailResponse 
   const [index, setIndex] = useState(serviceItems.length - 1);
   const [sizeScale, setSizeScale] = useState(1);
   const [renderMode, setRenderMode] = useState<RenderMode>("mesh");
+  const [controlMode, setControlMode] = useState<ControlMode>("orbit");
   const [pick, setPick] = useState<{ u: number; v: number } | null>(null);
 
   // Przy przelaczeniu zakladki wracamy do ostatniego (najnowszego) elementu tej zakladki.
@@ -67,6 +107,7 @@ export function HullTimelineExplorer({ vessel }: { vessel: VesselDetailResponse 
   const current = items[safeIndex];
   const scanQ = useAsync(() => api.scan(current.id), [current.id]);
   const milestoneMeta = vessel.constructionMilestones.find((m) => m.id === current.id);
+  const fade = useCrossfade(scanQ.data);
 
   const nearestDefect = useMemo(() => {
     if (!pick || current.phase !== "eksploatacja") return null;
@@ -74,13 +115,42 @@ export function HullTimelineExplorer({ vessel }: { vessel: VesselDetailResponse 
   }, [pick, current.phase, vessel.defects]);
 
   function handlePickEvent(info: PickInfo | null) {
-    if (!info || !scanQ.data) {
+    if (!info || !fade.to) {
       setPick(null);
       return;
     }
-    const uv = scanQ.data.pointCloud.uv;
+    const uv = fade.to.pointCloud.uv;
     setPick({ u: uv[info.index * 2], v: uv[info.index * 2 + 1] });
   }
+
+  const layers: PointLayer[] = useMemo(() => {
+    const arr: PointLayer[] = [];
+    if (fade.from && fade.t < 1) {
+      arr.push({
+        key: `xfade-from-${fade.from.id}`,
+        positions: fade.from.pointCloud.positions,
+        colors: fade.from.pointCloud.baseColor,
+        normals: fade.from.pointCloud.normals,
+        indices: fade.from.pointCloud.indices,
+        size: 1,
+        opacity: 1 - fade.t,
+        pickable: false,
+      });
+    }
+    if (fade.to) {
+      arr.push({
+        key: `xfade-to-${fade.to.id}`,
+        positions: fade.to.pointCloud.positions,
+        colors: fade.to.pointCloud.baseColor,
+        normals: fade.to.pointCloud.normals,
+        indices: fade.to.pointCloud.indices,
+        size: 1,
+        opacity: fade.from ? fade.t : 1,
+        pickable: true,
+      });
+    }
+    return arr;
+  }, [fade]);
 
   return (
     <div className="rounded-xl p-4" style={{ background: "var(--surface-1)", border: "1px solid var(--border)" }}>
@@ -128,7 +198,7 @@ export function HullTimelineExplorer({ vessel }: { vessel: VesselDetailResponse 
 
       <div className="grid lg:grid-cols-[1.4fr_1fr] gap-4 mt-4">
         <div>
-          {scanQ.loading || !scanQ.data ? (
+          {!fade.to ? (
             <div className="h-[380px] flex items-center justify-center text-sm" style={{ color: "var(--text-muted)" }}>
               {t.common.loadingModel}
             </div>
@@ -137,18 +207,9 @@ export function HullTimelineExplorer({ vessel }: { vessel: VesselDetailResponse 
               height={380}
               sizeScale={sizeScale}
               renderMode={renderMode}
-              layers={[
-                {
-                  key: current.id,
-                  positions: scanQ.data.pointCloud.positions,
-                  colors: scanQ.data.pointCloud.baseColor,
-                  normals: scanQ.data.pointCloud.normals,
-                  indices: scanQ.data.pointCloud.indices,
-                  size: 1,
-                  opacity: 1,
-                  pickable: true,
-                },
-              ]}
+              controlMode={controlMode}
+              resetViewKey={`${vessel.vessel.id}-${tab}`}
+              layers={layers}
               onHover={handlePickEvent}
               onPick={handlePickEvent}
             />
@@ -174,6 +235,26 @@ export function HullTimelineExplorer({ vessel }: { vessel: VesselDetailResponse 
                 </button>
               ))}
             </div>
+            <div className="flex items-center gap-1 rounded-full p-1" style={{ background: "var(--surface-2)", border: "1px solid var(--border)" }}>
+              {(
+                [
+                  ["orbit", t.vessel.cameraModeOrbit],
+                  ["fly", t.vessel.cameraModeFly],
+                ] as [ControlMode, string][]
+              ).map(([m, label]) => (
+                <button
+                  key={m}
+                  onClick={() => setControlMode(m)}
+                  className="text-xs font-medium rounded-full px-2.5 py-1"
+                  style={{
+                    background: controlMode === m ? "var(--brand)" : "transparent",
+                    color: controlMode === m ? "white" : "var(--text-secondary)",
+                  }}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
             {renderMode === "points" && (
               <label className="flex items-center gap-2">
                 {t.vessel.pointSize}
@@ -188,7 +269,7 @@ export function HullTimelineExplorer({ vessel }: { vessel: VesselDetailResponse 
                 />
               </label>
             )}
-            <span style={{ color: "var(--text-muted)" }}>{t.vessel.controlsHint}</span>
+            <span style={{ color: "var(--text-muted)" }}>{controlMode === "orbit" ? t.vessel.controlsHintOrbit : t.vessel.controlsHintFly}</span>
           </div>
         </div>
 
@@ -202,20 +283,20 @@ export function HullTimelineExplorer({ vessel }: { vessel: VesselDetailResponse 
             </div>
             <div className="text-xs" style={{ color: "var(--text-muted)" }}>
               {formatDate(current.timestamp, lang)}
-              {scanQ.data?.technician && scanQ.data.technician !== "-" ? ` · ${t.vessel.technician.toLowerCase()}: ${scanQ.data.technician}` : ""}
+              {fade.to?.technician && fade.to.technician !== "-" ? ` · ${t.vessel.technician.toLowerCase()}: ${fade.to.technician}` : ""}
             </div>
             {milestoneMeta?.description && (
               <p className="text-xs mt-2" style={{ color: "var(--text-secondary)" }}>
                 {milestoneMeta.description}
               </p>
             )}
-            {scanQ.data && current.phase === "eksploatacja" && current.id !== vessel.baseline.id && (
+            {fade.to && current.phase === "eksploatacja" && current.id !== vessel.baseline.id && (
               <div className="flex gap-3 mt-2 text-xs tabular-nums" style={{ color: "var(--text-secondary)" }}>
                 <span>
-                  {t.vessel.peakDeviationShort}: {formatMm(scanQ.data.maxDeviationMm, 1)}
+                  {t.vessel.peakDeviationShort}: {formatMm(fade.to.maxDeviationMm, 1)}
                 </span>
                 <span>
-                  {t.vessel.defectsShort}: {scanQ.data.openDefectCount}
+                  {t.vessel.defectsShort}: {fade.to.openDefectCount}
                 </span>
               </div>
             )}

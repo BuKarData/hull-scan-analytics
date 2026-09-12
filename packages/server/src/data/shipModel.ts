@@ -47,6 +47,16 @@ function buildAdjacency(vertexCount: number, indices: Uint32Array): Uint32Array[
 
 const cache = new Map<ShipModelKind, ShipModel>();
 
+// Ktory koniec modelu (po Z) jest faktycznie dziobem (koniec wezszy/spiczasty),
+// zmierzone empirycznie (porownanie szerokosci kadluba w skrajnych 10%
+// dlugosci modelu). Domyslnie zakladamy dziob przy max Z; modele z tej listy
+// maja dziob przy min Z i wymagaja odbicia wspolrzednej Z, zeby "u=1" zawsze
+// oznaczalo dziob - inaczej burta prawa/lewa wyszlyby odwrotnie dla tego modelu
+// (konwencja prawa/lewa zalezy od tego, w ktora strone "patrzy" kadlub).
+const BOW_AT_MIN_Z: Partial<Record<ShipModelKind, true>> = {
+  ferry: true,
+};
+
 export function loadShipModel(kind: ShipModelKind, targetLengthM: number, targetBeamM: number): ShipModel {
   const cacheKey = kind; // geometria bazowa (przed skalowaniem) jest wspolna - skalujemy przy kazdym uzyciu
   let base = cache.get(cacheKey);
@@ -65,7 +75,7 @@ export function loadShipModel(kind: ShipModelKind, targetLengthM: number, target
     cache.set(cacheKey, base);
   }
 
-  return scaleModel(base, targetLengthM, targetBeamM);
+  return scaleModel(base, targetLengthM, targetBeamM, BOW_AT_MIN_Z[kind] === true);
 }
 
 /**
@@ -81,8 +91,13 @@ export function loadShipModel(kind: ShipModelKind, targetLengthM: number, target
  * Dlugosc (Z) skaluje sie niezaleznie - statki tej samej klasy występują w
  * roznych dlugosciach przy podobnym przekroju poprzecznym, wiec "rozciagniecie"
  * wzdluz dlugosci nie wyglada nienaturalnie tak jak splaszczenie w pionie.
+ *
+ * `mirrorZ` odwraca os dlugosci dla modeli, ktorych dziob jest w pliku .obj
+ * przy min Z zamiast przy max Z (patrz BOW_AT_MIN_Z) - bez tego "u=1" dla
+ * takiego modelu wskazywalby na rufe, co odwracaloby tez sens burta
+ * prawa/lewa (ktora jest zdefiniowana wzgledem kierunku "w strone dziobu").
  */
-function scaleModel(base: ShipModel, lengthM: number, beamM: number): ShipModel {
+function scaleModel(base: ShipModel, lengthM: number, beamM: number, mirrorZ: boolean): ShipModel {
   const n = base.vertexCount;
   let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity, minZ = Infinity, maxZ = -Infinity;
   for (let i = 0; i < n; i++) {
@@ -112,7 +127,9 @@ function scaleModel(base: ShipModel, lengthM: number, beamM: number): ShipModel 
   for (let i = 0; i < n; i++) {
     const x = (base.positions[i * 3] - cx) * sx;
     const y = (base.positions[i * 3 + 1] - minY) * sy;
-    const z = (base.positions[i * 3 + 2] - minZ) * sz;
+    const zRaw = base.positions[i * 3 + 2];
+    const zForward = mirrorZ ? maxZ - (zRaw - minZ) : zRaw; // odbicie tak, zeby dziob zawsze byl przy max Z
+    const z = (zForward - minZ) * sz;
     positions[i * 3] = x;
     positions[i * 3 + 1] = y;
     positions[i * 3 + 2] = z;
@@ -122,7 +139,7 @@ function scaleModel(base: ShipModel, lengthM: number, beamM: number): ShipModel 
     // podzielenie przez wspolczynniki skali (zamiast pomnozenia).
     let nx = base.normals[i * 3] / sx;
     let ny = base.normals[i * 3 + 1] / sy;
-    let nz = base.normals[i * 3 + 2] / sz;
+    let nz = (mirrorZ ? -base.normals[i * 3 + 2] : base.normals[i * 3 + 2]) / sz;
     const nlen = Math.hypot(nx, ny, nz) || 1;
     nx /= nlen; ny /= nlen; nz /= nlen;
     normals[i * 3] = nx;
@@ -130,7 +147,12 @@ function scaleModel(base: ShipModel, lengthM: number, beamM: number): ShipModel 
     normals[i * 3 + 2] = nz;
 
     u[i] = z / lengthM;
-    const angle = Math.atan2((y - cy) / halfDepth, x / halfBeam);
+    // Konwencja prawa/lewa burta liczona jest wzgledem stania na pokladzie i
+    // patrzenia w strone dziobu (+Z po naszym ujednoliceniu powyzej): w
+    // prawoskretnym ukladzie Y-up, "prawa reka" (starboard) wskazuje w strone
+    // -X, nie +X - stad minus przy x ponizej (bez niego v=0 wskazywaloby na
+    // burte lewa zamiast prawej).
+    const angle = Math.atan2((y - cy) / halfDepth, -x / halfBeam);
     v[i] = (angle / (Math.PI * 2) + 1) % 1;
   }
 

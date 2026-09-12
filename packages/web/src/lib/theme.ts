@@ -90,16 +90,28 @@ function rampColor(ramp: [string, string, string, string], t: number): string {
   return rgbToHex([lerp(a[0], b[0], localT), lerp(a[1], b[1], localT), lerp(a[2], b[2], localT)]);
 }
 
+// Typowe odchylenie samego szumu skanu/rekonstrukcji (patrz deformShipModel:
+// gaussianRandom(0, scanNoiseMm*0.35) z domyslnym scanNoiseMm=0.6) - ponizej
+// tej wartosci kolor zostaje neutralny, zeby szum nie "podswietlal sie" na
+// calym kadlubie tak samo jak realna usterka.
+const NOISE_FLOOR_MM = 0.3;
+
 /**
  * Odchylenie -> kolor rozbiezny (diverging): niebieski = narost/wybrzuszenie
  * (dodatnie), czerwony = wgniecenie/ubytek (ujemne), szary neutralny = brak
- * zmiany. Domena skalowana do faktycznego zakresu porownania (domainMaxMm),
- * z minimalnym progiem, zeby szum skanu nie "wysycal" calej skali kolorow.
+ * zmiany (ponizej progu szumu skanu). Domena skalowana do faktycznego zakresu
+ * porownania (domainMaxMm), z minimalnym progiem, zeby jeden wyraznie
+ * odstajacy punkt nie "wysycal" calej skali kolorow. Krzywa gamma (t^0.55)
+ * podbija nasycenie dla lagodnych, ale realnych (powyzej progu szumu)
+ * odchylen - bez niej wiekszosc typowych usterek ladowala w bladej, ledwo
+ * widocznej czesci rampy liniowej.
  */
 export function divergingColor(valueMm: number, domainMaxMm: number, palette: ResolvedPalette): string {
-  const domain = Math.max(2, domainMaxMm);
-  const t = Math.min(1, Math.abs(valueMm) / domain);
-  if (Math.abs(valueMm) < 0.15) return palette.divNeutral;
+  const abs = Math.abs(valueMm);
+  if (abs < NOISE_FLOOR_MM) return palette.divNeutral;
+  const domain = Math.max(NOISE_FLOOR_MM + 0.5, domainMaxMm);
+  const tLinear = Math.min(1, (abs - NOISE_FLOOR_MM) / (domain - NOISE_FLOOR_MM));
+  const t = Math.pow(tLinear, 0.55);
   const ramp = valueMm > 0 ? palette.seqBlue : palette.divRed;
   return rampColor(ramp, t);
 }

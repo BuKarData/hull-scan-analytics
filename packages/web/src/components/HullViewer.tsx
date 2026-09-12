@@ -1,9 +1,11 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { Canvas, useThree, type ThreeEvent } from "@react-three/fiber";
-import { OrbitControls, Grid } from "@react-three/drei";
+import { OrbitControls, FlyControls, Grid } from "@react-three/drei";
+import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import * as THREE from "three";
 
 export type RenderMode = "points" | "mesh";
+export type ControlMode = "orbit" | "fly";
 
 export interface PointLayer {
   key: string;
@@ -165,6 +167,34 @@ function MeshLayer({
   );
 }
 
+/** Punkty podswietlenia (np. klikniety kafelek heatmapy regionow) - renderowane
+ *  zawsze jako jaskrawe punkty NA WIERZCHU (bez testu glebi), niezaleznie od
+ *  trybu "Chmura punktow"/"Model", zeby byly widoczne z kazdego kata i w
+ *  kazdym trybie renderowania. */
+function HighlightLayer({ positions, worldSize }: { positions: number[]; worldSize: number }) {
+  const geometry = useMemo(() => {
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+    geo.computeBoundingSphere();
+    return geo;
+  }, [positions]);
+
+  if (positions.length === 0) return null;
+  return (
+    <points geometry={geometry} renderOrder={999}>
+      <pointsMaterial
+        color="#ffcc33"
+        size={worldSize * 4.5}
+        sizeAttenuation
+        transparent
+        opacity={0.95}
+        depthTest={false}
+        depthWrite={false}
+      />
+    </points>
+  );
+}
+
 function PickingThreshold({ value }: { value: number }) {
   const raycaster = useThree((s) => s.raycaster);
   useEffect(() => {
@@ -196,6 +226,47 @@ function computeBounds(positions: number[]): Bounds {
   return { center, radius };
 }
 
+/**
+ * Ustawia pozycje kamery i cel OrbitControls IMPERATYWNIE, tylko raz przy
+ * montowaniu i za kazdym razem, gdy zmieni sie `resetKey` (np. inna jednostka
+ * albo inna zakladka budowa/eksploatacja) - NIE przy kazdej zmianie danych
+ * (np. przewijanie suwaka miedzy skanami). Dzieki temu obrot/przesuniecie
+ * kamery uzyskane przez uzytkownika przetrwa przelaczanie miedzy skanami.
+ */
+function CameraRig({
+  resetKey,
+  boundsRef,
+  controlsRef,
+}: {
+  resetKey: string;
+  boundsRef: React.RefObject<Bounds>;
+  controlsRef: React.RefObject<OrbitControlsImpl | null>;
+}) {
+  const camera = useThree((s) => s.camera);
+
+  useEffect(() => {
+    const bounds = boundsRef.current;
+    if (!bounds) return;
+    const dir = new THREE.Vector3(0.9, 0.7, 0.9).normalize();
+    camera.position.set(
+      bounds.center[0] + dir.x * bounds.radius * 2.6,
+      bounds.center[1] + dir.y * bounds.radius * 2.6,
+      bounds.center[2] + dir.z * bounds.radius * 2.6
+    );
+    camera.near = Math.max(0.02, bounds.radius / 200);
+    camera.far = bounds.radius * 200;
+    if ("updateProjectionMatrix" in camera) (camera as THREE.PerspectiveCamera).updateProjectionMatrix();
+    const controls = controlsRef.current;
+    if (controls) {
+      controls.target.set(bounds.center[0], bounds.center[1], bounds.center[2]);
+      controls.update();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resetKey]);
+
+  return null;
+}
+
 interface HullViewerProps {
   layers: PointLayer[];
   height?: number;
@@ -203,17 +274,36 @@ interface HullViewerProps {
    *  swiata jest i tak liczony proporcjonalnie do rozmiaru kadluba. Ignorowane w trybie "mesh". */
   sizeScale?: number;
   renderMode?: RenderMode;
+  controlMode?: ControlMode;
+  /** Klucz resetu widoku - kamera dopasowuje sie od nowa tylko wtedy, gdy ta
+   *  wartosc sie zmieni (np. inna jednostka), nie przy kazdej zmianie `layers`. */
+  resetViewKey?: string;
+  /** Dodatkowe punkty do jaskrawego podswietlenia (np. wybrany kafelek heatmapy). */
+  highlightPositions?: number[];
   onPick?: (info: PickInfo) => void;
   onHover?: (info: PickInfo | null) => void;
 }
 
-export function HullViewer({ layers, height = 420, sizeScale = 1, renderMode = "points", onPick, onHover }: HullViewerProps) {
+export function HullViewer({
+  layers,
+  height = 420,
+  sizeScale = 1,
+  renderMode = "points",
+  controlMode = "orbit",
+  resetViewKey = "static",
+  highlightPositions,
+  onPick,
+  onHover,
+}: HullViewerProps) {
   const reference = layers.find((l) => l.positions.length > 0) ?? layers[0];
   const bounds = useMemo(() => computeBounds(reference?.positions ?? []), [reference]);
   const worldSize = (bounds.radius / 140) * sizeScale;
+  const boundsRef = useRef(bounds);
+  boundsRef.current = bounds;
+  const controlsRef = useRef<OrbitControlsImpl | null>(null);
 
   const dir = new THREE.Vector3(0.9, 0.7, 0.9).normalize();
-  const camPos: [number, number, number] = [
+  const initialCamPos: [number, number, number] = [
     bounds.center[0] + dir.x * bounds.radius * 2.6,
     bounds.center[1] + dir.y * bounds.radius * 2.6,
     bounds.center[2] + dir.z * bounds.radius * 2.6,
@@ -222,8 +312,8 @@ export function HullViewer({ layers, height = 420, sizeScale = 1, renderMode = "
   return (
     <div style={{ height, borderRadius: 12, overflow: "hidden", border: "1px solid var(--border)" }}>
       <Canvas
-        key={`${bounds.center.join(",")}-${bounds.radius.toFixed(1)}`}
-        camera={{ position: camPos, fov: 42, near: bounds.radius / 200, far: bounds.radius * 40 }}
+        key={resetViewKey}
+        camera={{ position: initialCamPos, fov: 42, near: Math.max(0.02, bounds.radius / 200), far: bounds.radius * 200 }}
         dpr={[1, 1.5]}
         onCreated={({ scene }) => {
           scene.background = null;
@@ -243,6 +333,7 @@ export function HullViewer({ layers, height = 420, sizeScale = 1, renderMode = "
             <PointCloudLayer key={l.key} layer={l} worldSize={worldSize} onPick={onPick} onHover={onHover} />
           )
         )}
+        {highlightPositions && <HighlightLayer positions={highlightPositions} worldSize={worldSize} />}
         <Grid
           position={[bounds.center[0], bounds.center[1] - bounds.radius * 0.9, bounds.center[2]]}
           args={[bounds.radius * 8, bounds.radius * 8]}
@@ -255,14 +346,19 @@ export function HullViewer({ layers, height = 420, sizeScale = 1, renderMode = "
           cellColor="#8a8a86"
           sectionColor="#8a8a86"
         />
-        <OrbitControls
-          makeDefault
-          enableDamping
-          dampingFactor={0.08}
-          target={bounds.center}
-          minDistance={bounds.radius * 0.3}
-          maxDistance={bounds.radius * 8}
-        />
+        <CameraRig resetKey={resetViewKey} boundsRef={boundsRef} controlsRef={controlsRef} />
+        {controlMode === "orbit" ? (
+          <OrbitControls
+            ref={controlsRef}
+            makeDefault
+            enableDamping
+            dampingFactor={0.08}
+            minDistance={bounds.radius * 0.05}
+            maxDistance={bounds.radius * 8}
+          />
+        ) : (
+          <FlyControls movementSpeed={bounds.radius * 0.6} rollSpeed={Math.PI / 8} dragToLook autoForward={false} />
+        )}
       </Canvas>
     </div>
   );

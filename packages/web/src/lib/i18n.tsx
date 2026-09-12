@@ -87,6 +87,11 @@ interface Dict {
     viewMode: string;
     viewModePoints: string;
     viewModeMesh: string;
+    cameraMode: string;
+    cameraModeOrbit: string;
+    cameraModeFly: string;
+    controlsHintOrbit: string;
+    controlsHintFly: string;
     controlsHint: string;
     pointDescriptionTitle: string;
     pointDescriptionHint: string;
@@ -110,6 +115,7 @@ interface Dict {
     statClusters: string;
     regionHeatmapTitle: string;
     regionHeatmapSubtitle: string;
+    regionHeatmapClickHint: string;
     dentLoss: string;
     noChange: string;
     bulge: string;
@@ -231,6 +237,11 @@ const pl: Dict = {
     viewMode: "Widok",
     viewModePoints: "Chmura punktów",
     viewModeMesh: "Model (siatka)",
+    cameraMode: "Kamera",
+    cameraModeOrbit: "Orbita",
+    cameraModeFly: "Lot",
+    controlsHintOrbit: "Obróć: przeciągnij · Przybliż: scroll · Opis punktu: najedź kursorem",
+    controlsHintFly: "Leć: W/S/A/D · Patrz: przeciągnij · Wznieś/opuść: Q/E",
     controlsHint: "Obróć: przeciągnij · Zoom: scroll · Opis punktu: najedź kursorem",
     pointDescriptionTitle: "Opis punktu pod kursorem",
     pointDescriptionHint:
@@ -255,6 +266,7 @@ const pl: Dict = {
     statClusters: "Wykryte skupiska zmian",
     regionHeatmapTitle: "Heatmapa regionów kadłuba",
     regionHeatmapSubtitle: "Średnie odchylenie zagregowane wg sekcji długości x obwodu kadłuba.",
+    regionHeatmapClickHint: "Kliknij kafelek, aby podświetlić ten obszar na modelu 3D.",
     dentLoss: "wgniecenie/ubytek",
     noChange: "brak zmiany",
     bulge: "narost",
@@ -397,6 +409,11 @@ const en: Dict = {
     viewMode: "View",
     viewModePoints: "Point cloud",
     viewModeMesh: "Model (mesh)",
+    cameraMode: "Camera",
+    cameraModeOrbit: "Orbit",
+    cameraModeFly: "Fly",
+    controlsHintOrbit: "Rotate: drag · Zoom: scroll · Point description: hover",
+    controlsHintFly: "Fly: W/S/A/D · Look: drag · Up/down: Q/E",
     controlsHint: "Rotate: drag · Zoom: scroll · Point description: hover",
     pointDescriptionTitle: "Description of point under cursor",
     pointDescriptionHint: "Hover over the model to see which hull section is under the cursor and whether a defect is recorded there.",
@@ -420,6 +437,7 @@ const en: Dict = {
     statClusters: "Detected change clusters",
     regionHeatmapTitle: "Hull region heatmap",
     regionHeatmapSubtitle: "Average deviation aggregated by length x girth section.",
+    regionHeatmapClickHint: "Click a tile to highlight that area on the 3D model.",
     dentLoss: "dent/loss",
     noChange: "no change",
     bulge: "bulge",

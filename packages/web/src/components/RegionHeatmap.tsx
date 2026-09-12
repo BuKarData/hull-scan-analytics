@@ -11,9 +11,11 @@ interface RegionHeatmapProps {
   domainMaxMm: number;
   rowLabels: string[];
   colLabels: string[];
+  onCellClick?: (cell: RegionCell) => void;
+  selectedCell?: RegionCell | null;
 }
 
-export function RegionHeatmap({ rows, cols, cells, domainMaxMm, rowLabels, colLabels }: RegionHeatmapProps) {
+export function RegionHeatmap({ rows, cols, cells, domainMaxMm, rowLabels, colLabels, onCellClick, selectedCell }: RegionHeatmapProps) {
   const { t } = useLang();
   const palette = useResolvedPalette();
   const [hovered, setHovered] = useState<RegionCell | null>(null);
@@ -97,11 +99,18 @@ export function RegionHeatmap({ rows, cols, cells, domainMaxMm, rowLabels, colLa
                     className="h-8 rounded-[3px] transition-transform outline-none focus-visible:ring-2"
                     style={{
                       background: cell ? divergingColor(cell.avgDeviationMm, domainMaxMm, palette) : palette.divNeutral,
-                      border: hovered === cell ? "2px solid var(--text-primary)" : "2px solid transparent",
+                      border:
+                        selectedCell === cell
+                          ? "2px solid var(--brand)"
+                          : hovered === cell
+                            ? "2px solid var(--text-primary)"
+                            : "2px solid transparent",
+                      cursor: cell && onCellClick ? "pointer" : undefined,
                     }}
                     onMouseEnter={() => cell && setHovered(cell)}
                     onMouseLeave={() => setHovered(null)}
                     onFocus={() => cell && setHovered(cell)}
+                    onClick={() => cell && onCellClick?.(cell)}
                     aria-label={cell ? `${cellLabel(cell)}: ${formatMm(cell.avgDeviationMm, 2)}` : undefined}
                   />
                 ))
