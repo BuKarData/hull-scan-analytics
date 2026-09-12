@@ -324,12 +324,7 @@ export function buildSeedDataset(): SeededVessel[] {
   const result: SeededVessel[] = [];
 
   for (const bp of blueprints) {
-    const model = loadShipModel(
-      bp.modelKind,
-      bp.vessel.lengthM,
-      bp.vessel.beamM,
-      Math.max(6, bp.vessel.beamM * 0.55)
-    );
+    const model = loadShipModel(bp.modelKind, bp.vessel.lengthM, bp.vessel.beamM);
     const flatUV = (m: ShipModel) => {
       const uv = new Array<number>(m.vertexCount * 2);
       for (let i = 0; i < m.vertexCount; i++) {

@@ -115,14 +115,16 @@ export function HullTimelineExplorer({ vessel }: { vessel: VesselDetailResponse 
         </div>
       </div>
 
-      <TimelineSlider
-        items={items}
-        index={safeIndex}
-        onChange={(i) => {
-          setIndex(i);
-          setPick(null);
-        }}
-      />
+      <div className="w-full max-w-xl">
+        <TimelineSlider
+          items={items}
+          index={safeIndex}
+          onChange={(i) => {
+            setIndex(i);
+            setPick(null);
+          }}
+        />
+      </div>
 
       <div className="grid lg:grid-cols-[1.4fr_1fr] gap-4 mt-4">
         <div>

@@ -47,7 +47,7 @@ function buildAdjacency(vertexCount: number, indices: Uint32Array): Uint32Array[
 
 const cache = new Map<ShipModelKind, ShipModel>();
 
-export function loadShipModel(kind: ShipModelKind, targetLengthM: number, targetBeamM: number, targetDepthM: number): ShipModel {
+export function loadShipModel(kind: ShipModelKind, targetLengthM: number, targetBeamM: number): ShipModel {
   const cacheKey = kind; // geometria bazowa (przed skalowaniem) jest wspolna - skalujemy przy kazdym uzyciu
   let base = cache.get(cacheKey);
   if (!base) {
@@ -65,15 +65,24 @@ export function loadShipModel(kind: ShipModelKind, targetLengthM: number, target
     cache.set(cacheKey, base);
   }
 
-  return scaleModel(base, targetLengthM, targetBeamM, targetDepthM);
+  return scaleModel(base, targetLengthM, targetBeamM);
 }
 
 /**
  * Modele Kenney sa autorskie w konwencji Y-up, Z = dlugosc (potwierdzone przez
  * bounding box: najwiekszy zasieg zawsze na Z), X = szerokosc (symetryczny
  * wzgledem 0), Y = wysokosc (od 0 przy stepce w gore).
+ *
+ * Wysokosc (Y) skalujemy TYM SAMYM wspolczynnikiem co szerokosc (X), a nie do
+ * niezaleznego celu "depthM" - inaczej przy modelach, ktorych natywne proporcje
+ * wysokosc/szerokosc odbiegaja od naszego przyblizenia, kadlub wychodzi
+ * splaszczony jak naleśnik (np. dla oceanicznego liniowca o wysokiej
+ * nadbudowce przy niewielkim docelowym "depthM" wyliczonym z samego beamu).
+ * Dlugosc (Z) skaluje sie niezaleznie - statki tej samej klasy występują w
+ * roznych dlugosciach przy podobnym przekroju poprzecznym, wiec "rozciagniecie"
+ * wzdluz dlugosci nie wyglada nienaturalnie tak jak splaszczenie w pionie.
  */
-function scaleModel(base: ShipModel, lengthM: number, beamM: number, depthM: number): ShipModel {
+function scaleModel(base: ShipModel, lengthM: number, beamM: number): ShipModel {
   const n = base.vertexCount;
   let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity, minZ = Infinity, maxZ = -Infinity;
   for (let i = 0; i < n; i++) {
@@ -86,9 +95,10 @@ function scaleModel(base: ShipModel, lengthM: number, beamM: number, depthM: num
     if (z > maxZ) maxZ = z;
   }
   const sx = beamM / Math.max(1e-6, maxX - minX);
-  const sy = depthM / Math.max(1e-6, maxY - minY);
+  const sy = sx;
   const sz = lengthM / Math.max(1e-6, maxZ - minZ);
   const cx = (minX + maxX) / 2;
+  const depthM = (maxY - minY) * sy; // rzeczywista wysokosc PO skalowaniu, do liczenia kata (u,v)
 
   const positions = new Float64Array(n * 3);
   const normals = new Float64Array(n * 3);
