@@ -85,6 +85,7 @@ interface Dict {
     tabService: string;
     constructionSubtitle: string;
     serviceSubtitle: string;
+    serviceRolloutNote: string;
     pointSize: string;
     deformationScaleNote: (factor: number) => string;
     viewMode: string;
@@ -262,8 +263,9 @@ const pl: Dict = {
     tabConstruction: "Historia budowy",
     tabService: "Eksploatacja",
     constructionSubtitle: "Przesuń suwak, aby zobaczyć postęp budowy kadłuba na pochylni - od pierwszych sekcji do wodowania.",
-    serviceSubtitle:
-      "Przesuń suwak, aby zobaczyć kolejne przeglądy od odbioru jednostki do dziś. Regularne skanowanie 3D wdrożono flotowo w 2024 r. - wcześniejsze lata eksploatacji nie mają jeszcze cyfrowej historii porównawczej.",
+    serviceSubtitle: "Przesuń suwak, aby zobaczyć kolejne przeglądy od odbioru jednostki do dziś.",
+    serviceRolloutNote:
+      "Regularne skanowanie 3D wdrożono flotowo w 2024 r. - wcześniejsze lata eksploatacji nie mają jeszcze cyfrowej historii porównawczej.",
     pointSize: "Rozmiar punktu",
     deformationScaleNote: (factor: number) =>
       factor <= 1
@@ -468,8 +470,9 @@ const en: Dict = {
     tabConstruction: "Construction history",
     tabService: "Service",
     constructionSubtitle: "Drag the slider to see the hull build progress on the slipway - from the first sections to launch.",
-    serviceSubtitle:
-      "Drag the slider to see successive inspections from delivery to today. Fleet-wide 3D scanning rolled out in 2024 - earlier years of service don't yet have a digital comparison history.",
+    serviceSubtitle: "Drag the slider to see successive inspections from delivery to today.",
+    serviceRolloutNote:
+      "Fleet-wide 3D scanning rolled out in 2024 - earlier years of service don't yet have a digital comparison history.",
     pointSize: "Point size",
     deformationScaleNote: (factor: number) =>
       factor <= 1

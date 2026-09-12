@@ -196,8 +196,8 @@ export function HullTimelineExplorer({ vessel }: { vessel: VesselDetailResponse 
 
   return (
     <div className="rounded-xl p-4" style={{ background: "var(--surface-1)", border: "1px solid var(--border)" }}>
-      <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
-        <div>
+      <div className="flex items-start justify-between gap-3 mb-3">
+        <div className="min-w-0">
           <h2 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
             {t.vessel.timelineTitle}
           </h2>
@@ -205,7 +205,7 @@ export function HullTimelineExplorer({ vessel }: { vessel: VesselDetailResponse 
             {tab === "budowa" ? t.vessel.constructionSubtitle : t.vessel.serviceSubtitle} {t.vessel.timelineSubtitle}
           </p>
         </div>
-        <div className="flex items-center gap-1 rounded-full p-1" style={{ background: "var(--surface-2)", border: "1px solid var(--border)" }}>
+        <div className="flex items-center gap-1 rounded-full p-1 shrink-0" style={{ background: "var(--surface-2)", border: "1px solid var(--border)" }}>
           {(
             [
               ["budowa", t.vessel.tabConstruction],
@@ -226,6 +226,12 @@ export function HullTimelineExplorer({ vessel }: { vessel: VesselDetailResponse 
           ))}
         </div>
       </div>
+
+      {tab === "eksploatacja" && (
+        <p className="text-xs -mt-2 mb-3" style={{ color: "var(--text-muted)" }}>
+          {t.vessel.serviceRolloutNote}
+        </p>
+      )}
 
       <div className="w-full max-w-xl">
         <TimelineSlider
