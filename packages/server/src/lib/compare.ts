@@ -183,6 +183,7 @@ export function compareScans(model: ShipModel, scanA: ScanDetail, scanB: ScanDet
       sign: sign > 0 ? "bulge" : "dent",
       suggestedType,
       matchedDefectId,
+      pointIndices: members,
     });
   }
 

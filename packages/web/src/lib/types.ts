@@ -104,6 +104,7 @@ export interface AnomalyCluster {
   sign: "bulge" | "dent";
   suggestedType: DefectType;
   matchedDefectId: string | null;
+  pointIndices: number[];
 }
 
 export interface CompareResponse {

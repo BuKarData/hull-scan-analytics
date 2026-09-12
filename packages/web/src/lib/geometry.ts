@@ -34,7 +34,7 @@ export function regionLabelFromUV(u: number, v: number, lengthBands: readonly st
   return `${lengthBands[row]}, ${girthSectorsLower[col]}`;
 }
 
-function angularDiff01(a: number, b: number): number {
+export function angularDiff01(a: number, b: number): number {
   let d = a - b;
   d = d - Math.round(d);
   return d;

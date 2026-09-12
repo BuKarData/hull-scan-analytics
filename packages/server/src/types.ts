@@ -98,6 +98,12 @@ export interface AnomalyCluster {
   sign: "bulge" | "dent";
   suggestedType: DefectType;
   matchedDefectId: string | null;
+  /** Indeksy WSZYSTKICH wierzcholkow nalezacych do tego skupiska (topologia
+   *  trojkatow, nie siatka regionow) - do podswietlenia PELNEGO, faktycznego
+   *  ksztaltu usterki, ktora moze wykraczac poza granice jednej komorki
+   *  heatmapy regionow (patrz RegionHeatmap - ta sama usterka moze "przeciekac"
+   *  do sasiedniej komorki). */
+  pointIndices: number[];
 }
 
 export interface CompareResult {

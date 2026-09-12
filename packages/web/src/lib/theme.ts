@@ -98,7 +98,7 @@ function rampColor(ramp: [string, string, string, string], t: number): string {
 // bez usterek dawalo widoczny, ciagly "pas" fałszywego uszkodzenia wzdluz
 // stepki - artefakt cieniowania Gouraud na waskiej, jednowierzcholkowej linii
 // dna kadluba, nie realny defekt).
-const NOISE_FLOOR_MM = 0.65;
+export const NOISE_FLOOR_MM = 0.65;
 
 /**
  * Odchylenie -> kolor rozbiezny (diverging): niebieski = narost/wybrzuszenie

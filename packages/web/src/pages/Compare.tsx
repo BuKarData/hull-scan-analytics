@@ -6,10 +6,10 @@ import { formatDate, formatMm, formatPct } from "../lib/format";
 import { StatTile } from "../components/StatTile";
 import { HullViewer, type PointLayer, type RenderMode, type ControlMode } from "../components/HullViewer";
 import { RegionHeatmap } from "../components/RegionHeatmap";
-import { divergingRgb01, useResolvedPalette } from "../lib/theme";
+import { divergingRgb01, useResolvedPalette, NOISE_FLOOR_MM } from "../lib/theme";
 import { panelSeamShade } from "../lib/panelShade";
 import { useLang } from "../lib/i18n";
-import { VISUAL_DEFORMATION_SCALE, exaggerateAgainstBase, exaggerateByDeviation, girthSectorIndex, vesselDeviationDomain } from "../lib/geometry";
+import { VISUAL_DEFORMATION_SCALE, angularDiff01, exaggerateAgainstBase, exaggerateByDeviation, girthSectorIndex, vesselDeviationDomain } from "../lib/geometry";
 import type { RegionCell } from "../lib/types";
 
 type ViewMode = "heatmap" | "overlay" | "raw-a" | "raw-b";
@@ -138,19 +138,60 @@ export function Compare() {
 
   useEffect(() => setSelectedCell(null), [a, b]);
 
+  // Klikniety kafelek podswietla PELNY ksztalt faktycznie wykrytego skupiska
+  // (topologia trojkatow), a nie tylko czesc mieszczaca sie sciśle w granicach
+  // tej jednej komorki siatki regionow - pojedyncza, organicznie ksztaltowana
+  // usterka (opadanie Gaussa) moze "przeciekac" do sasiedniej komorki, przez
+  // co siatkowe granice dziela ja na dwa kolorowe kafelki. Bez tego klikniecie
+  // podswietlaloby tylko mniejszy fragment niz to, co faktycznie widac
+  // pokolorowane na modelu. Gdy zaden klaster nie siega tej komorki (patrz
+  // clustersEmpty - drobne, rozproszone punkty ponizej progu klastra),
+  // wracamy do surowej przynaleznosci siatkowej jako fallback.
   const highlightPositions = useMemo(() => {
     if (!selectedCell || !scanBQ.data || !cmpQ.data) return undefined;
     const { uv, positions } = scanBQ.data.pointCloud;
     const rows = cmpQ.data.regionGrid.rows;
+    const cellOf = (i: number) => ({
+      row: Math.min(rows - 1, Math.floor(uv[i * 2] * rows)),
+      col: girthSectorIndex(uv[i * 2 + 1]),
+    });
+
+    const matchingClusters = cmpQ.data.clusters.filter((cl) =>
+      cl.pointIndices.some((i) => {
+        const c = cellOf(i);
+        return c.row === selectedCell.row && c.col === selectedCell.col;
+      })
+    );
+
     const out: number[] = [];
+    if (matchingClusters.length > 0) {
+      for (const cl of matchingClusters) {
+        for (const i of cl.pointIndices) {
+          out.push(positions[i * 3], positions[i * 3 + 1], positions[i * 3 + 2]);
+        }
+      }
+      return out;
+    }
+
+    // Brak "oficjalnego" klastra (BFS wymaga >=4 spojnych punktow ponizej progu
+    // szumu klastra - przy rzadkiej siatce i waskim, punktowym defekcie moze
+    // sie to nie zdarzyc, patrz docs/ARCHITECTURE.md) - zamiast sciśle trzymac
+    // sie granicy siatki regionow (co ucinaloby ogon TEGO SAMEGO sygnalu tuz za
+    // granica komorki), podswietlamy kazdy punkt powyzej progu szumu koloru w
+    // ROZSZERZONYM (o 50% w kazda strone) otoczeniu klikniete komorki.
+    const rows2 = cmpQ.data.regionGrid.rows;
+    const rowCenter = (selectedCell.row + 0.5) / rows2;
+    const rowHalf = (0.5 / rows2) * 1.5;
+    const colCenter = selectedCell.col * 0.25 + 0.125;
+    const colHalf = 0.125 * 1.5;
+
     for (let i = 0; i < uv.length / 2; i++) {
+      if (Math.abs(cmpQ.data.deviationMm[i]) < NOISE_FLOOR_MM) continue;
       const u = uv[i * 2];
       const v = uv[i * 2 + 1];
-      const row = Math.min(rows - 1, Math.floor(u * rows));
-      const col = girthSectorIndex(v);
-      if (row === selectedCell.row && col === selectedCell.col) {
-        out.push(positions[i * 3], positions[i * 3 + 1], positions[i * 3 + 2]);
-      }
+      if (Math.abs(u - rowCenter) > rowHalf) continue;
+      if (Math.abs(angularDiff01(v, colCenter)) > colHalf) continue;
+      out.push(positions[i * 3], positions[i * 3 + 1], positions[i * 3 + 2]);
     }
     return out;
   }, [selectedCell, scanBQ.data, cmpQ.data]);
