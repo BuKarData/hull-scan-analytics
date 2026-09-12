@@ -219,6 +219,37 @@ export interface DeformedScan {
   deviationMm: Float64Array;
 }
 
+/** Ile "bloków" (sekcji budowy, jak w prawdziwej stoczni) dzieli kadłub wzdłuż
+ *  dlugosci - dzielone rowniez przez frontend (patrz web/src/lib/sections.ts),
+ *  zeby "Sekcja 01".."Sekcja N" na obu koncach odpowiadaly tym samym granicom. */
+export const HULL_SECTION_COUNT = 8;
+const HULL_STRAKE_COUNT = 14; // pasy poszycia (strakes) wokol obwodu
+
+function distToGrid01(x: number, divisions: number): number {
+  const t = ((x % 1) + 1) % 1;
+  const cell = t * divisions;
+  const frac = cell - Math.floor(cell);
+  return Math.min(frac, 1 - frac);
+}
+
+/**
+ * Kadłub "prosto z pliku .obj" jest jednolicie szary - bez cech konstrukcyjnych
+ * wyglada jak jedna bryla, nie zbudowany z paneli statek. Ta funkcja przyciemnia
+ * kolor w waskim pasie wzdluz granic sekcji budowy (co 1/HULL_SECTION_COUNT
+ * dlugosci) i pasow poszycia (co 1/HULL_STRAKE_COUNT obwodu), imitujac
+ * widoczne spoiny/szwy miedzy platami poszycia - czysto wizualne, nie wplywa
+ * na dane pomiarowe (deviationMm liczone jest niezaleznie od tego cieniowania).
+ */
+export function panelSeamShade(u: number, v: number): number {
+  const SEAM_HALF_WIDTH = 0.006;
+  const SEAM_DEPTH = 0.3;
+  const dU = distToGrid01(u, HULL_SECTION_COUNT);
+  const dV = distToGrid01(v, HULL_STRAKE_COUNT);
+  const d = Math.min(dU, dV);
+  if (d >= SEAM_HALF_WIDTH) return 1;
+  return 1 - SEAM_DEPTH * (1 - d / SEAM_HALF_WIDTH);
+}
+
 const HULL_STEEL_COLOR: [number, number, number] = [0.55, 0.58, 0.61];
 
 export function deformShipModel(model: ShipModel, activeDefects: ActiveDefect[], scanId: string, scanNoiseMm = 0.6): DeformedScan {
@@ -233,9 +264,10 @@ export function deformShipModel(model: ShipModel, activeDefects: ActiveDefect[],
     const v01 = model.v[i];
 
     let deviation = gaussianRandom(rand, 0, scanNoiseMm * 0.35);
-    let r = HULL_STEEL_COLOR[0];
-    let g = HULL_STEEL_COLOR[1];
-    let b = HULL_STEEL_COLOR[2];
+    const shade = panelSeamShade(u, v01);
+    let r = HULL_STEEL_COLOR[0] * shade;
+    let g = HULL_STEEL_COLOR[1] * shade;
+    let b = HULL_STEEL_COLOR[2] * shade;
 
     for (const def of activeDefects) {
       const w = def.spec.kind === "radial" ? radialFalloff(def.spec, u, v01) : linearFalloff(def.spec, u, v01);
@@ -294,7 +326,8 @@ export function buildConstructionSnapshot(model: ShipModel, progress: number): C
     keepNewIndex[i] = count++;
     positions.push(model.positions[i * 3], model.positions[i * 3 + 1], model.positions[i * 3 + 2]);
     normals.push(model.normals[i * 3], model.normals[i * 3 + 1], model.normals[i * 3 + 2]);
-    baseColor.push(RAW_STEEL_COLOR[0], RAW_STEEL_COLOR[1], RAW_STEEL_COLOR[2]);
+    const shade = panelSeamShade(model.u[i], model.v[i]);
+    baseColor.push(RAW_STEEL_COLOR[0] * shade, RAW_STEEL_COLOR[1] * shade, RAW_STEEL_COLOR[2] * shade);
   }
 
   const indices: number[] = [];

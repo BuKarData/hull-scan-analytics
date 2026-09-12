@@ -55,6 +55,29 @@ export function findNearestDefect(u: number, v: number, defects: Defect[], maxDi
   return bestDist <= maxDist ? best : null;
 }
 
+/** Pozycje 3D punktow chmury lezacych blisko danego (u,v) - do podswietlenia
+ *  jednej, konkretnej usterki na modelu (patrz strony DefectDetail/HullSections),
+ *  tym samym mechanizmem co podswietlenie kafelka heatmapy w Compare.tsx. */
+export function pointsNearUV(
+  positions: number[],
+  uv: number[],
+  targetU: number,
+  targetV: number,
+  radiusU = 0.05,
+  radiusV = 0.07
+): number[] {
+  const out: number[] = [];
+  const n = uv.length / 2;
+  for (let i = 0; i < n; i++) {
+    const u = uv[i * 2];
+    const v = uv[i * 2 + 1];
+    if (Math.abs(u - targetU) <= radiusU && Math.abs(angularDiff01(v, targetV)) <= radiusV) {
+      out.push(positions[i * 3], positions[i * 3 + 1], positions[i * 3 + 2]);
+    }
+  }
+  return out;
+}
+
 /**
  * Realne wgniecenia/korozja maja skale milimetrow na kadlubie dlugosci
  * dziesiatek-setek metrow - w prawdziwej skali sa wizualnie niewidoczne

@@ -372,8 +372,28 @@ interface HullViewerProps {
   resetViewKey?: string;
   /** Dodatkowe punkty do jaskrawego podswietlenia (np. wybrany kafelek heatmapy). */
   highlightPositions?: number[];
+  /** Gdy podane (i niepuste) - kamera przy starcie/resecie kadruje sie wokol
+   *  centroidu TYCH punktow zamiast calego kadluba, z umiarkowanym przyblizeniem
+   *  (ulamek promienia calego statku, nie "makro" na pojedynczych wierzcholkach)
+   *  - do stron typu "szczegoly usterki/sekcji", gdzie cel widoku to konkretne
+   *  miejsce, a nie caly statek. Nie wplywa na rozmiar punktow/podswietlenia
+   *  (ten nadal skaluje sie wzgledem calego kadluba, zeby nie "urosnąć" przy
+   *  przyblizeniu).
+   */
+  focusPositions?: number[];
   onPick?: (info: PickInfo) => void;
   onHover?: (info: PickInfo | null) => void;
+}
+
+function computeCentroid(positions: number[]): [number, number, number] {
+  let sx = 0, sy = 0, sz = 0;
+  const n = positions.length / 3;
+  for (let i = 0; i < positions.length; i += 3) {
+    sx += positions[i];
+    sy += positions[i + 1];
+    sz += positions[i + 2];
+  }
+  return n > 0 ? [sx / n, sy / n, sz / n] : [0, 0, 0];
 }
 
 export function HullViewer({
@@ -384,12 +404,20 @@ export function HullViewer({
   controlMode = "orbit",
   resetViewKey = "static",
   highlightPositions,
+  focusPositions,
   onPick,
   onHover,
 }: HullViewerProps) {
   const reference = layers.find((l) => l.positions.length > 0) ?? layers[0];
-  const bounds = useMemo(() => computeBounds(reference?.positions ?? []), [reference]);
-  const worldSize = (bounds.radius / 140) * sizeScale;
+  const wholeBounds = useMemo(() => computeBounds(reference?.positions ?? []), [reference]);
+  const bounds = useMemo(() => {
+    if (focusPositions && focusPositions.length > 0) {
+      return { center: computeCentroid(focusPositions), radius: Math.max(wholeBounds.radius * 0.16, 2) };
+    }
+    return wholeBounds;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focusPositions, wholeBounds]);
+  const worldSize = (wholeBounds.radius / 140) * sizeScale;
   const boundsRef = useRef(bounds);
   boundsRef.current = bounds;
   const controlsRef = useRef<OrbitControlsImpl | null>(null);

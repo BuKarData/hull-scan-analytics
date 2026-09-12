@@ -2,6 +2,7 @@ import {
   loadShipModel,
   buildConstructionSnapshot,
   deformShipModel,
+  panelSeamShade,
   type ActiveDefect,
   type DefectSpec,
   type ShipModel,
@@ -393,7 +394,16 @@ export function buildSeedDataset(): SeededVessel[] {
       pointCloud: {
         positions: Array.from(model.positions),
         normals: Array.from(model.normals),
-        baseColor: Array.from({ length: model.vertexCount * 3 }, (_, i) => (i % 3 === 0 ? 0.55 : i % 3 === 1 ? 0.58 : 0.61)),
+        baseColor: (() => {
+          const c = new Array<number>(model.vertexCount * 3);
+          for (let i = 0; i < model.vertexCount; i++) {
+            const shade = panelSeamShade(model.u[i], model.v[i]);
+            c[i * 3] = 0.55 * shade;
+            c[i * 3 + 1] = 0.58 * shade;
+            c[i * 3 + 2] = 0.61 * shade;
+          }
+          return c;
+        })(),
         indices: modelIndices,
         uv: modelUV,
       },

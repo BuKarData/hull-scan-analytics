@@ -106,6 +106,40 @@ interface Dict {
     peakDeviationShort: string;
     defectsShort: string;
     economicsLink: string;
+    sectionsLink: string;
+  };
+  hullSections: {
+    back: string;
+    title: string;
+    subtitle: string;
+    sectionWord: string;
+    cardAvg: string;
+    cardPeak: string;
+    cardDefects: string;
+    detailTitle: (label: string) => string;
+    detailSubtitle: string;
+    noDefects: string;
+    defectsInSection: string;
+  };
+  defectDetail: {
+    notFound: string;
+    status: string;
+    firstDetected: string;
+    currentMagnitude: string;
+    viewSection: (label: string) => string;
+    locationTitle: string;
+    locationSubtitle: string;
+    historyTitle: string;
+    historySubtitle: string;
+    magnitudeSeries: string;
+    observationsTitle: (n: number) => string;
+    colDate: string;
+    colMagnitude: string;
+    colSeverity: string;
+    trendGrowing: string;
+    trendShrinking: string;
+    trendStable: string;
+    narrative: (args: { typeLabel: string; firstDate: string; trend: string; growthPct: number; statusLabel: string; lastMm: string }) => string;
   };
   economics: {
     back: string;
@@ -291,6 +325,44 @@ const pl: Dict = {
     peakDeviationShort: "odchylenie szczyt.",
     defectsShort: "usterki",
     economicsLink: "Wpływ ekonomiczny",
+    sectionsLink: "Sekcje kadłuba",
+  },
+  hullSections: {
+    back: "Powrót do jednostki",
+    title: "Sekcje kadłuba",
+    subtitle:
+      "Kadłub podzielony na sekcje budowy - tak jak montowany był na pochylni. Kliknij sekcję, aby podświetlić ją na modelu i zobaczyć usterki, które w niej leżą.",
+    sectionWord: "Sekcja",
+    cardAvg: "Średnia",
+    cardPeak: "Szczyt",
+    cardDefects: "Usterki",
+    detailTitle: (label: string) => `${label} - szczegóły`,
+    detailSubtitle: "Punkty tej sekcji podświetlone na modelu poniżej.",
+    noDefects: "Brak zarejestrowanych usterek w tej sekcji.",
+    defectsInSection: "Usterki w tej sekcji",
+  },
+  defectDetail: {
+    notFound: "Nie znaleziono usterki.",
+    status: "Status",
+    firstDetected: "Pierwsze wykrycie",
+    currentMagnitude: "Obecne natężenie",
+    viewSection: (label: string) => `Zobacz na mapie sekcji (${label})`,
+    locationTitle: "Lokalizacja na kadłubie",
+    locationSubtitle: "Podświetlone punkty odpowiadają lokalizacji usterki na ostatnim skanie.",
+    historyTitle: "Historia natężenia",
+    historySubtitle: "Zmiana natężenia usterki w kolejnych przeglądach.",
+    magnitudeSeries: "Natężenie",
+    observationsTitle: (n: number) => `Wszystkie obserwacje (${n})`,
+    colDate: "Data",
+    colMagnitude: "Natężenie",
+    colSeverity: "Nasilenie",
+    trendGrowing: "narasta",
+    trendShrinking: "maleje",
+    trendStable: "jest stabilna",
+    narrative: ({ typeLabel, firstDate, trend, growthPct, statusLabel, lastMm }) =>
+      `Usterka typu „${typeLabel}” została po raz pierwszy zarejestrowana ${firstDate}. Od tego czasu ${trend}${
+        trend === "jest stabilna" ? "" : ` o ok. ${growthPct}%`
+      }. Obecne natężenie wynosi ${lastMm}, a status w rejestrze to „${statusLabel}”.`,
   },
   economics: {
     back: "Powrót do jednostki",
@@ -498,6 +570,44 @@ const en: Dict = {
     peakDeviationShort: "peak deviation",
     defectsShort: "defects",
     economicsLink: "Economic impact",
+    sectionsLink: "Hull sections",
+  },
+  hullSections: {
+    back: "Back to vessel",
+    title: "Hull sections",
+    subtitle:
+      "The hull divided into build sections, the way it was assembled on the slipway. Click a section to highlight it on the model and see the defects located in it.",
+    sectionWord: "Section",
+    cardAvg: "Average",
+    cardPeak: "Peak",
+    cardDefects: "Defects",
+    detailTitle: (label: string) => `${label} - details`,
+    detailSubtitle: "This section's points highlighted on the model below.",
+    noDefects: "No defects recorded in this section.",
+    defectsInSection: "Defects in this section",
+  },
+  defectDetail: {
+    notFound: "Defect not found.",
+    status: "Status",
+    firstDetected: "First detected",
+    currentMagnitude: "Current magnitude",
+    viewSection: (label: string) => `View on section map (${label})`,
+    locationTitle: "Location on the hull",
+    locationSubtitle: "Highlighted points correspond to the defect's location in the latest scan.",
+    historyTitle: "Magnitude history",
+    historySubtitle: "How the defect's magnitude changed across successive inspections.",
+    magnitudeSeries: "Magnitude",
+    observationsTitle: (n: number) => `All observations (${n})`,
+    colDate: "Date",
+    colMagnitude: "Magnitude",
+    colSeverity: "Severity",
+    trendGrowing: "has been growing",
+    trendShrinking: "has been shrinking",
+    trendStable: "has stayed stable",
+    narrative: ({ typeLabel, firstDate, trend, growthPct, statusLabel, lastMm }) =>
+      `A "${typeLabel}" defect was first recorded on ${firstDate}. Since then it ${trend}${
+        trend === "has stayed stable" ? "" : ` by roughly ${growthPct}%`
+      }. Its current magnitude is ${lastMm}, and its registry status is "${statusLabel}".`,
   },
   economics: {
     back: "Back to vessel",

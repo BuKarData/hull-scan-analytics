@@ -104,6 +104,13 @@ export function VesselDetail() {
           >
             {t.vessel.economicsLink}
           </Link>
+          <Link
+            to={`/vessels/${vessel.id}/sections`}
+            className="text-sm font-medium rounded-md px-3 py-1.5"
+            style={{ border: "1px solid var(--border)", color: "var(--text-primary)" }}
+          >
+            {t.vessel.sectionsLink}
+          </Link>
           </div>
         </div>
       </div>
@@ -200,8 +207,13 @@ export function VesselDetail() {
               {defects.map((d) => {
                 const last = d.history[d.history.length - 1];
                 return (
-                  <tr key={d.id} style={{ borderTop: "1px solid var(--gridline)" }}>
-                    <td className="p-3" style={{ color: "var(--text-primary)" }}>
+                  <tr
+                    key={d.id}
+                    onClick={() => navigate(`/vessels/${vessel.id}/defects/${d.id}`)}
+                    className="cursor-pointer"
+                    style={{ borderTop: "1px solid var(--gridline)" }}
+                  >
+                    <td className="p-3" style={{ color: "var(--brand)" }}>
                       {t.defectType[d.type]}
                     </td>
                     <td className="p-3" style={{ color: "var(--text-secondary)" }}>
