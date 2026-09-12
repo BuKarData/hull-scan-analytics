@@ -12,6 +12,7 @@ import { PrintButton } from "../components/PrintButton";
 import { useLang } from "../lib/i18n";
 import { DEFAULT_ASSUMPTIONS, estimateFuelImpact, estimateSurveyImpact } from "../lib/economics";
 import { formatPln } from "../lib/format";
+import { summarizeDefect } from "../lib/defectSummary";
 
 export function VesselDetail() {
   const { id = "" } = useParams();
@@ -269,7 +270,84 @@ export function VesselDetail() {
         </div>
       </section>
 
-      <section className="print-only-economics">
+      <section className="print-only-full">
+        <h2 className="text-sm font-semibold mb-3" style={{ color: "var(--text-primary)" }}>
+          {t.defectDetail.allDefectsTitle}
+        </h2>
+        <div className="flex flex-col gap-4">
+          {defects.map((d) => {
+            const summary = summarizeDefect(d);
+            const narrative = t.defectDetail.narrative({
+              typeLabel: t.defectType[d.type],
+              firstDate: formatDate(summary.firstNonZero.timestamp, lang),
+              trend:
+                summary.growthPct > 8
+                  ? t.defectDetail.trendGrowing
+                  : summary.growthPct < -8
+                    ? t.defectDetail.trendShrinking
+                    : t.defectDetail.trendStable,
+              growthPct: Math.abs(Math.round(summary.growthPct)),
+              statusLabel: t.defectStatus[d.status].toLowerCase(),
+              lastMm: formatMm(summary.last.magnitudeMm, 2),
+            });
+            return (
+              <div key={d.id} className="rounded-xl p-4" style={{ background: "var(--surface-1)", border: "1px solid var(--border)" }}>
+                <div className="flex items-center justify-between gap-2 mb-1">
+                  <div className="font-medium text-sm" style={{ color: "var(--text-primary)" }}>
+                    {t.defectType[d.type]} &middot; {d.region}
+                  </div>
+                  <SeverityBadge severity={summary.last.severity} />
+                </div>
+                <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs mb-2" style={{ color: "var(--text-secondary)" }}>
+                  <span>
+                    {t.defectDetail.status}: <strong style={{ color: "var(--text-primary)" }}>{t.defectStatus[d.status]}</strong>
+                  </span>
+                  <span>
+                    {t.defectDetail.firstDetected}: <strong style={{ color: "var(--text-primary)" }}>{formatDate(summary.firstNonZero.timestamp, lang)}</strong>
+                  </span>
+                  <span>
+                    {t.defectDetail.currentMagnitude}:{" "}
+                    <strong className="tabular-nums" style={{ color: "var(--text-primary)" }}>
+                      {formatMm(summary.last.magnitudeMm, 2)}
+                    </strong>
+                  </span>
+                </div>
+                <p className="text-xs mb-3" style={{ color: "var(--text-primary)" }}>
+                  {narrative}
+                </p>
+                <table className="w-full text-xs" style={{ borderCollapse: "collapse" }}>
+                  <thead>
+                    <tr>
+                      {[t.defectDetail.colDate, t.defectDetail.colMagnitude, t.defectDetail.colSeverity].map((h) => (
+                        <th key={h} className="text-left p-1.5 font-medium" style={{ color: "var(--text-muted)" }}>
+                          {h}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[...d.history].reverse().map((h) => (
+                      <tr key={h.scanId} style={{ borderTop: "1px solid var(--gridline)" }}>
+                        <td className="p-1.5" style={{ color: "var(--text-primary)" }}>
+                          {formatDate(h.timestamp, lang)}
+                        </td>
+                        <td className="p-1.5 tabular-nums" style={{ color: "var(--text-secondary)" }}>
+                          {formatMm(h.magnitudeMm, 2)}
+                        </td>
+                        <td className="p-1.5" style={{ color: "var(--text-secondary)" }}>
+                          {t.severity[h.severity]}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="print-only-full">
         <h2 className="text-sm font-semibold mb-1" style={{ color: "var(--text-primary)" }}>
           {t.economics.title}
         </h2>

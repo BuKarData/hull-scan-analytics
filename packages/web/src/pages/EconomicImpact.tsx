@@ -6,6 +6,7 @@ import { formatPln } from "../lib/format";
 import { useLang } from "../lib/i18n";
 import { StatTile } from "../components/StatTile";
 import { PrintButton } from "../components/PrintButton";
+import { VesselModeNav } from "../components/VesselModeNav";
 import { DEFAULT_ASSUMPTIONS, estimateFuelImpact, estimateSurveyImpact, type EconomicAssumptions } from "../lib/economics";
 
 function AssumptionField({
@@ -52,6 +53,8 @@ export function EconomicImpact() {
   if (!data || !fuel || !survey) return null;
 
   const { vessel } = data;
+  const sortedScans = [...data.scans].sort((a, b) => a.timestamp.localeCompare(b.timestamp));
+  const latestScanId = sortedScans[sortedScans.length - 1]?.id;
   const withoutTotal = fuel.annualFuelTonnes + fuel.extraTonnesPerYear;
   const withTotal = fuel.annualFuelTonnes + (fuel.extraTonnesPerYear - fuel.recoverableTonnesPerYear);
   const maxTotal = Math.max(withoutTotal, withTotal, 1);
@@ -73,6 +76,8 @@ export function EconomicImpact() {
         </div>
         <PrintButton />
       </div>
+
+      <VesselModeNav vesselId={vessel.id} baselineId={data.baseline.id} latestScanId={latestScanId} />
 
       <div className="rounded-xl p-4 text-xs" style={{ background: "var(--surface-1)", border: "1px solid var(--border)", color: "var(--text-secondary)" }}>
         {t.economics.disclaimer}

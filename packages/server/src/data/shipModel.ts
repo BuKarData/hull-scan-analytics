@@ -232,22 +232,41 @@ function distToGrid01(x: number, divisions: number): number {
   return Math.min(frac, 1 - frac);
 }
 
+/** Szybki, deterministyczny hash pary liczb calkowitych -> [0,1). Do
+ *  przypisania kazdej plycie poszycia wlasnego, powtarzalnego odcienia. */
+function hash01(a: number, b: number): number {
+  let h = (a * 374761393 + b * 668265263) | 0;
+  h = (h ^ (h >>> 13)) * 1274126177;
+  h = (h ^ (h >>> 16)) >>> 0;
+  return h / 4294967295;
+}
+
 /**
  * Kadłub "prosto z pliku .obj" jest jednolicie szary - bez cech konstrukcyjnych
- * wyglada jak jedna bryla, nie zbudowany z paneli statek. Ta funkcja przyciemnia
- * kolor w waskim pasie wzdluz granic sekcji budowy (co 1/HULL_SECTION_COUNT
- * dlugosci) i pasow poszycia (co 1/HULL_STRAKE_COUNT obwodu), imitujac
- * widoczne spoiny/szwy miedzy platami poszycia - czysto wizualne, nie wplywa
- * na dane pomiarowe (deviationMm liczone jest niezaleznie od tego cieniowania).
+ * wyglada jak jedna bryla, nie zbudowany z paneli statek. Ta funkcja laczy dwa
+ * efekty, oba czysto wizualne (nie wplywaja na deviationMm):
+ *  1. Przyciemnienie w waskim pasie wzdluz granic sekcji budowy (co
+ *     1/HULL_SECTION_COUNT dlugosci) i pasow poszycia (co 1/HULL_STRAKE_COUNT
+ *     obwodu) - imituje widoczne spoiny/szwy miedzy platami.
+ *  2. Niewielka, stala "wlasna" jasnosc kazdej pojedynczej plyty (miedzy
+ *     kolejnymi szwami) - tak jak na prawdziwym kadlubie, gdzie sasiednie
+ *     plyty roznia sie odcieniem (inna partia stali, malowanie, korozja
+ *     powierzchniowa) - bez tego nawet widoczne szwy wygladaja jak linie na
+ *     jednolitej bryle, a nie granice miedzy osobnymi elementami.
  */
 export function panelSeamShade(u: number, v: number): number {
-  const SEAM_HALF_WIDTH = 0.006;
-  const SEAM_DEPTH = 0.3;
+  const SEAM_HALF_WIDTH = 0.01;
+  const SEAM_DEPTH = 0.45;
   const dU = distToGrid01(u, HULL_SECTION_COUNT);
   const dV = distToGrid01(v, HULL_STRAKE_COUNT);
   const d = Math.min(dU, dV);
-  if (d >= SEAM_HALF_WIDTH) return 1;
-  return 1 - SEAM_DEPTH * (1 - d / SEAM_HALF_WIDTH);
+  const seam = d >= SEAM_HALF_WIDTH ? 1 : 1 - SEAM_DEPTH * (1 - d / SEAM_HALF_WIDTH);
+
+  const uCell = Math.min(HULL_SECTION_COUNT - 1, Math.floor(((u % 1) + 1) % 1 * HULL_SECTION_COUNT));
+  const vCell = Math.min(HULL_STRAKE_COUNT - 1, Math.floor(((v % 1) + 1) % 1 * HULL_STRAKE_COUNT));
+  const plateTint = 0.88 + hash01(uCell, vCell) * 0.24; // 0.88..1.12
+
+  return seam * plateTint;
 }
 
 const HULL_STEEL_COLOR: [number, number, number] = [0.55, 0.58, 0.61];

@@ -8,8 +8,10 @@ import { SeverityBadge } from "../components/SeverityBadge";
 import { TrendLineChart } from "../components/TrendLineChart";
 import { HullViewer } from "../components/HullViewer";
 import { PrintButton } from "../components/PrintButton";
+import { VesselModeNav } from "../components/VesselModeNav";
 import { pointsNearUV, regionLabelFromUV } from "../lib/geometry";
 import { sectionIndexForU, sectionLabel } from "../lib/sections";
+import { summarizeDefect } from "../lib/defectSummary";
 
 function getComputedColor(varName: string): string {
   if (typeof window === "undefined") return "#2a78d6";
@@ -54,11 +56,8 @@ export function DefectDetail() {
   if (!defect) return <div style={{ color: "var(--status-critical)" }}>{t.defectDetail.notFound}</div>;
 
   const { vessel } = data;
-  const history = defect.history.filter((h) => Math.abs(h.magnitudeMm) > 0.001 || h.scanId === defect.firstDetectedScanId);
-  const first = defect.history[0];
-  const last = defect.history[defect.history.length - 1];
-  const firstNonZero = defect.history.find((h) => h.scanId === defect.firstDetectedScanId) ?? first;
-  const growthPct = firstNonZero.magnitudeMm !== 0 ? ((Math.abs(last.magnitudeMm) - Math.abs(firstNonZero.magnitudeMm)) / Math.abs(firstNonZero.magnitudeMm)) * 100 : 0;
+  const summary = summarizeDefect(defect);
+  const { history, last, firstNonZero, growthPct } = summary;
   const section = sectionIndexForU(defect.uv.u);
   const regionUvLabel = regionLabelFromUV(defect.uv.u, defect.uv.v, t.region.lengthBands, t.region.girthSectorsLower);
 
@@ -90,6 +89,8 @@ export function DefectDetail() {
           <PrintButton />
         </div>
       </div>
+
+      <VesselModeNav vesselId={vessel.id} baselineId={data.baseline.id} latestScanId={latestScanId} />
 
       <div className="rounded-xl p-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm" style={{ background: "var(--surface-1)", border: "1px solid var(--border)" }}>
         <span style={{ color: "var(--text-secondary)" }}>

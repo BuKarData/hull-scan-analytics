@@ -140,6 +140,7 @@ interface Dict {
     trendShrinking: string;
     trendStable: string;
     narrative: (args: { typeLabel: string; firstDate: string; trend: string; growthPct: number; statusLabel: string; lastMm: string }) => string;
+    allDefectsTitle: string;
   };
   economics: {
     back: string;
@@ -363,6 +364,7 @@ const pl: Dict = {
       `Usterka typu „${typeLabel}” została po raz pierwszy zarejestrowana ${firstDate}. Od tego czasu ${trend}${
         trend === "jest stabilna" ? "" : ` o ok. ${growthPct}%`
       }. Obecne natężenie wynosi ${lastMm}, a status w rejestrze to „${statusLabel}”.`,
+    allDefectsTitle: "Szczegółowa analiza wszystkich usterek",
   },
   economics: {
     back: "Powrót do jednostki",
@@ -608,6 +610,7 @@ const en: Dict = {
       `A "${typeLabel}" defect was first recorded on ${firstDate}. Since then it ${trend}${
         trend === "has stayed stable" ? "" : ` by roughly ${growthPct}%`
       }. Its current magnitude is ${lastMm}, and its registry status is "${statusLabel}".`,
+    allDefectsTitle: "Detailed analysis of all defects",
   },
   economics: {
     back: "Back to vessel",

@@ -7,6 +7,7 @@ import { StatTile } from "../components/StatTile";
 import { HullViewer, type PointLayer, type RenderMode, type ControlMode } from "../components/HullViewer";
 import { RegionHeatmap } from "../components/RegionHeatmap";
 import { divergingRgb01, useResolvedPalette } from "../lib/theme";
+import { panelSeamShade } from "../lib/panelShade";
 import { useLang } from "../lib/i18n";
 import { VISUAL_DEFORMATION_SCALE, exaggerateAgainstBase, exaggerateByDeviation, girthSectorIndex, vesselDeviationDomain } from "../lib/geometry";
 import type { RegionCell } from "../lib/types";
@@ -43,17 +44,19 @@ export function Compare() {
   const domain = useMemo(() => vesselDeviationDomain(vesselQ.data?.scans ?? []), [vesselQ.data]);
 
   const heatmapColors = useMemo(() => {
-    if (!cmpQ.data) return null;
+    if (!cmpQ.data || !scanBQ.data) return null;
+    const uv = scanBQ.data.pointCloud.uv;
     const arr = new Float32Array(cmpQ.data.deviationMm.length * 3);
     cmpQ.data.deviationMm.forEach((dev, i) => {
       const [r, g, bch] = divergingRgb01(dev, domain, palette);
-      arr[i * 3] = r;
-      arr[i * 3 + 1] = g;
-      arr[i * 3 + 2] = bch;
+      const shade = panelSeamShade(uv[i * 2], uv[i * 2 + 1]);
+      arr[i * 3] = r * shade;
+      arr[i * 3 + 1] = g * shade;
+      arr[i * 3 + 2] = bch * shade;
     });
     return arr;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cmpQ.data, domain, palette.mode]);
+  }, [cmpQ.data, scanBQ.data, domain, palette.mode]);
 
   const layers: PointLayer[] = useMemo(() => {
     if (!cmpQ.data || !scanAQ.data || !scanBQ.data) return [];

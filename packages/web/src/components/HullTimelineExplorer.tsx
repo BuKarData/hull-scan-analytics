@@ -8,6 +8,7 @@ import { SeverityBadge } from "./SeverityBadge";
 import { Sparkline } from "./Sparkline";
 import { VISUAL_DEFORMATION_SCALE, exaggerateByDeviation, findNearestDefect, regionLabelFromUV, vesselDeviationDomain } from "../lib/geometry";
 import { divergingRgb01, useResolvedPalette } from "../lib/theme";
+import { panelSeamShade } from "../lib/panelShade";
 import { formatDate, formatMm } from "../lib/format";
 import { useLang } from "../lib/i18n";
 
@@ -137,12 +138,14 @@ export function HullTimelineExplorer({ vessel }: { vessel: VesselDetailResponse 
     if (!scanQ.data) return null;
     if (!needsCompare || !compareQ.data) return scanQ.data;
     const dev = compareQ.data.deviationMm;
+    const uv = scanQ.data.pointCloud.uv;
     const colors = new Array<number>(dev.length * 3);
     for (let i = 0; i < dev.length; i++) {
       const [r, g, b] = divergingRgb01(dev[i], domain, palette);
-      colors[i * 3] = r;
-      colors[i * 3 + 1] = g;
-      colors[i * 3 + 2] = b;
+      const shade = panelSeamShade(uv[i * 2], uv[i * 2 + 1]);
+      colors[i * 3] = r * shade;
+      colors[i * 3 + 1] = g * shade;
+      colors[i * 3 + 2] = b * shade;
     }
     const positions = exaggerateByDeviation(scanQ.data.pointCloud.positions, scanQ.data.pointCloud.normals, dev, VISUAL_DEFORMATION_SCALE);
     return { ...scanQ.data, pointCloud: { ...scanQ.data.pointCloud, positions, baseColor: colors } };

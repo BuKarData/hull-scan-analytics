@@ -6,6 +6,7 @@ import { formatMm } from "../lib/format";
 import { useLang } from "../lib/i18n";
 import { HullViewer } from "../components/HullViewer";
 import { SeverityBadge } from "../components/SeverityBadge";
+import { VesselModeNav } from "../components/VesselModeNav";
 import { divergingColor, useResolvedPalette } from "../lib/theme";
 import { vesselDeviationDomain } from "../lib/geometry";
 import { buildHullSections, computeSectionStats, positionsInSection, sectionLabel, type SectionStats } from "../lib/sections";
@@ -79,6 +80,8 @@ export function HullSections() {
         </p>
       </div>
 
+      <VesselModeNav vesselId={vessel.id} baselineId={baselineId} latestScanId={latestScanId} />
+
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2">
         {sections.map((section) => {
           const stat = stats?.[section.index];
@@ -122,7 +125,14 @@ export function HullSections() {
               {t.common.loadingModel}
             </div>
           ) : (
-            <HullViewer height={360} renderMode="mesh" layers={layers} highlightPositions={highlightPositions} focusPositions={highlightPositions} resetViewKey={vessel.id} />
+            <HullViewer
+              height={360}
+              renderMode="mesh"
+              layers={layers}
+              highlightPositions={highlightPositions}
+              focusPositions={highlightPositions}
+              resetViewKey={`${vessel.id}-${selected}`}
+            />
           )}
         </div>
 
