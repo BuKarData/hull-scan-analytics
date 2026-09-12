@@ -84,6 +84,8 @@ interface Dict {
     constructionSubtitle: string;
     serviceSubtitle: string;
     pointSize: string;
+    deformationScale: string;
+    deformationScaleNote: (factor: number) => string;
     viewMode: string;
     viewModePoints: string;
     viewModeMesh: string;
@@ -234,6 +236,11 @@ const pl: Dict = {
     constructionSubtitle: "Przesuń suwak, aby zobaczyć postęp budowy kadłuba na pochylni - od pierwszych sekcji do wodowania.",
     serviceSubtitle: "Przesuń suwak, aby zobaczyć kolejne przeglądy od odbioru jednostki do dziś.",
     pointSize: "Rozmiar punktu",
+    deformationScale: "Wzmocnienie odkształceń",
+    deformationScaleNote: (factor: number) =>
+      factor <= 1
+        ? "Skala rzeczywista - odkształcenia rzędu milimetrów są niewidoczne na kadłubie tej wielkości (dlatego istnieje heatmapa)."
+        : `Odkształcenia na modelu wzmocnione ×${factor} dla czytelności - wartości w mm w statystykach są rzeczywiste.`,
     viewMode: "Widok",
     viewModePoints: "Chmura punktów",
     viewModeMesh: "Model (siatka)",
@@ -406,6 +413,11 @@ const en: Dict = {
     constructionSubtitle: "Drag the slider to see the hull build progress on the slipway - from the first sections to launch.",
     serviceSubtitle: "Drag the slider to see successive inspections from delivery to today.",
     pointSize: "Point size",
+    deformationScale: "Deformation scale",
+    deformationScaleNote: (factor: number) =>
+      factor <= 1
+        ? "True scale - millimetre-scale deformation is invisible on a hull this size (that's exactly why the heatmap exists)."
+        : `Hull deformation shown ×${factor} exaggerated for visibility - the mm values in the stats are the real, unscaled measurements.`,
     viewMode: "View",
     viewModePoints: "Point cloud",
     viewModeMesh: "Model (mesh)",

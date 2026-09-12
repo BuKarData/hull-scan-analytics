@@ -34,3 +34,36 @@ export function findNearestDefect(u: number, v: number, defects: Defect[], maxDi
   }
   return bestDist <= maxDist ? best : null;
 }
+
+/**
+ * Realne wgniecenia/korozja maja skale milimetrow na kadlubie dlugosci
+ * dziesiatek-setek metrow - w prawdziwej skali sa wizualnie niewidoczne
+ * (to wlasnie dlatego istnieje heatmapa). Do celow pogladowych "surowego"
+ * widoku 3D wzmacniamy WYSWIETLANE odksztalcenie wzgledem geometrii
+ * referencyjnej, zachowujac kierunek (normalna) - liczby w mm pokazywane
+ * gdzie indziej w UI pozostaja rzeczywiste, tylko rysunek jest przesadzony
+ * (jak "deformation scale" w narzedziach FEA).
+ */
+export function exaggerateAgainstBase(positions: number[], basePositions: number[], factor: number): number[] {
+  if (factor === 1 || positions.length !== basePositions.length) return positions;
+  const out = new Array<number>(positions.length);
+  for (let i = 0; i < positions.length; i++) {
+    out[i] = basePositions[i] + (positions[i] - basePositions[i]) * factor;
+  }
+  return out;
+}
+
+/** Jak wyzej, ale gdy odksztalcenie jest juz znane per-wierzcholek (mm) i ma
+ *  byc dolozone wzdluz normalnej - uzywane tam, gdzie mamy `deviationMm`
+ *  (np. wynik /api/compare) zamiast osobnej geometrii referencyjnej. */
+export function exaggerateByDeviation(positions: number[], normals: number[], deviationMm: number[], factor: number): number[] {
+  if (factor === 1) return positions;
+  const out = new Array<number>(positions.length);
+  for (let i = 0; i < deviationMm.length; i++) {
+    const extraM = (deviationMm[i] / 1000) * (factor - 1);
+    out[i * 3] = positions[i * 3] + normals[i * 3] * extraM;
+    out[i * 3 + 1] = positions[i * 3 + 1] + normals[i * 3 + 1] * extraM;
+    out[i * 3 + 2] = positions[i * 3 + 2] + normals[i * 3 + 2] * extraM;
+  }
+  return out;
+}

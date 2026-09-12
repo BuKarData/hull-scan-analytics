@@ -6,7 +6,7 @@ import { HullViewer, type PickInfo, type RenderMode, type ControlMode, type Poin
 import { TimelineSlider, type TimelineItem } from "./TimelineSlider";
 import { SeverityBadge } from "./SeverityBadge";
 import { Sparkline } from "./Sparkline";
-import { findNearestDefect, regionLabelFromUV } from "../lib/geometry";
+import { exaggerateAgainstBase, findNearestDefect, regionLabelFromUV } from "../lib/geometry";
 import { formatDate, formatMm } from "../lib/format";
 import { useLang } from "../lib/i18n";
 
@@ -91,7 +91,12 @@ export function HullTimelineExplorer({ vessel }: { vessel: VesselDetailResponse 
   const [sizeScale, setSizeScale] = useState(1);
   const [renderMode, setRenderMode] = useState<RenderMode>("mesh");
   const [controlMode, setControlMode] = useState<ControlMode>("orbit");
+  const [exaggeration, setExaggeration] = useState(25);
   const [pick, setPick] = useState<{ u: number; v: number } | null>(null);
+
+  // Geometria referencyjna (stan projektowy) - potrzebna, zeby wizualnie
+  // wzmocnic odksztalcenia na "surowym" widoku skanu (patrz `layers` nizej).
+  const baselineQ = useAsync(() => api.scan(vessel.baseline.id), [vessel.baseline.id]);
 
   // Przy przelaczeniu zakladki wracamy do ostatniego (najnowszego) elementu tej zakladki.
   useEffect(() => {
@@ -123,12 +128,17 @@ export function HullTimelineExplorer({ vessel }: { vessel: VesselDetailResponse 
     setPick({ u: uv[info.index * 2], v: uv[info.index * 2 + 1] });
   }
 
+  function displayPositions(scan: ScanDetail): number[] {
+    if (scan.phase !== "eksploatacja" || !baselineQ.data || exaggeration <= 1) return scan.pointCloud.positions;
+    return exaggerateAgainstBase(scan.pointCloud.positions, baselineQ.data.pointCloud.positions, exaggeration);
+  }
+
   const layers: PointLayer[] = useMemo(() => {
     const arr: PointLayer[] = [];
     if (fade.from && fade.t < 1) {
       arr.push({
-        key: `xfade-from-${fade.from.id}`,
-        positions: fade.from.pointCloud.positions,
+        key: `xfade-from-${fade.from.id}-${exaggeration}`,
+        positions: displayPositions(fade.from),
         colors: fade.from.pointCloud.baseColor,
         normals: fade.from.pointCloud.normals,
         indices: fade.from.pointCloud.indices,
@@ -139,8 +149,8 @@ export function HullTimelineExplorer({ vessel }: { vessel: VesselDetailResponse 
     }
     if (fade.to) {
       arr.push({
-        key: `xfade-to-${fade.to.id}`,
-        positions: fade.to.pointCloud.positions,
+        key: `xfade-to-${fade.to.id}-${exaggeration}`,
+        positions: displayPositions(fade.to),
         colors: fade.to.pointCloud.baseColor,
         normals: fade.to.pointCloud.normals,
         indices: fade.to.pointCloud.indices,
@@ -150,7 +160,8 @@ export function HullTimelineExplorer({ vessel }: { vessel: VesselDetailResponse 
       });
     }
     return arr;
-  }, [fade]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fade, exaggeration, baselineQ.data]);
 
   return (
     <div className="rounded-xl p-4" style={{ background: "var(--surface-1)", border: "1px solid var(--border)" }}>
@@ -269,8 +280,27 @@ export function HullTimelineExplorer({ vessel }: { vessel: VesselDetailResponse 
                 />
               </label>
             )}
+            {tab === "eksploatacja" && (
+              <label className="flex items-center gap-2">
+                {t.vessel.deformationScale}: ×{exaggeration}
+                <input
+                  type="range"
+                  className="slim-range"
+                  min={1}
+                  max={60}
+                  step={1}
+                  value={exaggeration}
+                  onChange={(e) => setExaggeration(Number(e.target.value))}
+                />
+              </label>
+            )}
             <span style={{ color: "var(--text-muted)" }}>{controlMode === "orbit" ? t.vessel.controlsHintOrbit : t.vessel.controlsHintFly}</span>
           </div>
+          {tab === "eksploatacja" && (
+            <p className="text-xs mt-1.5" style={{ color: "var(--text-muted)" }}>
+              {t.vessel.deformationScaleNote(exaggeration)}
+            </p>
+          )}
         </div>
 
         <div className="rounded-lg p-3 text-sm" style={{ background: "var(--surface-2)", border: "1px solid var(--border)" }}>
