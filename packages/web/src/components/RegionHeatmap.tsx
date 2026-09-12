@@ -74,7 +74,7 @@ export function RegionHeatmap({ rows, cols, cells, domainMaxMm, rowLabels, colLa
                     {formatMm(cell.avgDeviationMm, 2)}
                   </td>
                   <td className="p-2 text-right" style={{ color: "var(--text-secondary)" }}>
-                    {formatMm(cell.maxAbsDeviationMm, 2)}
+                    {formatMm(cell.peakDeviationMm, 2)}
                   </td>
                 </tr>
               ))}
@@ -98,7 +98,7 @@ export function RegionHeatmap({ rows, cols, cells, domainMaxMm, rowLabels, colLa
                     key={`${r}-${c}`}
                     className="h-8 rounded-[3px] transition-transform outline-none focus-visible:ring-2"
                     style={{
-                      background: cell ? divergingColor(cell.avgDeviationMm, domainMaxMm, palette) : palette.divNeutral,
+                      background: cell ? divergingColor(cell.peakDeviationMm, domainMaxMm, palette) : palette.divNeutral,
                       border:
                         selectedCell === cell
                           ? "2px solid var(--brand)"
@@ -111,7 +111,7 @@ export function RegionHeatmap({ rows, cols, cells, domainMaxMm, rowLabels, colLa
                     onMouseLeave={() => setHovered(null)}
                     onFocus={() => cell && setHovered(cell)}
                     onClick={() => cell && onCellClick?.(cell)}
-                    aria-label={cell ? `${cellLabel(cell)}: ${formatMm(cell.avgDeviationMm, 2)}` : undefined}
+                    aria-label={cell ? `${cellLabel(cell)}: ${formatMm(cell.peakDeviationMm, 2)}` : undefined}
                   />
                 ))
               )}
@@ -134,7 +134,7 @@ export function RegionHeatmap({ rows, cols, cells, domainMaxMm, rowLabels, colLa
           </div>
           <div style={{ color: "var(--text-secondary)" }}>
             {t.heatmapTable.colAvg}: <span className="tabular-nums">{formatMm(hovered.avgDeviationMm, 2)}</span> &middot;{" "}
-            {t.heatmapTable.colPeak}: <span className="tabular-nums">{formatMm(hovered.maxAbsDeviationMm, 2)}</span>
+            {t.heatmapTable.colPeak}: <span className="tabular-nums">{formatMm(hovered.peakDeviationMm, 2)}</span>
           </div>
         </div>
       )}

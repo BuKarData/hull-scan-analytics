@@ -90,6 +90,7 @@ export interface RegionCell {
   label: string;
   avgDeviationMm: number;
   maxAbsDeviationMm: number;
+  peakDeviationMm: number;
   sampleCount: number;
 }
 

@@ -80,6 +80,11 @@ export interface RegionCell {
   label: string;
   avgDeviationMm: number;
   maxAbsDeviationMm: number;
+  /** Odchylenie o najwiekszej wartosci bezwzglednej w tym regionie, ZE ZNAKIEM
+   *  (a nie tylko |wartosc| jak maxAbsDeviationMm) - uzywane do kolorowania
+   *  heatmapy, zeby lokalny, punktowy defekt byl widoczny nawet gdy usredniony
+   *  po calym regionie sygnal (avgDeviationMm) jest rozmyty ponizej progu szumu. */
+  peakDeviationMm: number;
   sampleCount: number;
 }
 

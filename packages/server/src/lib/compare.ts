@@ -60,6 +60,7 @@ export function compareScans(model: ShipModel, scanA: ScanDetail, scanB: ScanDet
   const cols = GIRTH_SECTORS.length;
   const sums = new Float64Array(rows * cols);
   const maxAbs = new Float64Array(rows * cols);
+  const peakSigned = new Float64Array(rows * cols);
   const counts = new Int32Array(rows * cols);
 
   for (let i = 0; i < n; i++) {
@@ -68,7 +69,10 @@ export function compareScans(model: ShipModel, scanA: ScanDetail, scanB: ScanDet
     const cell = row * cols + col;
     const dev = deviationMm[i];
     sums[cell] += dev;
-    maxAbs[cell] = Math.max(maxAbs[cell], Math.abs(dev));
+    if (Math.abs(dev) > maxAbs[cell]) {
+      maxAbs[cell] = Math.abs(dev);
+      peakSigned[cell] = dev;
+    }
     counts[cell]++;
   }
 
@@ -83,6 +87,7 @@ export function compareScans(model: ShipModel, scanA: ScanDetail, scanB: ScanDet
         label: `${LENGTH_BANDS[row]} - ${GIRTH_SECTORS[col]}`,
         avgDeviationMm: sums[cell] / count,
         maxAbsDeviationMm: maxAbs[cell],
+        peakDeviationMm: peakSigned[cell],
         sampleCount: counts[cell],
       });
     }
