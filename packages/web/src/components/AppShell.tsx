@@ -58,7 +58,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-full flex flex-col" style={{ background: "var(--page-plane)" }}>
       <header
-        className="sticky top-0 z-20 flex items-center justify-between gap-4 px-6 py-3 backdrop-blur"
+        className="no-print sticky top-0 z-20 flex items-center justify-between gap-4 px-6 py-3 backdrop-blur"
         style={{ background: "color-mix(in srgb, var(--page-plane) 85%, transparent)", borderBottom: "1px solid var(--border)" }}
       >
         <div className="flex items-center gap-6">
@@ -100,7 +100,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </header>
       <main className="flex-1 px-6 py-6 w-full max-w-[1400px] mx-auto">{children}</main>
-      <footer className="px-6 py-4 text-xs text-center" style={{ color: "var(--text-muted)" }}>
+      <footer className="no-print px-6 py-4 text-xs text-center" style={{ color: "var(--text-muted)" }}>
         {t.common.footer}
       </footer>
     </div>

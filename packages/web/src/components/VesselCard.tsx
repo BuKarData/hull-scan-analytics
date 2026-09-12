@@ -17,7 +17,7 @@ export function VesselCard({ item }: { item: VesselListItem }) {
       style={{ background: "var(--surface-1)", border: "1px solid var(--border)" }}
     >
       <div className="flex items-start justify-between gap-3 mb-3">
-        <div>
+        <div className="min-w-0">
           <h3 className="font-semibold text-base" style={{ color: "var(--text-primary)" }}>
             {vessel.name}
           </h3>

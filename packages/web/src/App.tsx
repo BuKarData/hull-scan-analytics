@@ -3,6 +3,7 @@ import { AppShell } from "./components/AppShell";
 import { Dashboard } from "./pages/Dashboard";
 import { VesselDetail } from "./pages/VesselDetail";
 import { Compare } from "./pages/Compare";
+import { EconomicImpact } from "./pages/EconomicImpact";
 
 export default function App() {
   return (
@@ -11,6 +12,7 @@ export default function App() {
         <Route path="/" element={<Dashboard />} />
         <Route path="/vessels/:id" element={<VesselDetail />} />
         <Route path="/vessels/:id/compare" element={<Compare />} />
+        <Route path="/vessels/:id/economics" element={<EconomicImpact />} />
       </Routes>
     </AppShell>
   );

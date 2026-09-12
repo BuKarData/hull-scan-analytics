@@ -14,3 +14,11 @@ export function formatMm(value: number, digits = 1): string {
 export function formatPct(value: number, digits = 1): string {
   return `${value.toFixed(digits)}%`;
 }
+
+export function formatPln(value: number, lang: Lang = "pl", digits = 0): string {
+  return new Intl.NumberFormat(lang === "pl" ? "pl-PL" : "en-GB", {
+    style: "currency",
+    currency: "PLN",
+    maximumFractionDigits: digits,
+  }).format(value);
+}

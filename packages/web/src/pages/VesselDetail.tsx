@@ -8,6 +8,7 @@ import { Sparkline } from "../components/Sparkline";
 import { SeverityBadge } from "../components/SeverityBadge";
 import { StatTile } from "../components/StatTile";
 import { HullTimelineExplorer } from "../components/HullTimelineExplorer";
+import { PrintButton } from "../components/PrintButton";
 import { useLang } from "../lib/i18n";
 
 export function VesselDetail() {
@@ -50,7 +51,9 @@ export function VesselDetail() {
           </p>
         </div>
 
-        <div className="flex items-end gap-2 rounded-xl p-3" style={{ background: "var(--surface-1)", border: "1px solid var(--border)" }}>
+        <div className="flex items-end gap-2 flex-wrap">
+          <PrintButton />
+          <div className="no-print flex items-end gap-2 rounded-xl p-3" style={{ background: "var(--surface-1)", border: "1px solid var(--border)" }}>
           <label className="text-xs flex flex-col gap-1">
             <span style={{ color: "var(--text-muted)" }}>{t.vessel.scanA}</span>
             <select
@@ -89,10 +92,20 @@ export function VesselDetail() {
           >
             {t.vessel.compare}
           </button>
+          <Link
+            to={`/vessels/${vessel.id}/economics`}
+            className="text-sm font-medium rounded-md px-3 py-1.5"
+            style={{ border: "1px solid var(--border)", color: "var(--text-primary)" }}
+          >
+            {t.vessel.economicsLink}
+          </Link>
+          </div>
         </div>
       </div>
 
-      <HullTimelineExplorer vessel={data} />
+      <div className="no-print">
+        <HullTimelineExplorer vessel={data} />
+      </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <StatTile label={t.vessel.statScanCount} value={String(sortedScans.length)} />

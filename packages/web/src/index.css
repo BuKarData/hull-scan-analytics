@@ -163,3 +163,23 @@ body {
   border: 2px solid var(--surface-1);
   box-shadow: 0 0 0 1px var(--border);
 }
+
+/* Raport PDF = wydruk przegladarki na tej samej stronie (przycisk "Pobierz
+   raport PDF" wola window.print()) - bez dodatkowej biblioteki. Ukrywamy
+   nawigacje i elementy czysto interaktywne (kamera 3D, suwaki, selektory),
+   ktore w druku nie maja sensu albo nie renderuja sie poprawnie (WebGL). */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #ffffff !important;
+  }
+  main {
+    max-width: none !important;
+    padding: 0 !important;
+  }
+  a[href]:after {
+    content: "";
+  }
+}

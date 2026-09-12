@@ -21,6 +21,8 @@ interface Dict {
     themeToggleTitle: string;
     langToggleTitle: string;
     dataLanguageNote: string;
+    printReport: string;
+    printHint: string;
   };
   dashboard: {
     heroTitlePrefix: string;
@@ -101,6 +103,31 @@ interface Dict {
     noDefectHere: string;
     peakDeviationShort: string;
     defectsShort: string;
+    economicsLink: string;
+  };
+  economics: {
+    back: string;
+    title: string;
+    subtitle: string;
+    disclaimer: string;
+    assumptionsTitle: string;
+    assumptionFuelPrice: string;
+    assumptionOperatingDays: string;
+    assumptionSurveyCost: string;
+    statFoulingPenalty: string;
+    statFoulingPenaltyHint: string;
+    statExtraFuelCost: string;
+    statExtraFuelCostHint: string;
+    statRecoverable: string;
+    statRecoverableHint: string;
+    statSurveyAvoided: string;
+    statSurveyAvoidedHint: (n: number) => string;
+    noFoulingSignal: string;
+    chartTitle: string;
+    chartWithout: string;
+    chartWith: string;
+    chartUnit: string;
+    chartBaseLabel: string;
   };
   compare: {
     title: string;
@@ -170,6 +197,8 @@ const pl: Dict = {
     langToggleTitle: "Przełącz język interfejsu",
     dataLanguageNote:
       "Dane wprowadzone przez inspektorów i stocznię (nazwy jednostek, opisy usterek, etykiety przeglądów) pozostają w języku, w którym zostały zarejestrowane - tak jak w prawdziwym systemie inspekcyjnym.",
+    printReport: "Pobierz raport PDF",
+    printHint: "Otwiera okno drukowania przeglądarki - wybierz \"Zapisz jako PDF\" jako drukarkę",
   },
   dashboard: {
     heroTitlePrefix: "Hull",
@@ -257,6 +286,32 @@ const pl: Dict = {
     noDefectHere: "Brak zarejestrowanej usterki w tym miejscu - powierzchnia w normie.",
     peakDeviationShort: "odchylenie szczyt.",
     defectsShort: "usterki",
+    economicsLink: "Wpływ ekonomiczny",
+  },
+  economics: {
+    back: "Powrót do jednostki",
+    title: "Wpływ ekonomiczny",
+    subtitle: "Szacunkowy model - ile porost i przeoczone usterki kosztują w paliwie i przeglądach, gdyby nie wykryć ich wcześniej.",
+    disclaimer:
+      "To model demonstracyjny oparty o publicznie znane zależności branżowe (zużycie paliwa wg klasy kadłuba, wpływ porostu na opór kadłuba, typowy koszt przeglądu nurkowego) - nie o zmierzoną telemetrię silnikową tej jednostki. Założenia poniżej są edytowalne i powinny zostać skalibrowane z danymi klienta przed użyciem w ofercie.",
+    assumptionsTitle: "Założenia (edytowalne)",
+    assumptionFuelPrice: "Cena paliwa (PLN/tonę)",
+    assumptionOperatingDays: "Dni w eksploatacji / rok",
+    assumptionSurveyCost: "Koszt tradycyjnego przeglądu nurkowego (PLN)",
+    statFoulingPenalty: "Kara paliwowa z porostu",
+    statFoulingPenaltyHint: "wg aktualnej grubości porostu wykrytej w ostatnim skanie",
+    statExtraFuelCost: "Dodatkowy koszt paliwa / rok",
+    statExtraFuelCostHint: "przy obecnym poziomie porostu, bez interwencji",
+    statRecoverable: "Potencjalna oszczędność / rok",
+    statRecoverableHint: "przy czyszczeniu po wczesnym sygnale ze skanu, zamiast po fakcie",
+    statSurveyAvoided: "Uniknięty koszt przeglądów nurkowych",
+    statSurveyAvoidedHint: (n: number) => `${n} skan(y) HullSight zamiast przeglądu nurkowego`,
+    noFoulingSignal: "Brak sygnału porostu biologicznego na tym kadłubie w ostatnim skanie - model kary paliwowej nie ma tu zastosowania.",
+    chartTitle: "Zużycie paliwa: bez monitoringu vs. z HullSight",
+    chartWithout: "Bez wczesnego wykrycia",
+    chartWith: "Z HullSight",
+    chartUnit: "ton/rok",
+    chartBaseLabel: "zużycie bazowe",
   },
   compare: {
     title: "Porównanie skanów",
@@ -349,6 +404,8 @@ const en: Dict = {
     langToggleTitle: "Switch interface language",
     dataLanguageNote:
       "Data entered by inspectors and the shipyard (vessel names, defect descriptions, inspection labels) stays in the language it was recorded in - just like in a real inspection system.",
+    printReport: "Download PDF report",
+    printHint: "Opens the browser print dialog - choose \"Save as PDF\" as the printer",
   },
   dashboard: {
     heroTitlePrefix: "Hull",
@@ -434,6 +491,32 @@ const en: Dict = {
     noDefectHere: "No defect recorded here - surface within normal range.",
     peakDeviationShort: "peak deviation",
     defectsShort: "defects",
+    economicsLink: "Economic impact",
+  },
+  economics: {
+    back: "Back to vessel",
+    title: "Economic impact",
+    subtitle: "An estimate model - what fouling and missed defects cost in fuel and surveys if left undetected.",
+    disclaimer:
+      "This is a demonstration model built on publicly known industry relationships (fuel burn by hull class, fouling's effect on hull resistance, typical diver-survey cost) - not measured engine telemetry for this specific vessel. The assumptions below are editable and should be calibrated with customer data before use in a proposal.",
+    assumptionsTitle: "Assumptions (editable)",
+    assumptionFuelPrice: "Fuel price (PLN/tonne)",
+    assumptionOperatingDays: "Operating days / year",
+    assumptionSurveyCost: "Traditional diver survey cost (PLN)",
+    statFoulingPenalty: "Fuel penalty from fouling",
+    statFoulingPenaltyHint: "based on current fouling thickness in the latest scan",
+    statExtraFuelCost: "Extra fuel cost / year",
+    statExtraFuelCostHint: "at the current fouling level, without intervention",
+    statRecoverable: "Potential savings / year",
+    statRecoverableHint: "by cleaning on an early scan signal instead of after the fact",
+    statSurveyAvoided: "Diver survey cost avoided",
+    statSurveyAvoidedHint: (n: number) => `${n} HullSight scan(s) instead of a diver survey`,
+    noFoulingSignal: "No biofouling signal on this hull in the latest scan - the fuel-penalty model doesn't apply here.",
+    chartTitle: "Fuel consumption: without monitoring vs. with HullSight",
+    chartWithout: "Without early detection",
+    chartWith: "With HullSight",
+    chartUnit: "t/year",
+    chartBaseLabel: "baseline consumption",
   },
   compare: {
     title: "Scan comparison",
