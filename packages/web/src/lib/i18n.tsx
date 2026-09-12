@@ -241,7 +241,7 @@ const pl: Dict = {
     cameraModeOrbit: "Orbita",
     cameraModeFly: "Lot",
     controlsHintOrbit: "Obróć: przeciągnij · Przybliż: scroll · Opis punktu: najedź kursorem",
-    controlsHintFly: "Leć: W/S/A/D · Patrz: przeciągnij · Wznieś/opuść: Q/E",
+    controlsHintFly: "Leć: W/S/A/D · Patrz: przeciągnij · Wznieś/opuść: Q/E · Przybliż: scroll",
     controlsHint: "Obróć: przeciągnij · Zoom: scroll · Opis punktu: najedź kursorem",
     pointDescriptionTitle: "Opis punktu pod kursorem",
     pointDescriptionHint:
@@ -413,7 +413,7 @@ const en: Dict = {
     cameraModeOrbit: "Orbit",
     cameraModeFly: "Fly",
     controlsHintOrbit: "Rotate: drag · Zoom: scroll · Point description: hover",
-    controlsHintFly: "Fly: W/S/A/D · Look: drag · Up/down: Q/E",
+    controlsHintFly: "Fly: W/S/A/D · Look: drag · Up/down: Q/E · Zoom: scroll",
     controlsHint: "Rotate: drag · Zoom: scroll · Point description: hover",
     pointDescriptionTitle: "Description of point under cursor",
     pointDescriptionHint: "Hover over the model to see which hull section is under the cursor and whether a defect is recorded there.",

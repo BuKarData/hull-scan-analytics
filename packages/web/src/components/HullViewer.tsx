@@ -249,19 +249,28 @@ function FreeFlyControls({ moveSpeed }: { moveSpeed: number }) {
       const limit = Math.PI / 2 - 0.02;
       yawPitch.current.pitch = Math.max(-limit, Math.min(limit, yawPitch.current.pitch));
     };
+    // "Zoom" w trybie lotu = jazda do przodu/tylu wzdluz kierunku patrzenia
+    // (dolly) - tak jak scroll dziala w Orbicie, tylko bez stalego punktu.
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
+      camera.position.addScaledVector(forward, -e.deltaY * 0.0025 * moveSpeed);
+    };
     window.addEventListener("keydown", onKeyDown);
     window.addEventListener("keyup", onKeyUp);
     dom.addEventListener("pointerdown", onPointerDown);
     window.addEventListener("pointerup", onPointerUp);
     window.addEventListener("pointermove", onPointerMove);
+    dom.addEventListener("wheel", onWheel, { passive: false });
     return () => {
       window.removeEventListener("keydown", onKeyDown);
       window.removeEventListener("keyup", onKeyUp);
       dom.removeEventListener("pointerdown", onPointerDown);
       window.removeEventListener("pointerup", onPointerUp);
       window.removeEventListener("pointermove", onPointerMove);
+      dom.removeEventListener("wheel", onWheel);
     };
-  }, [gl]);
+  }, [gl, camera, moveSpeed]);
 
   useFrame((_, delta) => {
     const euler = new THREE.Euler(yawPitch.current.pitch, yawPitch.current.yaw, 0, "YXZ");
