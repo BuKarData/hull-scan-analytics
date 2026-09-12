@@ -1,5 +1,25 @@
 import type { Defect } from "./types";
 
+/**
+ * Stale, wbudowane wzmocnienie wizualne odksztalcen kadluba (nie suwak dla
+ * uzytkownika) - stosowane jednolicie wszedzie tam, gdzie renderujemy
+ * geometrie skanu, zeby "Historia w 3D" i "Porownaj" pokazywaly uszkodzenia
+ * w ten sam, spojny sposob. Wartosci w mm w statystykach pozostaja
+ * rzeczywiste - to czysto wizualne przeskalowanie geometrii do wyswietlenia.
+ */
+export const VISUAL_DEFORMATION_SCALE = 35;
+
+/**
+ * Staly (nie per-porownanie) zakres kolorow dla danej jednostki - liczony z
+ * najgorszego zanotowanego kiedykolwiek odchylenia szczytowego. Dzieki temu
+ * kolor na modelu faktycznie "narasta" z kolejnymi przegladami (widac trend
+ * pogarszania sie stanu), zamiast kazdorazowo rozciagac sie od nowa do pelnej
+ * skali (co maskowaloby postep w czasie).
+ */
+export function vesselDeviationDomain(scans: { maxDeviationMm: number }[]): number {
+  return Math.max(2, ...scans.map((s) => s.maxDeviationMm));
+}
+
 export function girthSectorIndex(v01: number): number {
   const deg = ((v01 % 1) + 1) % 1;
   if (deg < 0.125 || deg >= 0.875) return 0;

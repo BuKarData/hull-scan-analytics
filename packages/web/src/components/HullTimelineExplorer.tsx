@@ -6,7 +6,8 @@ import { HullViewer, type PickInfo, type RenderMode, type ControlMode, type Poin
 import { TimelineSlider, type TimelineItem } from "./TimelineSlider";
 import { SeverityBadge } from "./SeverityBadge";
 import { Sparkline } from "./Sparkline";
-import { exaggerateAgainstBase, findNearestDefect, regionLabelFromUV } from "../lib/geometry";
+import { VISUAL_DEFORMATION_SCALE, exaggerateByDeviation, findNearestDefect, regionLabelFromUV, vesselDeviationDomain } from "../lib/geometry";
+import { divergingRgb01, useResolvedPalette } from "../lib/theme";
 import { formatDate, formatMm } from "../lib/format";
 import { useLang } from "../lib/i18n";
 
@@ -27,9 +28,17 @@ function useCrossfade(data: ScanDetail | null | undefined) {
   const rafRef = useRef<number | null>(null);
 
   useEffect(() => {
-    if (!data || lastRef.current?.id === data.id) return;
+    if (!data || lastRef.current === data) return;
     const prevTo = lastRef.current ?? null;
+    const sameScan = prevTo?.id === data.id;
     lastRef.current = data;
+    if (sameScan) {
+      // Ten sam skan, tylko doprecyzowane dane (np. dolaczyl wynik /api/compare
+      // z kolorami po tym jak surowy skan juz sie wyswietlil) - podmieniamy od
+      // razu bez przenikania, zeby to nie wygladalo jak "przeskok" do samego siebie.
+      setState({ from: null, to: data, t: 1 });
+      return;
+    }
     setState({ from: prevTo, to: data, t: prevTo ? 0 : 1 });
   }, [data]);
 
@@ -54,6 +63,7 @@ function useCrossfade(data: ScanDetail | null | undefined) {
 
 export function HullTimelineExplorer({ vessel }: { vessel: VesselDetailResponse }) {
   const { lang, t } = useLang();
+  const palette = useResolvedPalette();
 
   const constructionItems: TimelineItem[] = useMemo(
     () =>
@@ -84,6 +94,11 @@ export function HullTimelineExplorer({ vessel }: { vessel: VesselDetailResponse 
     return [baselineItem, ...fromScans].sort((a, b) => a.timestamp.localeCompare(b.timestamp));
   }, [vessel]);
 
+  // Staly (nie per-skan) zakres kolorow dla calej jednostki - dzieki temu
+  // intensywnosc koloru realnie rosnie z kolejnymi przegladami zamiast za
+  // kazdym razem rozciagac sie od nowa do pelnej skali.
+  const domain = useMemo(() => vesselDeviationDomain(vessel.scans), [vessel.scans]);
+
   const [tab, setTab] = useState<PhaseTab>("eksploatacja");
   const items = tab === "budowa" ? constructionItems : serviceItems;
 
@@ -91,12 +106,7 @@ export function HullTimelineExplorer({ vessel }: { vessel: VesselDetailResponse 
   const [sizeScale, setSizeScale] = useState(1);
   const [renderMode, setRenderMode] = useState<RenderMode>("mesh");
   const [controlMode, setControlMode] = useState<ControlMode>("orbit");
-  const [exaggeration, setExaggeration] = useState(25);
   const [pick, setPick] = useState<{ u: number; v: number } | null>(null);
-
-  // Geometria referencyjna (stan projektowy) - potrzebna, zeby wizualnie
-  // wzmocnic odksztalcenia na "surowym" widoku skanu (patrz `layers` nizej).
-  const baselineQ = useAsync(() => api.scan(vessel.baseline.id), [vessel.baseline.id]);
 
   // Przy przelaczeniu zakladki wracamy do ostatniego (najnowszego) elementu tej zakladki.
   useEffect(() => {
@@ -112,7 +122,34 @@ export function HullTimelineExplorer({ vessel }: { vessel: VesselDetailResponse 
   const current = items[safeIndex];
   const scanQ = useAsync(() => api.scan(current.id), [current.id]);
   const milestoneMeta = vessel.constructionMilestones.find((m) => m.id === current.id);
-  const fade = useCrossfade(scanQ.data);
+
+  // Dla kazdego przegladu (poza samym stanem referencyjnym) doliczamy realne
+  // odchylenie wzgledem geometrii projektowej - dokladnie tym samym
+  // mechanizmem co strona "Porownaj" (ten sam endpoint, ta sama funkcja
+  // koloru), zeby oba widoki pokazywaly uszkodzenia w ten sam sposob.
+  const needsCompare = current.phase === "eksploatacja" && current.id !== vessel.baseline.id;
+  const compareQ = useAsync(
+    () => (needsCompare ? api.compare(vessel.baseline.id, current.id) : Promise.resolve(null)),
+    [needsCompare, vessel.baseline.id, current.id]
+  );
+
+  const displayScan: ScanDetail | null = useMemo(() => {
+    if (!scanQ.data) return null;
+    if (!needsCompare || !compareQ.data) return scanQ.data;
+    const dev = compareQ.data.deviationMm;
+    const colors = new Array<number>(dev.length * 3);
+    for (let i = 0; i < dev.length; i++) {
+      const [r, g, b] = divergingRgb01(dev[i], domain, palette);
+      colors[i * 3] = r;
+      colors[i * 3 + 1] = g;
+      colors[i * 3 + 2] = b;
+    }
+    const positions = exaggerateByDeviation(scanQ.data.pointCloud.positions, scanQ.data.pointCloud.normals, dev, VISUAL_DEFORMATION_SCALE);
+    return { ...scanQ.data, pointCloud: { ...scanQ.data.pointCloud, positions, baseColor: colors } };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scanQ.data, needsCompare, compareQ.data, domain, palette.mode]);
+
+  const fade = useCrossfade(displayScan);
 
   const nearestDefect = useMemo(() => {
     if (!pick || current.phase !== "eksploatacja") return null;
@@ -128,17 +165,12 @@ export function HullTimelineExplorer({ vessel }: { vessel: VesselDetailResponse 
     setPick({ u: uv[info.index * 2], v: uv[info.index * 2 + 1] });
   }
 
-  function displayPositions(scan: ScanDetail): number[] {
-    if (scan.phase !== "eksploatacja" || !baselineQ.data || exaggeration <= 1) return scan.pointCloud.positions;
-    return exaggerateAgainstBase(scan.pointCloud.positions, baselineQ.data.pointCloud.positions, exaggeration);
-  }
-
   const layers: PointLayer[] = useMemo(() => {
     const arr: PointLayer[] = [];
     if (fade.from && fade.t < 1) {
       arr.push({
-        key: `xfade-from-${fade.from.id}-${exaggeration}`,
-        positions: displayPositions(fade.from),
+        key: `xfade-from-${fade.from.id}`,
+        positions: fade.from.pointCloud.positions,
         colors: fade.from.pointCloud.baseColor,
         normals: fade.from.pointCloud.normals,
         indices: fade.from.pointCloud.indices,
@@ -149,8 +181,8 @@ export function HullTimelineExplorer({ vessel }: { vessel: VesselDetailResponse 
     }
     if (fade.to) {
       arr.push({
-        key: `xfade-to-${fade.to.id}-${exaggeration}`,
-        positions: displayPositions(fade.to),
+        key: `xfade-to-${fade.to.id}`,
+        positions: fade.to.pointCloud.positions,
         colors: fade.to.pointCloud.baseColor,
         normals: fade.to.pointCloud.normals,
         indices: fade.to.pointCloud.indices,
@@ -160,8 +192,7 @@ export function HullTimelineExplorer({ vessel }: { vessel: VesselDetailResponse 
       });
     }
     return arr;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fade, exaggeration, baselineQ.data]);
+  }, [fade]);
 
   return (
     <div className="rounded-xl p-4" style={{ background: "var(--surface-1)", border: "1px solid var(--border)" }}>
@@ -280,25 +311,11 @@ export function HullTimelineExplorer({ vessel }: { vessel: VesselDetailResponse 
                 />
               </label>
             )}
-            {tab === "eksploatacja" && (
-              <label className="flex items-center gap-2">
-                {t.vessel.deformationScale}: ×{exaggeration}
-                <input
-                  type="range"
-                  className="slim-range"
-                  min={1}
-                  max={60}
-                  step={1}
-                  value={exaggeration}
-                  onChange={(e) => setExaggeration(Number(e.target.value))}
-                />
-              </label>
-            )}
             <span style={{ color: "var(--text-muted)" }}>{controlMode === "orbit" ? t.vessel.controlsHintOrbit : t.vessel.controlsHintFly}</span>
           </div>
-          {tab === "eksploatacja" && (
+          {needsCompare && (
             <p className="text-xs mt-1.5" style={{ color: "var(--text-muted)" }}>
-              {t.vessel.deformationScaleNote(exaggeration)}
+              {t.vessel.deformationScaleNote(VISUAL_DEFORMATION_SCALE)}
             </p>
           )}
         </div>

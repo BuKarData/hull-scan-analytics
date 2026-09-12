@@ -8,7 +8,7 @@ import { HullViewer, type PointLayer, type RenderMode, type ControlMode } from "
 import { RegionHeatmap } from "../components/RegionHeatmap";
 import { divergingRgb01, useResolvedPalette } from "../lib/theme";
 import { useLang } from "../lib/i18n";
-import { exaggerateAgainstBase, exaggerateByDeviation, girthSectorIndex } from "../lib/geometry";
+import { VISUAL_DEFORMATION_SCALE, exaggerateAgainstBase, exaggerateByDeviation, girthSectorIndex, vesselDeviationDomain } from "../lib/geometry";
 import type { RegionCell } from "../lib/types";
 
 type ViewMode = "heatmap" | "overlay" | "raw-a" | "raw-b";
@@ -31,16 +31,19 @@ export function Compare() {
   const [renderMode, setRenderMode] = useState<RenderMode>("mesh");
   const [controlMode, setControlMode] = useState<ControlMode>("orbit");
   const [sizeScale, setSizeScale] = useState(1);
-  const [exaggeration, setExaggeration] = useState(25);
   const [selectedCell, setSelectedCell] = useState<RegionCell | null>(null);
   const palette = useResolvedPalette();
 
   const loading = vesselQ.loading || scanAQ.loading || scanBQ.loading || cmpQ.loading;
   const error = vesselQ.error || scanAQ.error || scanBQ.error || cmpQ.error;
 
+  // Staly, dla calej jednostki (nie tylko tej pary skanow) zakres kolorow -
+  // dokladnie ten sam, ktorego uzywa "Historia w 3D", zeby oba widoki
+  // pokazywaly uszkodzenia w tej samej skali barw.
+  const domain = useMemo(() => vesselDeviationDomain(vesselQ.data?.scans ?? []), [vesselQ.data]);
+
   const heatmapColors = useMemo(() => {
     if (!cmpQ.data) return null;
-    const domain = cmpQ.data.stats.maxAbsDeviationMm;
     const arr = new Float32Array(cmpQ.data.deviationMm.length * 3);
     cmpQ.data.deviationMm.forEach((dev, i) => {
       const [r, g, bch] = divergingRgb01(dev, domain, palette);
@@ -50,7 +53,7 @@ export function Compare() {
     });
     return arr;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cmpQ.data, palette.mode]);
+  }, [cmpQ.data, domain, palette.mode]);
 
   const layers: PointLayer[] = useMemo(() => {
     if (!cmpQ.data || !scanAQ.data || !scanBQ.data) return [];
@@ -62,8 +65,10 @@ export function Compare() {
     if (mode === "raw-a") {
       return [
         {
-          key: `a-${exaggeration}`,
-          positions: baseA ? exaggerateAgainstBase(scanAQ.data.pointCloud.positions, baseA, exaggeration) : scanAQ.data.pointCloud.positions,
+          key: "a",
+          positions: baseA
+            ? exaggerateAgainstBase(scanAQ.data.pointCloud.positions, baseA, VISUAL_DEFORMATION_SCALE)
+            : scanAQ.data.pointCloud.positions,
           colors: scanAQ.data.pointCloud.baseColor,
           normals: scanAQ.data.pointCloud.normals,
           indices: indicesA,
@@ -75,8 +80,10 @@ export function Compare() {
     if (mode === "raw-b") {
       return [
         {
-          key: `b-${exaggeration}`,
-          positions: baseB ? exaggerateAgainstBase(scanBQ.data.pointCloud.positions, baseB, exaggeration) : scanBQ.data.pointCloud.positions,
+          key: "b",
+          positions: baseB
+            ? exaggerateAgainstBase(scanBQ.data.pointCloud.positions, baseB, VISUAL_DEFORMATION_SCALE)
+            : scanBQ.data.pointCloud.positions,
           colors: scanBQ.data.pointCloud.baseColor,
           normals: scanBQ.data.pointCloud.normals,
           indices: indicesB,
@@ -85,11 +92,11 @@ export function Compare() {
         },
       ];
     }
-    const heatPositions = exaggerateByDeviation(cmpQ.data.positions, scanBQ.data.pointCloud.normals, cmpQ.data.deviationMm, exaggeration);
+    const heatPositions = exaggerateByDeviation(cmpQ.data.positions, scanBQ.data.pointCloud.normals, cmpQ.data.deviationMm, VISUAL_DEFORMATION_SCALE);
     if (mode === "heatmap") {
       return [
         {
-          key: `b-heat-${exaggeration}`,
+          key: "b-heat",
           positions: heatPositions,
           colors: heatmapColors ?? [],
           normals: scanBQ.data.pointCloud.normals,
@@ -104,8 +111,10 @@ export function Compare() {
     for (let i = 0; i < ghost.length; i++) ghost[i] = 0.55;
     return [
       {
-        key: `a-ghost-${exaggeration}`,
-        positions: baseA ? exaggerateAgainstBase(scanAQ.data.pointCloud.positions, baseA, exaggeration) : scanAQ.data.pointCloud.positions,
+        key: "a-ghost",
+        positions: baseA
+          ? exaggerateAgainstBase(scanAQ.data.pointCloud.positions, baseA, VISUAL_DEFORMATION_SCALE)
+          : scanAQ.data.pointCloud.positions,
         colors: ghost,
         normals: scanAQ.data.pointCloud.normals,
         indices: indicesA,
@@ -113,7 +122,7 @@ export function Compare() {
         opacity: 0.25,
       },
       {
-        key: `b-heat-${exaggeration}`,
+        key: "b-heat",
         positions: heatPositions,
         colors: heatmapColors ?? [],
         normals: scanBQ.data.pointCloud.normals,
@@ -122,7 +131,7 @@ export function Compare() {
         opacity: 0.95,
       },
     ];
-  }, [mode, cmpQ.data, scanAQ.data, scanBQ.data, heatmapColors, baselineQ.data, exaggeration]);
+  }, [mode, cmpQ.data, scanAQ.data, scanBQ.data, heatmapColors, baselineQ.data]);
 
   useEffect(() => setSelectedCell(null), [a, b]);
 
@@ -274,22 +283,10 @@ export function Compare() {
                 />
               </label>
             )}
-            <label className="flex items-center gap-2">
-              {t.vessel.deformationScale}: ×{exaggeration}
-              <input
-                type="range"
-                className="slim-range"
-                min={1}
-                max={60}
-                step={1}
-                value={exaggeration}
-                onChange={(e) => setExaggeration(Number(e.target.value))}
-              />
-            </label>
             <span style={{ color: "var(--text-muted)" }}>{controlMode === "orbit" ? t.vessel.controlsHintOrbit : t.vessel.controlsHintFly}</span>
           </div>
           <p className="text-xs mt-1.5" style={{ color: "var(--text-muted)" }}>
-            {t.vessel.deformationScaleNote(exaggeration)}
+            {t.vessel.deformationScaleNote(VISUAL_DEFORMATION_SCALE)}
           </p>
 
           {mode === "heatmap" || mode === "overlay" ? (
@@ -300,11 +297,11 @@ export function Compare() {
                   background: `linear-gradient(90deg, ${palette.divRed[3]}, ${palette.divNeutral}, ${palette.seqBlue[3]})`,
                 }}
               />
-              <span>{formatMm(-stats.maxAbsDeviationMm)} {t.compare.dentLoss}</span>
+              <span>{formatMm(-domain)} {t.compare.dentLoss}</span>
               <span>&middot;</span>
               <span>{t.compare.noChange}</span>
               <span>&middot;</span>
-              <span>{formatMm(stats.maxAbsDeviationMm)} {t.compare.bulge}</span>
+              <span>{formatMm(domain)} {t.compare.bulge}</span>
             </div>
           ) : null}
         </div>
@@ -323,7 +320,7 @@ export function Compare() {
             rows={regionGrid.rows}
             cols={regionGrid.cols}
             cells={regionGrid.cells}
-            domainMaxMm={stats.maxAbsDeviationMm}
+            domainMaxMm={domain}
             rowLabels={t.region.lengthBands as unknown as string[]}
             colLabels={t.region.girthSectors as unknown as string[]}
             selectedCell={selectedCell}
