@@ -24,7 +24,7 @@ export function Compare() {
   const cmpQ = useAsync(() => api.compare(a, b), [a, b]);
 
   const [mode, setMode] = useState<ViewMode>("heatmap");
-  const [renderMode, setRenderMode] = useState<RenderMode>("points");
+  const [renderMode, setRenderMode] = useState<RenderMode>("mesh");
   const [sizeScale, setSizeScale] = useState(1);
   const palette = useResolvedPalette();
 
@@ -47,8 +47,8 @@ export function Compare() {
 
   const layers: PointLayer[] = useMemo(() => {
     if (!cmpQ.data || !scanAQ.data || !scanBQ.data) return [];
-    const gridB = scanBQ.data.pointCloud.grid;
-    const gridA = scanAQ.data.pointCloud.grid;
+    const indicesA = scanAQ.data.pointCloud.indices;
+    const indicesB = scanBQ.data.pointCloud.indices;
     if (mode === "raw-a") {
       return [
         {
@@ -56,7 +56,7 @@ export function Compare() {
           positions: scanAQ.data.pointCloud.positions,
           colors: scanAQ.data.pointCloud.baseColor,
           normals: scanAQ.data.pointCloud.normals,
-          grid: gridA,
+          indices: indicesA,
           size: 1,
           opacity: 1,
         },
@@ -69,7 +69,7 @@ export function Compare() {
           positions: scanBQ.data.pointCloud.positions,
           colors: scanBQ.data.pointCloud.baseColor,
           normals: scanBQ.data.pointCloud.normals,
-          grid: gridB,
+          indices: indicesB,
           size: 1,
           opacity: 1,
         },
@@ -82,7 +82,7 @@ export function Compare() {
           positions: cmpQ.data.positions,
           colors: heatmapColors ?? [],
           normals: scanBQ.data.pointCloud.normals,
-          grid: gridB,
+          indices: indicesB,
           size: 1,
           opacity: 1,
         },
@@ -97,7 +97,7 @@ export function Compare() {
         positions: scanAQ.data.pointCloud.positions,
         colors: ghost,
         normals: scanAQ.data.pointCloud.normals,
-        grid: gridA,
+        indices: indicesA,
         size: 0.7,
         opacity: 0.25,
       },
@@ -106,7 +106,7 @@ export function Compare() {
         positions: cmpQ.data.positions,
         colors: heatmapColors ?? [],
         normals: scanBQ.data.pointCloud.normals,
-        grid: gridB,
+        indices: indicesB,
         size: 1,
         opacity: 0.95,
       },

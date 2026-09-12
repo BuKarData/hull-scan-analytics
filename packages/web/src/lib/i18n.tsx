@@ -79,6 +79,10 @@ interface Dict {
     phaseBuild: string;
     phaseInspection: string;
     phaseInspectionOrRef: string;
+    tabConstruction: string;
+    tabService: string;
+    constructionSubtitle: string;
+    serviceSubtitle: string;
     pointSize: string;
     viewMode: string;
     viewModePoints: string;
@@ -212,14 +216,17 @@ const pl: Dict = {
     points: "pkt",
     peak: "szczyt",
     defectsWord: "usterek",
-    timelineTitle: "Historia w 3D: budowa i eksploatacja",
-    timelineSubtitle:
-      "Przesuń suwak, aby zobaczyć postęp budowy kadłuba i kolejne przeglądy. Najedź na punkt modelu, aby zobaczyć opis.",
+    timelineTitle: "Historia w 3D",
+    timelineSubtitle: "Najedź na punkt modelu, aby zobaczyć opis.",
     play: "Odtwórz historię",
     pause: "Zatrzymaj",
     phaseBuild: "Etap budowy",
     phaseInspection: "Przegląd",
     phaseInspectionOrRef: "Przegląd / stan referencyjny",
+    tabConstruction: "Historia budowy",
+    tabService: "Eksploatacja",
+    constructionSubtitle: "Przesuń suwak, aby zobaczyć postęp budowy kadłuba na pochylni - od pierwszych sekcji do wodowania.",
+    serviceSubtitle: "Przesuń suwak, aby zobaczyć kolejne przeglądy od odbioru jednostki do dziś.",
     pointSize: "Rozmiar punktu",
     viewMode: "Widok",
     viewModePoints: "Chmura punktów",
@@ -375,13 +382,17 @@ const en: Dict = {
     points: "pts",
     peak: "peak",
     defectsWord: "defects",
-    timelineTitle: "3D history: construction and service",
-    timelineSubtitle: "Drag the slider to see the hull build progress and successive inspections. Hover over the model to see a description.",
+    timelineTitle: "3D history",
+    timelineSubtitle: "Hover over the model to see a description.",
     play: "Play history",
     pause: "Pause",
     phaseBuild: "Construction stage",
     phaseInspection: "Inspection",
     phaseInspectionOrRef: "Inspection / reference state",
+    tabConstruction: "Construction history",
+    tabService: "Service",
+    constructionSubtitle: "Drag the slider to see the hull build progress on the slipway - from the first sections to launch.",
+    serviceSubtitle: "Drag the slider to see successive inspections from delivery to today.",
     pointSize: "Point size",
     viewMode: "View",
     viewModePoints: "Point cloud",

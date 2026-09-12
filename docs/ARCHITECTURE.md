@@ -41,23 +41,44 @@ Krok "ingest" nie jest jeszcze podpięty pod żadną trasę HTTP w tym repo -
 o tym, czy przechwytywanie zdjęć dzieje się w tej samej aplikacji, czy zostaje
 w aplikacji mobilnej, a tu trafia już tylko gotowy `job_id`/`.ply`.
 
-## 3. Dlaczego dane demo są parametryczne, a nie prawdziwymi skanami
+## 3. Dlaczego dane demo używają prawdziwej geometrii siatki, a nie realnych skanów
 
 Bez dostępu do rzeczywistych `.ply` z wielu przeglądów tej samej jednostki nie
 dało się zbudować wiarygodnej historii zmian. Zamiast tego
-`packages/server/src/data/hull.ts` generuje uproszczoną, parametryczną
-geometrię kadłuba (siatka u/v: długość x obwód), a `data/seed.ts` nakłada na
-nią autorskie "historie usterek" (narastanie, nagłe wystąpienie, naprawę,
-cykliczność) w kolejnych skanach tej samej jednostki. Dzięki temu:
+`packages/server/src/data/shipModel.ts` wczytuje prawdziwą siatkę trójkątów
+kadłuba z pliku `.obj` (`packages/server/assets/ships/*.obj` - CC0, Kenney
+"Watercraft Kit", zobacz `assets/ships/LICENSE.txt`), przeskalowuje ją do
+rzeczywistych wymiarów danej jednostki i przypisuje każdemu wierzchołkowi
+współrzędne `(u,v)` w tej samej konwencji, co poprzednia wersja z siatką
+parametryczną (u: rufa→dziób po osi najdłuższego wymiaru modelu, v: kąt wokół
+przekroju - burta prawa=0, pokład=0.25, burta lewa=0.5, dno=0.75, liczony
+elipsoidalnie względem szerokości/wysokości kadłuba). Na tej bazie
+`data/seed.ts` nakłada autorskie "historie usterek" (narastanie, nagłe
+wystąpienie, naprawę, cykliczność) w kolejnych skanach tej samej jednostki.
 
-- każdy skan ma pełną, spójną chmurę punktów (pozycja + kolor) w tym samym
-  formacie, jakiego oczekuje frontend i endpoint porównania,
+Kluczowa różnica względem wcześniejszej siatki parametrycznej: prawdziwy model
+`.obj` **nie ma struktury (i,j)** - to zwykła, nieregularna siatka trójkątów,
+dokładnie taka, z jaką trzeba by się zmierzyć przy imporcie prawdziwego
+zmeshowanego Gaussian Splattingu. Dlatego cały pipeline (agregacja regionowa,
+wykrywanie skupisk) operuje na topologii trójkątów (`model.adjacency`) i
+współrzędnych `(u,v)` per wierzchołek, a nie na indeksach siatki - patrz
+sekcja 4.
+
+Dzięki temu:
+
+- każdy skan ma pełną, spójną chmurę punktów **i siatkę** (pozycja + normalna +
+  kolor + trójkąty) w tym samym formacie, jakiego oczekuje frontend
+  (renderowanie jako "Model" - cieniowana powierzchnia - albo jako "Chmura
+  punktów"),
 - historia usterek jest deterministyczna i sensowna narracyjnie (do demo/testów
-  UI), zamiast losowego szumu.
+  UI), zamiast losowego szumu,
+- kadłub jest **rozpoznawalny jako statek** (a nie parametryczna bryła), co
+  ma znaczenie przy prezentacji.
 
 To jest świadomie **wymienialna warstwa**: prawdziwa integracja podmienia
-`data/seed.ts` na wynik `plyParser.parsePly()` + rejestrację, nie ruszając
-API ani frontendu.
+`data/seed.ts` na wynik `plyParser.parsePly()` + rejestrację (patrz sekcja 2),
+nie ruszając API ani frontendu - obie ścieżki kończą się tym samym kształtem
+`PointCloud` (`positions`, `normals`, `baseColor`, `indices`, `uv`).
 
 ## 4. Algorytm porównania (`lib/compare.ts`)
 
@@ -73,13 +94,19 @@ odejmowaniem `pozycja[i] - pozycja[i]`. Zaimplementowany pipeline:
 2. **Odchylenie ze znakiem** - rzut wektora `(B - najbliższy_A)` na lokalną
    normalną powierzchni bazowej: dodatnie = narost/wybrzuszenie, ujemne =
    wgniecenie/ubytek.
-3. **Agregacja regionowa** - siatka 5 (dziób<->rufa) x 4 (burta P / pokład /
-   burta L / dno), do heatmapy i szybkiego skanowania "co się zmieniło, gdzie".
-4. **Wykrywanie skupisk (connected components)** na siatce (u,v), z progiem
-   szumu skanu (domyślnie 1.2 mm) i klasyfikacją heurystyczną typu usterki
-   (kształt wydłużony + ujemny znak -> pęknięcie; duży, płytki, ujemny obszar
-   -> korozja/ubytek powłoki; zwarty, głęboki, ujemny -> wgniecenie; dodatni ->
-   narost biologiczny).
+3. **Agregacja regionowa** - każdy wierzchołek jest bucketowany wg swojego
+   `(u,v)` do siatki 5 (dziób<->rufa) x 4 (burta P / pokład / burta L / dno),
+   do heatmapy i szybkiego skanowania "co się zmieniło, gdzie". Działa
+   niezależnie od tego, czy źródłowa siatka ma jakąkolwiek regularną
+   strukturę.
+4. **Wykrywanie skupisk (connected components)** - BFS po **topologii
+   trójkątów** (`model.adjacency`, zbudowanej raz z listy trójkątów pliku
+   `.obj`), nie po sztucznej siatce (i,j). Próg szumu skanu (domyślnie
+   1.2 mm), klasyfikacja heurystyczna typu usterki (kształt wydłużony +
+   ujemny znak -> pęknięcie; duży, płytki, ujemny obszar -> korozja/ubytek
+   powłoki; zwarty, głęboki, ujemny -> wgniecenie; dodatni -> narost
+   biologiczny) korzysta z realnego rozpiętości `u` klastra zamiast z
+   przybliżenia przez indeksy wierszy siatki.
 5. **Dopasowanie do rejestru usterek** po odległości w przestrzeni (u,v), żeby
    połączyć automatycznie wykryte skupisko z wcześniej potwierdzoną usterką
    (albo oznaczyć jako nowy, niezweryfikowany sygnał).

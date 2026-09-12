@@ -22,7 +22,7 @@ compareRouter.get("/", (req, res) => {
   const older = chronological ? entryA.scan : entryB.scan;
   const newer = chronological ? entryB.scan : entryA.scan;
 
-  const result = compareScans(seeded.hullGrid, older, newer, seeded.defects);
+  const result = compareScans(seeded.model, older, newer, seeded.defects);
 
   res.json({
     scanA: toScanSummary(older),

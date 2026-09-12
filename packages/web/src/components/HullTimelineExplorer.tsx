@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { VesselDetailResponse } from "../lib/types";
 import { useAsync } from "../hooks/useAsync";
 import { api } from "../lib/api";
@@ -6,22 +6,28 @@ import { HullViewer, type PickInfo, type RenderMode } from "./HullViewer";
 import { TimelineSlider, type TimelineItem } from "./TimelineSlider";
 import { SeverityBadge } from "./SeverityBadge";
 import { Sparkline } from "./Sparkline";
-import { findNearestDefect, regionLabelFromUV, uvFromIndex } from "../lib/geometry";
+import { findNearestDefect, regionLabelFromUV } from "../lib/geometry";
 import { formatDate, formatMm } from "../lib/format";
 import { useLang } from "../lib/i18n";
 
 const SEVERITY_RANK = { good: 0, warning: 1, serious: 2, critical: 3 } as const;
+type PhaseTab = "budowa" | "eksploatacja";
 
 export function HullTimelineExplorer({ vessel }: { vessel: VesselDetailResponse }) {
   const { lang, t } = useLang();
 
-  const items: TimelineItem[] = useMemo(() => {
-    const fromMilestones: TimelineItem[] = vessel.constructionMilestones.map((m) => ({
-      id: m.id,
-      timestamp: m.timestamp,
-      label: m.label,
-      phase: m.phase,
-    }));
+  const constructionItems: TimelineItem[] = useMemo(
+    () =>
+      vessel.constructionMilestones.map((m) => ({
+        id: m.id,
+        timestamp: m.timestamp,
+        label: m.label,
+        phase: m.phase,
+      })),
+    [vessel]
+  );
+
+  const serviceItems: TimelineItem[] = useMemo(() => {
     const baselineItem: TimelineItem = {
       id: vessel.baseline.id,
       timestamp: vessel.baseline.timestamp,
@@ -36,30 +42,44 @@ export function HullTimelineExplorer({ vessel }: { vessel: VesselDetailResponse 
       }
       return { id: s.id, timestamp: s.timestamp, label: s.label, phase: s.phase, severity: worst };
     });
-    return [...fromMilestones, baselineItem, ...fromScans].sort((a, b) => a.timestamp.localeCompare(b.timestamp));
+    return [baselineItem, ...fromScans].sort((a, b) => a.timestamp.localeCompare(b.timestamp));
   }, [vessel]);
 
-  const [index, setIndex] = useState(items.length - 1);
+  const [tab, setTab] = useState<PhaseTab>("eksploatacja");
+  const items = tab === "budowa" ? constructionItems : serviceItems;
+
+  const [index, setIndex] = useState(serviceItems.length - 1);
   const [sizeScale, setSizeScale] = useState(1);
-  const [renderMode, setRenderMode] = useState<RenderMode>("points");
+  const [renderMode, setRenderMode] = useState<RenderMode>("mesh");
   const [pick, setPick] = useState<{ u: number; v: number } | null>(null);
 
-  const current = items[index];
+  // Przy przelaczeniu zakladki wracamy do ostatniego (najnowszego) elementu tej zakladki.
+  useEffect(() => {
+    setIndex(items.length - 1);
+    setPick(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tab]);
+
+  // Clamp defensywnie - po przelaczeniu zakladki `index` moze przez jeden
+  // render wskazywac poza zakres nowej (krotszej) listy, zanim zadziala
+  // powyzszy efekt.
+  const safeIndex = Math.min(index, items.length - 1);
+  const current = items[safeIndex];
   const scanQ = useAsync(() => api.scan(current.id), [current.id]);
   const milestoneMeta = vessel.constructionMilestones.find((m) => m.id === current.id);
 
-  const grid = scanQ.data?.pointCloud.grid;
   const nearestDefect = useMemo(() => {
     if (!pick || current.phase !== "eksploatacja") return null;
     return findNearestDefect(pick.u, pick.v, vessel.defects);
   }, [pick, current.phase, vessel.defects]);
 
   function handlePickEvent(info: PickInfo | null) {
-    if (!info || !grid) {
+    if (!info || !scanQ.data) {
       setPick(null);
       return;
     }
-    setPick(uvFromIndex(info.index, grid.uSteps, grid.vSteps));
+    const uv = scanQ.data.pointCloud.uv;
+    setPick({ u: uv[info.index * 2], v: uv[info.index * 2 + 1] });
   }
 
   return (
@@ -70,14 +90,34 @@ export function HullTimelineExplorer({ vessel }: { vessel: VesselDetailResponse 
             {t.vessel.timelineTitle}
           </h2>
           <p className="text-xs" style={{ color: "var(--text-muted)" }}>
-            {t.vessel.timelineSubtitle}
+            {tab === "budowa" ? t.vessel.constructionSubtitle : t.vessel.serviceSubtitle} {t.vessel.timelineSubtitle}
           </p>
+        </div>
+        <div className="flex items-center gap-1 rounded-full p-1" style={{ background: "var(--surface-2)", border: "1px solid var(--border)" }}>
+          {(
+            [
+              ["budowa", t.vessel.tabConstruction],
+              ["eksploatacja", t.vessel.tabService],
+            ] as [PhaseTab, string][]
+          ).map(([tb, label]) => (
+            <button
+              key={tb}
+              onClick={() => setTab(tb)}
+              className="text-xs font-medium rounded-full px-3 py-1.5"
+              style={{
+                background: tab === tb ? "var(--brand)" : "transparent",
+                color: tab === tb ? "white" : "var(--text-secondary)",
+              }}
+            >
+              {label}
+            </button>
+          ))}
         </div>
       </div>
 
       <TimelineSlider
         items={items}
-        index={index}
+        index={safeIndex}
         onChange={(i) => {
           setIndex(i);
           setPick(null);
@@ -101,7 +141,7 @@ export function HullTimelineExplorer({ vessel }: { vessel: VesselDetailResponse 
                   positions: scanQ.data.pointCloud.positions,
                   colors: scanQ.data.pointCloud.baseColor,
                   normals: scanQ.data.pointCloud.normals,
-                  grid: scanQ.data.pointCloud.grid,
+                  indices: scanQ.data.pointCloud.indices,
                   size: 1,
                   opacity: 1,
                   pickable: true,

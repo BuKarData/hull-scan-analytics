@@ -37,7 +37,8 @@ export interface PointCloud {
   positions: number[];
   normals: number[];
   baseColor: number[];
-  grid: { uSteps: number; vSteps: number };
+  indices: number[];
+  uv: number[]; // [u0,v0, u1,v1, ...]
 }
 
 export interface ScanDetail extends ScanSummary {

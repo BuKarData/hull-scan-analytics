@@ -2,7 +2,6 @@ import { useEffect, useMemo } from "react";
 import { Canvas, useThree, type ThreeEvent } from "@react-three/fiber";
 import { OrbitControls, Grid } from "@react-three/drei";
 import * as THREE from "three";
-import { buildTriangleIndex } from "../lib/mesh";
 
 export type RenderMode = "points" | "mesh";
 
@@ -11,7 +10,8 @@ export interface PointLayer {
   positions: number[];
   colors: Float32Array | number[];
   normals?: number[];
-  grid?: { uSteps: number; vSteps: number };
+  /** Trojkaty siatki (z serwera - prawdziwa geometria kadluba); wymagane dla renderMode="mesh". */
+  indices?: number[];
   size: number; // waga wzgledna (1 = rozmiar bazowy), realny rozmiar liczony wzgledem skali kadluba
   opacity: number;
   pickable?: boolean;
@@ -118,19 +118,17 @@ function MeshLayer({
     const geo = new THREE.BufferGeometry();
     geo.setAttribute("position", new THREE.Float32BufferAttribute(layer.positions, 3));
     geo.setAttribute("color", new THREE.Float32BufferAttribute(Array.from(layer.colors), 3));
-    const pointCount = layer.positions.length / 3;
     if (layer.normals && layer.normals.length === layer.positions.length) {
       geo.setAttribute("normal", new THREE.Float32BufferAttribute(layer.normals, 3));
     }
-    if (layer.grid) {
-      const index = buildTriangleIndex(layer.grid.uSteps, layer.grid.vSteps, pointCount);
-      geo.setIndex(new THREE.BufferAttribute(index, 1));
+    if (layer.indices && layer.indices.length > 0) {
+      geo.setIndex(new THREE.BufferAttribute(new Uint32Array(layer.indices), 1));
     }
     if (!layer.normals || layer.normals.length !== layer.positions.length) geo.computeVertexNormals();
     geo.computeBoundingSphere();
     return geo;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [layer.positions, layer.colors, layer.normals, layer.grid]);
+  }, [layer.positions, layer.colors, layer.normals, layer.indices]);
 
   return (
     <mesh

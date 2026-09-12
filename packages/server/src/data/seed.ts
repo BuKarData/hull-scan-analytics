@@ -1,4 +1,12 @@
-import { buildHullGrid, buildConstructionSnapshot, deformHull, type ActiveDefect, type DefectSpec, type HullGrid } from "./hull.js";
+import {
+  loadShipModel,
+  buildConstructionSnapshot,
+  deformShipModel,
+  type ActiveDefect,
+  type DefectSpec,
+  type ShipModel,
+  type ShipModelKind,
+} from "./shipModel.js";
 import { compareScans } from "../lib/compare.js";
 import type {
   Vessel,
@@ -10,9 +18,6 @@ import type {
   DefectType,
   Severity,
 } from "../types.js";
-
-const U_STEPS = 84;
-const V_STEPS = 48;
 
 export function severityOf(type: DefectType, magnitudeMm: number): Severity {
   const abs = Math.abs(magnitudeMm);
@@ -29,6 +34,7 @@ export function severityOf(type: DefectType, magnitudeMm: number): Severity {
 
 interface VesselBlueprint {
   vessel: Vessel;
+  modelKind: ShipModelKind;
   scanDates: string[]; // ISO, rosnaco
   defectStories: DefectStory[];
 }
@@ -108,6 +114,7 @@ function buildBlueprints(): VesselBlueprint[] {
         lengthM: 108,
         beamM: 14,
       },
+      modelKind: "frigate",
       scanDates: scanDates6,
       defectStories: [
         {
@@ -152,6 +159,7 @@ function buildBlueprints(): VesselBlueprint[] {
         lengthM: 32,
         beamM: 9.5,
       },
+      modelKind: "tug",
       scanDates: scanDates5,
       defectStories: [
         {
@@ -182,6 +190,7 @@ function buildBlueprints(): VesselBlueprint[] {
         lengthM: 145,
         beamM: 24,
       },
+      modelKind: "ferry",
       scanDates: scanDates6,
       defectStories: [
         {
@@ -219,6 +228,7 @@ function buildBlueprints(): VesselBlueprint[] {
         lengthM: 62,
         beamM: 10,
       },
+      modelKind: "patrol",
       scanDates: scanDates5,
       defectStories: [
         {
@@ -249,6 +259,7 @@ function buildBlueprints(): VesselBlueprint[] {
         lengthM: 210,
         beamM: 30,
       },
+      modelKind: "container",
       scanDates: scanDates6,
       defectStories: [
         {
@@ -279,7 +290,7 @@ function buildBlueprints(): VesselBlueprint[] {
 
 export interface SeededVessel {
   vessel: Vessel;
-  hullGrid: HullGrid;
+  model: ShipModel;
   scans: ScanDetail[];
   baseline: ScanDetail;
   constructionMilestones: ScanDetail[];
@@ -313,16 +324,25 @@ export function buildSeedDataset(): SeededVessel[] {
   const result: SeededVessel[] = [];
 
   for (const bp of blueprints) {
-    const hullGrid = buildHullGrid({
-      uSteps: U_STEPS,
-      vSteps: V_STEPS,
-      lengthM: bp.vessel.lengthM,
-      beamM: bp.vessel.beamM,
-      depthM: Math.max(6, bp.vessel.beamM * 0.55),
-    });
+    const model = loadShipModel(
+      bp.modelKind,
+      bp.vessel.lengthM,
+      bp.vessel.beamM,
+      Math.max(6, bp.vessel.beamM * 0.55)
+    );
+    const flatUV = (m: ShipModel) => {
+      const uv = new Array<number>(m.vertexCount * 2);
+      for (let i = 0; i < m.vertexCount; i++) {
+        uv[i * 2] = m.u[i];
+        uv[i * 2 + 1] = m.v[i];
+      }
+      return uv;
+    };
+    const modelIndices = Array.from(model.indices);
+    const modelUV = flatUV(model);
 
     const scanCount = bp.scanDates.length;
-    const rawScans: { id: string; timestamp: string; label: string; technician: string; deformed: ReturnType<typeof deformHull> }[] = [];
+    const rawScans: { id: string; timestamp: string; label: string; technician: string; deformed: ReturnType<typeof deformShipModel> }[] = [];
 
     const technicians = ["A. Nowicka", "M. Kowalczyk", "P. Jaworski", "K. Lis", "R. Baran", "T. Wozniak"];
 
@@ -332,7 +352,7 @@ export function buildSeedDataset(): SeededVessel[] {
         .filter((d) => Math.abs(d.magnitudeMm) > 0.05);
 
       const id = `${bp.vessel.id}-scan-${s + 1}`;
-      const deformed = deformHull(hullGrid, active, id);
+      const deformed = deformShipModel(model, active, id);
       rawScans.push({
         id,
         timestamp: bp.scanDates[s],
@@ -351,16 +371,17 @@ export function buildSeedDataset(): SeededVessel[] {
       label: "Geometria projektowa (referencja)",
       phase: "eksploatacja",
       technician: "-",
-      pointCount: U_STEPS * V_STEPS,
+      pointCount: model.vertexCount,
       avgDeviationMm: 0,
       maxDeviationMm: 0,
       openDefectCount: 0,
       surfaceChangedPct: 0,
       pointCloud: {
-        positions: Array.from(hullGrid.positions),
-        normals: Array.from(hullGrid.normals),
-        baseColor: Array.from({ length: U_STEPS * V_STEPS * 3 }, (_, i) => (i % 3 === 0 ? 0.55 : i % 3 === 1 ? 0.58 : 0.61)),
-        grid: { uSteps: U_STEPS, vSteps: V_STEPS },
+        positions: Array.from(model.positions),
+        normals: Array.from(model.normals),
+        baseColor: Array.from({ length: model.vertexCount * 3 }, (_, i) => (i % 3 === 0 ? 0.55 : i % 3 === 1 ? 0.58 : 0.61)),
+        indices: modelIndices,
+        uv: modelUV,
       },
     };
 
@@ -371,14 +392,24 @@ export function buildSeedDataset(): SeededVessel[] {
     // historii budowy w podglądzie 3D.
     const commissionedDate = new Date(bp.vessel.commissioned);
     const constructionMilestones: ScanDetail[] = CONSTRUCTION_MILESTONES.map((m, i) => {
-      const snapshot = buildConstructionSnapshot(hullGrid, m.progress);
+      const snapshot = buildConstructionSnapshot(model, m.progress);
+      const uv = new Array<number>(snapshot.pointCount * 2);
+      {
+        let k = 0;
+        for (let vi = 0; vi < model.vertexCount; vi++) {
+          if (model.u[vi] > m.progress) continue;
+          uv[k * 2] = model.u[vi];
+          uv[k * 2 + 1] = model.v[vi];
+          k++;
+        }
+      }
       return {
         id: `${bp.vessel.id}-build-${i + 1}`,
         vesselId: bp.vessel.id,
         timestamp: iso(m.monthsBeforeCommissioning, commissionedDate),
         label: m.label,
         description: m.description,
-        phase: "budowa",
+        phase: "budowa" as const,
         technician: "-",
         pointCount: snapshot.pointCount,
         avgDeviationMm: 0,
@@ -387,9 +418,10 @@ export function buildSeedDataset(): SeededVessel[] {
         surfaceChangedPct: 0,
         pointCloud: {
           positions: Array.from(snapshot.positions),
-          normals: Array.from(hullGrid.normals.subarray(0, snapshot.pointCount * 3)),
+          normals: Array.from(snapshot.normals),
           baseColor: Array.from(snapshot.baseColor),
-          grid: { uSteps: U_STEPS, vSteps: V_STEPS },
+          indices: Array.from(snapshot.indices),
+          uv,
         },
       };
     });
@@ -400,9 +432,10 @@ export function buildSeedDataset(): SeededVessel[] {
       const raw = rawScans[s];
       const pointCloud = {
         positions: Array.from(raw.deformed.positions),
-        normals: Array.from(hullGrid.normals),
+        normals: Array.from(model.normals),
         baseColor: Array.from(raw.deformed.baseColor),
-        grid: { uSteps: U_STEPS, vSteps: V_STEPS },
+        indices: modelIndices,
+        uv: modelUV,
       };
 
       const openDefectCount = bp.defectStories.filter(
@@ -416,7 +449,7 @@ export function buildSeedDataset(): SeededVessel[] {
         label: raw.label,
         phase: "eksploatacja",
         technician: raw.technician,
-        pointCount: U_STEPS * V_STEPS,
+        pointCount: model.vertexCount,
         avgDeviationMm: 0,
         maxDeviationMm: 0,
         openDefectCount,
@@ -429,7 +462,7 @@ export function buildSeedDataset(): SeededVessel[] {
       // pytanie "jaki jest aktualny stan kadluba", niezalezne od tego kiedy byl
       // poprzedni przeglad. Zmiane miedzy dwoma wybranymi przegladami liczy
       // endpoint /api/compare na zadanie.
-      const cmp = compareScans(hullGrid, idealScan, draft, []);
+      const cmp = compareScans(model, idealScan, draft, []);
       draft.avgDeviationMm = cmp.stats.avgAbsDeviationMm;
       draft.maxDeviationMm = cmp.stats.maxAbsDeviationMm;
       draft.surfaceChangedPct = cmp.stats.surfaceChangedPct;
@@ -456,7 +489,7 @@ export function buildSeedDataset(): SeededVessel[] {
       };
     });
 
-    result.push({ vessel: bp.vessel, hullGrid, scans, baseline: idealScan, constructionMilestones, defects });
+    result.push({ vessel: bp.vessel, model, scans, baseline: idealScan, constructionMilestones, defects });
   }
 
   return result;

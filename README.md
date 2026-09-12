@@ -14,8 +14,9 @@ aplikacji bazowej (serwer generujący modele Gaussian Splatting ze zdjęć -
 opis architektury, algorytmów porównania i planu integracji z prawdziwym API.
 
 > **Stan projektu:** dane w tej wersji są w 100% syntetyczne (deterministycznie
-> generowane), żeby można było rozwijać i demonstrować UI/algorytmy zanim
-> podłączymy realne skany. Patrz sekcja "Dane demonstracyjne vs realne" niżej.
+> generowane na bazie prawdziwej geometrii kadłuba - patrz niżej), żeby można
+> było rozwijać i demonstrować UI/algorytmy zanim podłączymy realne skany.
+> Patrz sekcja "Dane demonstracyjne vs realne" niżej.
 
 ## Funkcje
 
@@ -55,11 +56,17 @@ Albo `npm run dev`, żeby odpalić oba naraz.
 
 Backend generuje deterministyczną, syntetyczną flotę (5 jednostek, po 5-6
 skanów każda, z autorskimi "historiami usterek" - narastająca korozja, nagłe
-wgniecenie, rozwijające się pęknięcie, cykliczny porost biologiczny). Algorytm
-porównania (`packages/server/src/lib/compare.ts`) działa jednak na tych samych
+wgniecenie, rozwijające się pęknięcie, cykliczny porost biologiczny), oparte
+na prawdziwej geometrii siatki kadłuba (`packages/server/assets/ships/*.obj`,
+CC0 - Kenney "Watercraft Kit", zobacz `assets/ships/LICENSE.txt`) przeskalowanej
+do wymiarów każdej jednostki, a nie na parametrycznej bryle. Algorytm
+porównania (`packages/server/src/lib/compare.ts`) działa na tych samych
 zasadach, które będą potrzebne dla prawdziwych skanów: wyszukiwanie
 najbliższego sąsiada w 3D (a nie odejmowanie punkt-po-punkcie), agregacja
-regionowa, wykrywanie skupisk zmian.
+regionowa po współrzędnych `(u,v)` per wierzchołek, wykrywanie skupisk zmian
+metodą connected-components po topologii trójkątów (nie po sztucznej siatce
+(i,j)) - dokładnie to, czego potrzeba dla dowolnej, niestrukturalnej siatki
+(w tym prawdziwego, zmeshowanego Gaussian Splattingu).
 
 Moduły gotowe pod integrację z prawdziwym API generującym modele (COLMAP +
 Gaussian Splatting), ale jeszcze niepodpięte pod żadną trasę:

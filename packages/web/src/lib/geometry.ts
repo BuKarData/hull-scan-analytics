@@ -1,11 +1,5 @@
 import type { Defect } from "./types";
 
-export function uvFromIndex(index: number, uSteps: number, vSteps: number): { u: number; v: number } {
-  const i = Math.floor(index / vSteps);
-  const j = index % vSteps;
-  return { u: i / (uSteps - 1), v: j / vSteps };
-}
-
 function girthSectorIndex(v01: number): number {
   const deg = ((v01 % 1) + 1) % 1;
   if (deg < 0.125 || deg >= 0.875) return 0;

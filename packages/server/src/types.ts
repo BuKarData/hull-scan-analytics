@@ -42,9 +42,10 @@ export interface PointCloud {
   // Flat Float32-friendly arrays (serialized as number[] over JSON for the demo).
   // A production integration would stream binary .ply/.splat buffers instead.
   positions: number[]; // [x0,y0,z0, x1,y1,z1, ...] meters, hull-local frame
-  normals: number[]; // outward local normals, same layout as positions
+  normals: number[]; // outward normals, same layout as positions
   baseColor: number[]; // [r,g,b, ...] 0..1, raw scan appearance
-  grid: { uSteps: number; vSteps: number }; // structured (u,v) parametrization
+  indices: number[]; // trojkaty (do renderowania jako pelna siatka/model)
+  uv: number[]; // [u0,v0, u1,v1, ...] pozycja na kadlubie: u=rufa->dziob, v=obwod
 }
 
 export interface ScanDetail extends ScanSummary {

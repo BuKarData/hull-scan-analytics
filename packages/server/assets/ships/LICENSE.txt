@@ -1,0 +1,10 @@
+Hull mesh geometry in this directory is derived from Kenney's "Watercraft Kit"
+(https://kenney.nl/assets/watercraft-kit), licensed under CC0 1.0 Universal
+(public domain dedication): http://creativecommons.org/publicdomain/zero/1.0/
+
+Original files: ship-ocean-liner-small.obj, boat-tug-a.obj, ship-ocean-liner.obj,
+boat-tow-a.obj, ship-cargo-a.obj (materials/.mtl not used - this app applies its
+own vertex colors for raw/heatmap rendering).
+
+Renamed here to frigate.obj, tug.obj, ferry.obj, patrol.obj, container.obj to
+match the fictional vessel types they stand in for in the demo dataset.
