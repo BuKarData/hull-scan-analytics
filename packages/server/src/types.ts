@@ -21,11 +21,15 @@ export interface Vessel {
   beamM: number;
 }
 
+export type ScanPhase = "budowa" | "eksploatacja";
+
 export interface ScanSummary {
   id: string;
   vesselId: string;
   timestamp: string; // ISO date
   label: string;
+  description?: string;
+  phase: ScanPhase;
   technician: string;
   pointCount: number;
   avgDeviationMm: number;

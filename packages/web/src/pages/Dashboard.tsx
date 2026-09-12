@@ -17,14 +17,23 @@ export function Dashboard() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-xl font-semibold" style={{ color: "var(--text-primary)" }}>
-          Przeglad floty
-        </h1>
-        <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>
-          Stan kadlubow na podstawie ostatnich skanow 3D (Gaussian Splatting). Wybierz jednostke, aby zobaczyc
-          historie przegladow, rejestr usterek i porownanie skanow.
-        </p>
+      <div
+        className="flex items-center gap-4 rounded-xl p-4"
+        style={{ background: "var(--surface-1)", border: "1px solid var(--border)" }}
+      >
+        <img src="/brand/hullsight-logo.png" alt="HullSight" className="h-16 w-16 rounded-lg shrink-0" style={{ background: "#fcfcfb" }} />
+        <div>
+          <h1 className="text-xl font-semibold" style={{ color: "var(--text-primary)" }}>
+            Hull<span style={{ color: "var(--brand)" }}>Sight</span> - przeglad floty
+          </h1>
+          <p className="text-xs uppercase tracking-wide font-medium mt-0.5" style={{ color: "var(--text-muted)" }}>
+            Dual use &middot; Gaussian Splatting &middot; Ship Analysis
+          </p>
+          <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>
+            Stan kadlubow na podstawie ostatnich skanow 3D. Wybierz jednostke, aby zobaczyc historie budowy,
+            przeglady, rejestr usterek i porownanie skanow.
+          </p>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">

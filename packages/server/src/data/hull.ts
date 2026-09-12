@@ -186,3 +186,33 @@ export function deformHull(
 
   return { positions, baseColor, deviationMm };
 }
+
+const RAW_STEEL_COLOR: [number, number, number] = [0.42, 0.41, 0.39];
+
+export interface ConstructionSnapshot {
+  positions: Float64Array;
+  baseColor: Float64Array;
+  pointCount: number;
+}
+
+/**
+ * Migawka etapu budowy: tylko sekcje kadluba "juz zbudowane" do danego postepu
+ * (0..1 wzdluz dlugosci, od rufy - i=0 - w strone dziobu). Surowa stal, bez
+ * malowania i bez odksztalcen - kadlub jeszcze nie byl w eksploatacji.
+ */
+export function buildConstructionSnapshot(grid: HullGrid, progress: number): ConstructionSnapshot {
+  const { uSteps, vSteps } = grid.params;
+  const iMax = Math.max(1, Math.round(uSteps * progress));
+  const count = iMax * vSteps;
+  const positions = new Float64Array(count * 3);
+  const baseColor = new Float64Array(count * 3);
+
+  for (let k = 0; k < count * 3; k++) positions[k] = grid.positions[k];
+  for (let k = 0; k < count; k++) {
+    baseColor[k * 3] = RAW_STEEL_COLOR[0];
+    baseColor[k * 3 + 1] = RAW_STEEL_COLOR[1];
+    baseColor[k * 3 + 2] = RAW_STEEL_COLOR[2];
+  }
+
+  return { positions, baseColor, pointCount: count };
+}

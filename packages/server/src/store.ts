@@ -14,6 +14,10 @@ class InMemoryStore {
       for (const scan of v.scans) {
         this.scanIndex.set(scan.id, { scan, vesselId: v.vessel.id });
       }
+      this.scanIndex.set(v.baseline.id, { scan: v.baseline, vesselId: v.vessel.id });
+      for (const milestone of v.constructionMilestones) {
+        this.scanIndex.set(milestone.id, { scan: milestone, vesselId: v.vessel.id });
+      }
     }
   }
 

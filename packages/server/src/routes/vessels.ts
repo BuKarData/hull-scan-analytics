@@ -33,6 +33,8 @@ vesselsRouter.get("/:id", (req, res) => {
   res.json({
     vessel: found.vessel,
     scans: found.scans.map(toScanSummary),
+    baseline: toScanSummary(found.baseline),
+    constructionMilestones: found.constructionMilestones.map(toScanSummary),
     defects: found.defects,
   });
 });

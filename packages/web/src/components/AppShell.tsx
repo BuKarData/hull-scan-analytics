@@ -47,12 +47,14 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="flex items-center gap-6">
           <Link to="/" className="flex items-center gap-2 font-semibold" style={{ color: "var(--text-primary)" }}>
             <span
-              className="inline-flex h-7 w-7 items-center justify-center rounded-md text-sm font-bold text-white"
-              style={{ background: "var(--brand)" }}
+              className="inline-flex h-7 w-7 items-center justify-center rounded-md overflow-hidden shrink-0"
+              style={{ background: "#fcfcfb" }}
             >
-              H
+              <img src="/brand/hullsight-logo.png" alt="" className="h-full w-full object-cover" />
             </span>
-            <span className="text-sm">Hull Scan Analytics</span>
+            <span className="text-sm">
+              Hull<span style={{ color: "var(--brand)" }}>Sight</span>
+            </span>
           </Link>
           <nav className="flex items-center gap-4 text-sm">
             {NAV.map((item) => (
@@ -81,7 +83,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       </header>
       <main className="flex-1 px-6 py-6 w-full max-w-[1400px] mx-auto">{children}</main>
       <footer className="px-6 py-4 text-xs text-center" style={{ color: "var(--text-muted)" }}>
-        Hull Scan Analytics - modul analizy porownawczej skanow 3D kadluba (Gaussian Splatting). Dane pokazowe.
+        HullSight - dual use &middot; Gaussian Splatting &middot; analiza porownawcza kadlubow. Dane pokazowe.
       </footer>
     </div>
   );

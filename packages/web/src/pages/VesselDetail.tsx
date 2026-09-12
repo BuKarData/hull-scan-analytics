@@ -8,6 +8,7 @@ import { TrendLineChart } from "../components/TrendLineChart";
 import { Sparkline } from "../components/Sparkline";
 import { SeverityBadge } from "../components/SeverityBadge";
 import { StatTile } from "../components/StatTile";
+import { HullTimelineExplorer } from "../components/HullTimelineExplorer";
 
 export function VesselDetail() {
   const { id = "" } = useParams();
@@ -89,6 +90,8 @@ export function VesselDetail() {
           </button>
         </div>
       </div>
+
+      <HullTimelineExplorer vessel={data} />
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <StatTile label="Liczba skanow" value={String(sortedScans.length)} />

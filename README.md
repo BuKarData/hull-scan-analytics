@@ -1,4 +1,6 @@
-# Hull Scan Analytics
+# HullSight
+
+Dual use &middot; Gaussian Splatting &middot; Ship Analysis
 
 Aplikacja do **analizy porównawczej skanów 3D kadłubów** (Gaussian Splatting)
 wykonywanych telefonem podczas przeglądów okresowych statków i jednostek

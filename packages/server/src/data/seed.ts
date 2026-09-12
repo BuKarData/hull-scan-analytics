@@ -1,4 +1,4 @@
-import { buildHullGrid, deformHull, type ActiveDefect, type DefectSpec, type HullGrid } from "./hull.js";
+import { buildHullGrid, buildConstructionSnapshot, deformHull, type ActiveDefect, type DefectSpec, type HullGrid } from "./hull.js";
 import { compareScans } from "../lib/compare.js";
 import type {
   Vessel,
@@ -281,8 +281,32 @@ export interface SeededVessel {
   vessel: Vessel;
   hullGrid: HullGrid;
   scans: ScanDetail[];
+  baseline: ScanDetail;
+  constructionMilestones: ScanDetail[];
   defects: Defect[];
 }
+
+const CONSTRUCTION_MILESTONES: { monthsBeforeCommissioning: number; progress: number; label: string; description: string }[] = [
+  {
+    monthsBeforeCommissioning: 15,
+    progress: 0.38,
+    label: "Montaz sekcji dennych i rufowych",
+    description:
+      "Pierwsze sekcje kadluba polaczone na pochylni. Skanowanie na tym etapie sluzy do weryfikacji zgodnosci geometrii z projektem przed dalszym montazem.",
+  },
+  {
+    monthsBeforeCommissioning: 9,
+    progress: 0.72,
+    label: "Montaz sekcji srodokreciowych i nadbudowki",
+    description: "Kadlub wydluzony o sekcje srodkowe. Widoczna rosnaca zgodnosc z docelowa sylwetka jednostki.",
+  },
+  {
+    monthsBeforeCommissioning: 4,
+    progress: 1,
+    label: "Zamkniecie kadluba - gotowosc do wodowania",
+    description: "Kadlub kompletny geometrycznie, przed malowaniem i wyposazeniem koncowym. Ostatni skan przed wodowaniem.",
+  },
+];
 
 export function buildSeedDataset(): SeededVessel[] {
   const blueprints = buildBlueprints();
@@ -325,6 +349,7 @@ export function buildSeedDataset(): SeededVessel[] {
       vesselId: bp.vessel.id,
       timestamp: bp.vessel.commissioned,
       label: "Geometria projektowa (referencja)",
+      phase: "eksploatacja",
       technician: "-",
       pointCount: U_STEPS * V_STEPS,
       avgDeviationMm: 0,
@@ -338,6 +363,36 @@ export function buildSeedDataset(): SeededVessel[] {
         grid: { uSteps: U_STEPS, vSteps: V_STEPS },
       },
     };
+
+    // Etapy budowy - skany "przed eksploatacja", pokazujace postep montazu
+    // kadluba na pochylni (skrocona chmura punktow - odcinek jeszcze
+    // niezbudowany po prostu nie istnieje). Nie wchodza do listy `scans` (nie
+    // maja usterek/statystyk odchylenia) - sluza wylacznie do wizualizacji
+    // historii budowy w podgladzie 3D.
+    const commissionedDate = new Date(bp.vessel.commissioned);
+    const constructionMilestones: ScanDetail[] = CONSTRUCTION_MILESTONES.map((m, i) => {
+      const snapshot = buildConstructionSnapshot(hullGrid, m.progress);
+      return {
+        id: `${bp.vessel.id}-build-${i + 1}`,
+        vesselId: bp.vessel.id,
+        timestamp: iso(m.monthsBeforeCommissioning, commissionedDate),
+        label: m.label,
+        description: m.description,
+        phase: "budowa",
+        technician: "-",
+        pointCount: snapshot.pointCount,
+        avgDeviationMm: 0,
+        maxDeviationMm: 0,
+        openDefectCount: 0,
+        surfaceChangedPct: 0,
+        pointCloud: {
+          positions: Array.from(snapshot.positions),
+          normals: [],
+          baseColor: Array.from(snapshot.baseColor),
+          grid: { uSteps: U_STEPS, vSteps: V_STEPS },
+        },
+      };
+    });
 
     const scans: ScanDetail[] = [];
 
@@ -359,6 +414,7 @@ export function buildSeedDataset(): SeededVessel[] {
         vesselId: bp.vessel.id,
         timestamp: raw.timestamp,
         label: raw.label,
+        phase: "eksploatacja",
         technician: raw.technician,
         pointCount: U_STEPS * V_STEPS,
         avgDeviationMm: 0,
@@ -400,7 +456,7 @@ export function buildSeedDataset(): SeededVessel[] {
       };
     });
 
-    result.push({ vessel: bp.vessel, hullGrid, scans, defects });
+    result.push({ vessel: bp.vessel, hullGrid, scans, baseline: idealScan, constructionMilestones, defects });
   }
 
   return result;
