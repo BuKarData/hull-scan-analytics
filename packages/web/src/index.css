@@ -183,3 +183,16 @@ body {
     content: "";
   }
 }
+
+/* Sekcja ekonomiczna dolaczana do raportu strony jednostki TYLKO gdy
+   uzytkownik wybral przycisk "pelny raport" (patrz PrintButton.tsx, ktory
+   przed window.print() ustawia body[data-print-mode]) - zwykly przycisk
+   "Pobierz raport PDF" drukuje wylacznie czesc techniczna. */
+.print-only-economics {
+  display: none;
+}
+@media print {
+  body[data-print-mode="combined"] .print-only-economics {
+    display: block;
+  }
+}

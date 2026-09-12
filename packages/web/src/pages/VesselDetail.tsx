@@ -10,6 +10,8 @@ import { StatTile } from "../components/StatTile";
 import { HullTimelineExplorer } from "../components/HullTimelineExplorer";
 import { PrintButton } from "../components/PrintButton";
 import { useLang } from "../lib/i18n";
+import { DEFAULT_ASSUMPTIONS, estimateFuelImpact, estimateSurveyImpact } from "../lib/economics";
+import { formatPln } from "../lib/format";
 
 export function VesselDetail() {
   const { id = "" } = useParams();
@@ -31,6 +33,8 @@ export function VesselDetail() {
   const effB = scanB || sortedScans[sortedScans.length - 1]?.id;
 
   const xLabels = sortedScans.map((s) => formatDate(s.timestamp, lang));
+  const fuel = estimateFuelImpact(vessel, defects, DEFAULT_ASSUMPTIONS);
+  const survey = estimateSurveyImpact(sortedScans.length, DEFAULT_ASSUMPTIONS);
 
   return (
     <div className="flex flex-col gap-6">
@@ -53,6 +57,7 @@ export function VesselDetail() {
 
         <div className="flex items-end gap-2 flex-wrap">
           <PrintButton />
+          <PrintButton mode="combined" label={t.common.printFullReport} />
           <div className="no-print flex items-end gap-2 rounded-xl p-3" style={{ background: "var(--surface-1)", border: "1px solid var(--border)" }}>
           <label className="text-xs flex flex-col gap-1">
             <span style={{ color: "var(--text-muted)" }}>{t.vessel.scanA}</span>
@@ -249,6 +254,35 @@ export function VesselDetail() {
               </div>
             </div>
           ))}
+        </div>
+      </section>
+
+      <section className="print-only-economics">
+        <h2 className="text-sm font-semibold mb-1" style={{ color: "var(--text-primary)" }}>
+          {t.economics.title}
+        </h2>
+        <p className="text-xs mb-3" style={{ color: "var(--text-muted)" }}>
+          {t.economics.disclaimer}
+        </p>
+        {fuel.penaltyPct === 0 ? (
+          <p className="text-sm mb-3" style={{ color: "var(--success-text)" }}>
+            {t.economics.noFoulingSignal}
+          </p>
+        ) : null}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <StatTile label={t.economics.statFoulingPenalty} value={`${fuel.penaltyPct.toFixed(1)}%`} hint={t.economics.statFoulingPenaltyHint} />
+          <StatTile label={t.economics.statExtraFuelCost} value={formatPln(fuel.extraCostPerYearPln, lang)} hint={t.economics.statExtraFuelCostHint} />
+          <StatTile
+            label={t.economics.statRecoverable}
+            value={formatPln(fuel.recoverableCostPerYearPln, lang)}
+            deltaTone="good"
+            hint={t.economics.statRecoverableHint}
+          />
+          <StatTile
+            label={t.economics.statSurveyAvoided}
+            value={formatPln(survey.avoidedCostPln, lang)}
+            hint={t.economics.statSurveyAvoidedHint(survey.inspectionsPerformed)}
+          />
         </div>
       </section>
     </div>

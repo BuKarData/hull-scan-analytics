@@ -22,6 +22,7 @@ interface Dict {
     langToggleTitle: string;
     dataLanguageNote: string;
     printReport: string;
+    printFullReport: string;
     printHint: string;
   };
   dashboard: {
@@ -199,6 +200,7 @@ const pl: Dict = {
     dataLanguageNote:
       "Dane wprowadzone przez inspektorów i stocznię (nazwy jednostek, opisy usterek, etykiety przeglądów) pozostają w języku, w którym zostały zarejestrowane - tak jak w prawdziwym systemie inspekcyjnym.",
     printReport: "Pobierz raport PDF",
+    printFullReport: "Pobierz pełny raport (technika + ekonomia)",
     printHint: "Otwiera okno drukowania przeglądarki - wybierz \"Zapisz jako PDF\" jako drukarkę",
   },
   dashboard: {
@@ -407,6 +409,7 @@ const en: Dict = {
     dataLanguageNote:
       "Data entered by inspectors and the shipyard (vessel names, defect descriptions, inspection labels) stays in the language it was recorded in - just like in a real inspection system.",
     printReport: "Download PDF report",
+    printFullReport: "Download full report (technical + economic)",
     printHint: "Opens the browser print dialog - choose \"Save as PDF\" as the printer",
   },
   dashboard: {
