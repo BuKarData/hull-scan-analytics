@@ -1,0 +1,413 @@
+import { buildHullGrid, deformHull, type ActiveDefect, type DefectSpec, type HullGrid } from "./hull.js";
+import { compareScans } from "../lib/compare.js";
+import type {
+  Vessel,
+  ScanDetail,
+  ScanSummary,
+  Defect,
+  DefectObservation,
+  DefectStatus,
+  DefectType,
+  Severity,
+} from "../types.js";
+
+const U_STEPS = 84;
+const V_STEPS = 48;
+
+export function severityOf(type: DefectType, magnitudeMm: number): Severity {
+  const abs = Math.abs(magnitudeMm);
+  // Pekniecia traktujemy ostrzej niz plaska glebokosc sugerowalaby - kazde
+  // potwierdzone pekniecie jest przynajmniej "powazne" ze wzgledow strukturalnych.
+  if (type === "peknieciecie" && abs >= 0.8) {
+    return abs >= 2.5 ? "critical" : "serious";
+  }
+  if (abs < 1.5) return "good";
+  if (abs < 3.5) return "warning";
+  if (abs < 6) return "serious";
+  return "critical";
+}
+
+interface VesselBlueprint {
+  vessel: Vessel;
+  scanDates: string[]; // ISO, rosnaco
+  defectStories: DefectStory[];
+}
+
+interface DefectStory {
+  type: DefectType;
+  region: string;
+  spec: DefectSpec;
+  appearAt: number; // indeks skanu, od ktorego defekt jest widoczny
+  pattern: "sudden-stable" | "growing" | "growing-then-repaired" | "cyclical-fouling" | "late-onset-growing";
+}
+
+function iso(monthsAgoFromAnchor: number, anchor: Date): string {
+  const d = new Date(anchor);
+  d.setMonth(d.getMonth() - monthsAgoFromAnchor);
+  return d.toISOString().slice(0, 10);
+}
+
+function magnitudeAt(story: DefectStory, scanIndex: number, scanCount: number): number {
+  if (scanIndex < story.appearAt) return 0;
+  const t = scanIndex - story.appearAt; // "wiek" defektu w skanach
+  const peakBase =
+    story.type === "wgniecenie" ? -5.5 :
+    story.type === "peknieciecie" ? -2.2 :
+    story.type === "korozja" ? -4.0 :
+    story.type === "ubytek-powloki" ? -1.6 :
+    3.2; // porost-biologiczny
+
+  switch (story.pattern) {
+    case "sudden-stable":
+      return peakBase; // mechaniczne uszkodzenie - powstaje od razu, potem stabilne
+    case "growing":
+      return peakBase * Math.min(1, 0.28 + t * 0.22); // narasta z kazdym przegladem
+    case "late-onset-growing":
+      return peakBase * Math.min(1, 0.35 + t * 0.4);
+    case "growing-then-repaired": {
+      const repairAt = story.appearAt + 3;
+      if (scanIndex >= repairAt) return peakBase * 0.05; // wyczyszczone/naprawione
+      return peakBase * Math.min(1, 0.3 + t * 0.35);
+    }
+    case "cyclical-fouling": {
+      const cycle = t % 4;
+      return peakBase * (0.25 + cycle * 0.25); // narasta miedzy dokowaniami, potem czyszczenie
+    }
+    default:
+      return peakBase;
+  }
+}
+
+function statusAt(story: DefectStory, scanIndex: number, scanCount: number): DefectStatus {
+  if (scanIndex < story.appearAt) return "nowa";
+  const t = scanIndex - story.appearAt;
+  if (story.pattern === "growing-then-repaired" && scanIndex >= story.appearAt + 3) return "naprawiona";
+  if (story.pattern === "cyclical-fouling") return t % 4 === 0 ? "naprawiona" : t % 4 >= 2 ? "narasta" : "stabilna";
+  if (t === 0) return "nowa";
+  if (story.pattern === "growing" || story.pattern === "late-onset-growing" || story.pattern === "growing-then-repaired") {
+    return "narasta";
+  }
+  return "stabilna";
+}
+
+function buildBlueprints(): VesselBlueprint[] {
+  const anchor = new Date("2026-09-12");
+  const scanDates6 = [22, 17, 13, 9, 5, 1].map((m) => iso(m, anchor));
+  const scanDates5 = [16, 12, 8, 4, 0.5].map((m) => iso(m, anchor));
+
+  return [
+    {
+      vessel: {
+        id: "orp-wicher-ii",
+        name: "ORP Wicher II",
+        type: "fregata",
+        shipyard: "Stocznia Marynarki Wojennej, Gdynia",
+        homePort: "Gdynia",
+        imo: "SIM-0001",
+        commissioned: "2019-05-14",
+        lengthM: 108,
+        beamM: 14,
+      },
+      scanDates: scanDates6,
+      defectStories: [
+        {
+          type: "wgniecenie",
+          region: "Burta lewa, sekcja dziobowa",
+          spec: { kind: "radial", u: 0.78, v: 0.52, sigmaU: 0.03, sigmaV: 0.045 },
+          appearAt: 2,
+          pattern: "sudden-stable",
+        },
+        {
+          type: "korozja",
+          region: "Dno kadluba, srodokrecie",
+          spec: { kind: "radial", u: 0.48, v: 0.74, sigmaU: 0.09, sigmaV: 0.08, colorTint: [0.18, -0.06, -0.1] },
+          appearAt: 0,
+          pattern: "growing",
+        },
+        {
+          type: "peknieciecie",
+          region: "Burta prawa, przy stepce, rufa",
+          spec: { kind: "linear", u: 0.14, v: 0.68, angleRad: 0.9, lengthUV: 0.05, sigma: 0.008 },
+          appearAt: 4,
+          pattern: "late-onset-growing",
+        },
+        {
+          type: "porost-biologiczny",
+          region: "Dno kadluba, rufa",
+          spec: { kind: "radial", u: 0.2, v: 0.7, sigmaU: 0.12, sigmaV: 0.1, colorTint: [-0.1, 0.08, -0.05] },
+          appearAt: 0,
+          pattern: "cyclical-fouling",
+        },
+      ],
+    },
+    {
+      vessel: {
+        id: "holownik-gryf",
+        name: "Holownik Gryf",
+        type: "holownik",
+        shipyard: "Stocznia Remontowa Nauta, Gdynia",
+        homePort: "Gdynia",
+        imo: "SIM-0002",
+        commissioned: "2011-03-01",
+        lengthM: 32,
+        beamM: 9.5,
+      },
+      scanDates: scanDates5,
+      defectStories: [
+        {
+          type: "wgniecenie",
+          region: "Dziob, linia zderzakowa",
+          spec: { kind: "radial", u: 0.92, v: 0.5, sigmaU: 0.025, sigmaV: 0.05 },
+          appearAt: 1,
+          pattern: "sudden-stable",
+        },
+        {
+          type: "ubytek-powloki",
+          region: "Burta prawa, linia wodna",
+          spec: { kind: "radial", u: 0.55, v: 0.03, sigmaU: 0.1, sigmaV: 0.06, colorTint: [0.12, -0.04, -0.08] },
+          appearAt: 0,
+          pattern: "growing-then-repaired",
+        },
+      ],
+    },
+    {
+      vessel: {
+        id: "prom-wolin",
+        name: "Prom Wolin",
+        type: "prom",
+        shipyard: "Stocznia Szczecinska",
+        homePort: "Swinoujscie",
+        imo: "SIM-0003",
+        commissioned: "2015-06-20",
+        lengthM: 145,
+        beamM: 24,
+      },
+      scanDates: scanDates6,
+      defectStories: [
+        {
+          type: "korozja",
+          region: "Dno kadluba, komora dziobowa",
+          spec: { kind: "radial", u: 0.85, v: 0.72, sigmaU: 0.06, sigmaV: 0.09, colorTint: [0.16, -0.05, -0.09] },
+          appearAt: 1,
+          pattern: "growing",
+        },
+        {
+          type: "porost-biologiczny",
+          region: "Dno kadluba, cala dlugosc",
+          spec: { kind: "radial", u: 0.5, v: 0.72, sigmaU: 0.35, sigmaV: 0.12, colorTint: [-0.08, 0.07, -0.04] },
+          appearAt: 0,
+          pattern: "cyclical-fouling",
+        },
+        {
+          type: "wgniecenie",
+          region: "Burta lewa, rejon rampy",
+          spec: { kind: "radial", u: 0.32, v: 0.48, sigmaU: 0.02, sigmaV: 0.03 },
+          appearAt: 5,
+          pattern: "sudden-stable",
+        },
+      ],
+    },
+    {
+      vessel: {
+        id: "sts-kaszubia",
+        name: "STS Kaszubia",
+        type: "jednostka-patrolowa",
+        shipyard: "Stocznia Crist, Swinoujscie",
+        homePort: "Gdansk",
+        imo: "SIM-0004",
+        commissioned: "2021-09-10",
+        lengthM: 62,
+        beamM: 10,
+      },
+      scanDates: scanDates5,
+      defectStories: [
+        {
+          type: "peknieciecie",
+          region: "Burta prawa, wzmocnienie kadluba",
+          spec: { kind: "linear", u: 0.6, v: 0.06, angleRad: 1.4, lengthUV: 0.06, sigma: 0.007 },
+          appearAt: 3,
+          pattern: "late-onset-growing",
+        },
+        {
+          type: "ubytek-powloki",
+          region: "Dziob, strefa kotwiczna",
+          spec: { kind: "radial", u: 0.88, v: 0.55, sigmaU: 0.04, sigmaV: 0.05, colorTint: [0.1, -0.03, -0.06] },
+          appearAt: 0,
+          pattern: "growing",
+        },
+      ],
+    },
+    {
+      vessel: {
+        id: "ms-neptun-baltic",
+        name: "MS Neptun Baltic",
+        type: "kontenerowiec",
+        shipyard: "Stocznia Gdansk",
+        homePort: "Gdansk",
+        imo: "SIM-0005",
+        commissioned: "2013-11-02",
+        lengthM: 210,
+        beamM: 30,
+      },
+      scanDates: scanDates6,
+      defectStories: [
+        {
+          type: "korozja",
+          region: "Dno kadluba, zbiornik balastowy nr 3",
+          spec: { kind: "radial", u: 0.4, v: 0.7, sigmaU: 0.07, sigmaV: 0.09, colorTint: [0.17, -0.06, -0.1] },
+          appearAt: 0,
+          pattern: "growing",
+        },
+        {
+          type: "wgniecenie",
+          region: "Burta prawa, przy nadburciu",
+          spec: { kind: "radial", u: 0.15, v: 0.22, sigmaU: 0.03, sigmaV: 0.04 },
+          appearAt: 3,
+          pattern: "sudden-stable",
+        },
+        {
+          type: "peknieciecie",
+          region: "Poklad glowny, wezel konstrukcyjny",
+          spec: { kind: "linear", u: 0.5, v: 0.24, angleRad: 0.4, lengthUV: 0.07, sigma: 0.009 },
+          appearAt: 5,
+          pattern: "late-onset-growing",
+        },
+      ],
+    },
+  ];
+}
+
+export interface SeededVessel {
+  vessel: Vessel;
+  hullGrid: HullGrid;
+  scans: ScanDetail[];
+  defects: Defect[];
+}
+
+export function buildSeedDataset(): SeededVessel[] {
+  const blueprints = buildBlueprints();
+  const result: SeededVessel[] = [];
+
+  for (const bp of blueprints) {
+    const hullGrid = buildHullGrid({
+      uSteps: U_STEPS,
+      vSteps: V_STEPS,
+      lengthM: bp.vessel.lengthM,
+      beamM: bp.vessel.beamM,
+      depthM: Math.max(6, bp.vessel.beamM * 0.55),
+    });
+
+    const scanCount = bp.scanDates.length;
+    const rawScans: { id: string; timestamp: string; label: string; technician: string; deformed: ReturnType<typeof deformHull> }[] = [];
+
+    const technicians = ["A. Nowicka", "M. Kowalczyk", "P. Jaworski", "K. Lis", "R. Baran", "T. Wozniak"];
+
+    for (let s = 0; s < scanCount; s++) {
+      const active: ActiveDefect[] = bp.defectStories
+        .map((story) => ({ spec: story.spec, magnitudeMm: magnitudeAt(story, s, scanCount) }))
+        .filter((d) => Math.abs(d.magnitudeMm) > 0.05);
+
+      const id = `${bp.vessel.id}-scan-${s + 1}`;
+      const deformed = deformHull(hullGrid, active, id);
+      rawScans.push({
+        id,
+        timestamp: bp.scanDates[s],
+        label: s === 0 ? "Skan bazowy (wodowanie / pierwszy przeglad)" : `Przeglad okresowy #${s + 1}`,
+        technician: technicians[s % technicians.length],
+        deformed,
+      });
+    }
+
+    // Skan "zero" - idealna geometria projektowa, uzywana jako punkt odniesienia
+    // do policzenia bezwzglednych statystyk pierwszego realnego skanu.
+    const idealScan: ScanDetail = {
+      id: `${bp.vessel.id}-baseline`,
+      vesselId: bp.vessel.id,
+      timestamp: bp.vessel.commissioned,
+      label: "Geometria projektowa (referencja)",
+      technician: "-",
+      pointCount: U_STEPS * V_STEPS,
+      avgDeviationMm: 0,
+      maxDeviationMm: 0,
+      openDefectCount: 0,
+      surfaceChangedPct: 0,
+      pointCloud: {
+        positions: Array.from(hullGrid.positions),
+        normals: Array.from(hullGrid.normals),
+        baseColor: Array.from({ length: U_STEPS * V_STEPS * 3 }, (_, i) => (i % 3 === 0 ? 0.55 : i % 3 === 1 ? 0.58 : 0.61)),
+        grid: { uSteps: U_STEPS, vSteps: V_STEPS },
+      },
+    };
+
+    const scans: ScanDetail[] = [];
+
+    for (let s = 0; s < scanCount; s++) {
+      const raw = rawScans[s];
+      const pointCloud = {
+        positions: Array.from(raw.deformed.positions),
+        normals: Array.from(hullGrid.normals),
+        baseColor: Array.from(raw.deformed.baseColor),
+        grid: { uSteps: U_STEPS, vSteps: V_STEPS },
+      };
+
+      const openDefectCount = bp.defectStories.filter(
+        (story) => Math.abs(magnitudeAt(story, s, scanCount)) >= 1.2 && statusAt(story, s, scanCount) !== "naprawiona"
+      ).length;
+
+      const draft: ScanDetail = {
+        id: raw.id,
+        vesselId: bp.vessel.id,
+        timestamp: raw.timestamp,
+        label: raw.label,
+        technician: raw.technician,
+        pointCount: U_STEPS * V_STEPS,
+        avgDeviationMm: 0,
+        maxDeviationMm: 0,
+        openDefectCount,
+        surfaceChangedPct: 0,
+        pointCloud,
+      };
+
+      // Statystyki naglowkowe skanu = odchylenie skumulowane wzgledem geometrii
+      // projektowej (nie wzgledem poprzedniego przegladu) - to one odpowiadaja na
+      // pytanie "jaki jest aktualny stan kadluba", niezalezne od tego kiedy byl
+      // poprzedni przeglad. Zmiane miedzy dwoma wybranymi przegladami liczy
+      // endpoint /api/compare na zadanie.
+      const cmp = compareScans(hullGrid, idealScan, draft, []);
+      draft.avgDeviationMm = cmp.stats.avgAbsDeviationMm;
+      draft.maxDeviationMm = cmp.stats.maxAbsDeviationMm;
+      draft.surfaceChangedPct = cmp.stats.surfaceChangedPct;
+
+      scans.push(draft);
+    }
+
+    const defects: Defect[] = bp.defectStories.map((story, i) => {
+      const history: DefectObservation[] = scans.map((scan, s) => ({
+        scanId: scan.id,
+        timestamp: scan.timestamp,
+        magnitudeMm: Math.round(magnitudeAt(story, s, scanCount) * 100) / 100,
+        severity: severityOf(story.type, magnitudeAt(story, s, scanCount)),
+      }));
+      return {
+        id: `${bp.vessel.id}-defect-${i + 1}`,
+        vesselId: bp.vessel.id,
+        type: story.type,
+        region: story.region,
+        uv: { u: story.spec.u, v: story.spec.v },
+        firstDetectedScanId: scans[story.appearAt]?.id ?? scans[0].id,
+        status: statusAt(story, scanCount - 1, scanCount),
+        history,
+      };
+    });
+
+    result.push({ vessel: bp.vessel, hullGrid, scans, defects });
+  }
+
+  return result;
+}
+
+export function toScanSummary(scan: ScanDetail): ScanSummary {
+  const { pointCloud, ...rest } = scan;
+  void pointCloud;
+  return rest;
+}

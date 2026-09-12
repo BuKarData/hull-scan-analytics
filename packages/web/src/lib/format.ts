@@ -1,0 +1,14 @@
+export function formatDate(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  return d.toLocaleDateString("pl-PL", { year: "numeric", month: "short", day: "2-digit" });
+}
+
+export function formatMm(value: number, digits = 1): string {
+  const sign = value > 0 ? "+" : "";
+  return `${sign}${value.toFixed(digits)} mm`;
+}
+
+export function formatPct(value: number, digits = 1): string {
+  return `${value.toFixed(digits)}%`;
+}
