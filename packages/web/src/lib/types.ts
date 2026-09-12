@@ -119,25 +119,6 @@ export interface CompareResponse {
   clusters: AnomalyCluster[];
 }
 
-export const DEFECT_TYPE_LABELS: Record<DefectType, string> = {
-  wgniecenie: "Wgniecenie",
-  korozja: "Korozja",
-  peknieciecie: "Pekniecie",
-  "ubytek-powloki": "Ubytek powloki",
-  "porost-biologiczny": "Porost biologiczny",
-};
-
-export const DEFECT_STATUS_LABELS: Record<DefectStatus, string> = {
-  nowa: "Nowa",
-  narasta: "Narasta",
-  stabilna: "Stabilna",
-  naprawiona: "Naprawiona",
-};
-
-export const VESSEL_TYPE_LABELS: Record<VesselType, string> = {
-  fregata: "Fregata",
-  holownik: "Holownik",
-  prom: "Prom",
-  kontenerowiec: "Kontenerowiec",
-  "jednostka-patrolowa": "Jednostka patrolowa",
-};
+// Etykiety wyswietlane dla tych enumow zyja w lib/i18n.tsx (t.defectType /
+// t.defectStatus / t.vesselType), zeby przelaczaly sie razem z jezykiem
+// interfejsu. Tu zostaja tylko typy-klucze.

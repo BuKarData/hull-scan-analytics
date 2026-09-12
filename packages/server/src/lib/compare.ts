@@ -5,8 +5,8 @@ import { pointIndex } from "../data/hull.js";
 
 export const NOISE_THRESHOLD_MM = 1.2;
 
-const LENGTH_BANDS = ["Rufa", "Rufa-srodokrecie", "Srodokrecie", "Srodokrecie-dziob", "Dziob"];
-const GIRTH_SECTORS = ["Burta prawa (WL)", "Poklad / nadburcie", "Burta lewa (WL)", "Dno / stepka"];
+const LENGTH_BANDS = ["Rufa", "Rufa-śródokręcie", "Śródokręcie", "Śródokręcie-dziób", "Dziób"];
+const GIRTH_SECTORS = ["Burta prawa (WL)", "Pokład / nadburcie", "Burta lewa (WL)", "Dno / stępka"];
 
 function girthSectorIndex(v01: number): number {
   const deg = ((v01 % 1) + 1) % 1;

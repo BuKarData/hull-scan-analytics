@@ -119,21 +119,21 @@ function buildBlueprints(): VesselBlueprint[] {
         },
         {
           type: "korozja",
-          region: "Dno kadluba, srodokrecie",
+          region: "Dno kadłuba, śródokręcie",
           spec: { kind: "radial", u: 0.48, v: 0.74, sigmaU: 0.09, sigmaV: 0.08, colorTint: [0.18, -0.06, -0.1] },
           appearAt: 0,
           pattern: "growing",
         },
         {
           type: "peknieciecie",
-          region: "Burta prawa, przy stepce, rufa",
+          region: "Burta prawa, przy stępce, rufa",
           spec: { kind: "linear", u: 0.14, v: 0.68, angleRad: 0.9, lengthUV: 0.05, sigma: 0.008 },
           appearAt: 4,
           pattern: "late-onset-growing",
         },
         {
           type: "porost-biologiczny",
-          region: "Dno kadluba, rufa",
+          region: "Dno kadłuba, rufa",
           spec: { kind: "radial", u: 0.2, v: 0.7, sigmaU: 0.12, sigmaV: 0.1, colorTint: [-0.1, 0.08, -0.05] },
           appearAt: 0,
           pattern: "cyclical-fouling",
@@ -156,7 +156,7 @@ function buildBlueprints(): VesselBlueprint[] {
       defectStories: [
         {
           type: "wgniecenie",
-          region: "Dziob, linia zderzakowa",
+          region: "Dziób, linia zderzakowa",
           spec: { kind: "radial", u: 0.92, v: 0.5, sigmaU: 0.025, sigmaV: 0.05 },
           appearAt: 1,
           pattern: "sudden-stable",
@@ -175,8 +175,8 @@ function buildBlueprints(): VesselBlueprint[] {
         id: "prom-wolin",
         name: "Prom Wolin",
         type: "prom",
-        shipyard: "Stocznia Szczecinska",
-        homePort: "Swinoujscie",
+        shipyard: "Stocznia Szczecińska",
+        homePort: "Świnoujście",
         imo: "SIM-0003",
         commissioned: "2015-06-20",
         lengthM: 145,
@@ -186,14 +186,14 @@ function buildBlueprints(): VesselBlueprint[] {
       defectStories: [
         {
           type: "korozja",
-          region: "Dno kadluba, komora dziobowa",
+          region: "Dno kadłuba, komora dziobowa",
           spec: { kind: "radial", u: 0.85, v: 0.72, sigmaU: 0.06, sigmaV: 0.09, colorTint: [0.16, -0.05, -0.09] },
           appearAt: 1,
           pattern: "growing",
         },
         {
           type: "porost-biologiczny",
-          region: "Dno kadluba, cala dlugosc",
+          region: "Dno kadłuba, cała długość",
           spec: { kind: "radial", u: 0.5, v: 0.72, sigmaU: 0.35, sigmaV: 0.12, colorTint: [-0.08, 0.07, -0.04] },
           appearAt: 0,
           pattern: "cyclical-fouling",
@@ -212,8 +212,8 @@ function buildBlueprints(): VesselBlueprint[] {
         id: "sts-kaszubia",
         name: "STS Kaszubia",
         type: "jednostka-patrolowa",
-        shipyard: "Stocznia Crist, Swinoujscie",
-        homePort: "Gdansk",
+        shipyard: "Stocznia Crist, Świnoujście",
+        homePort: "Gdańsk",
         imo: "SIM-0004",
         commissioned: "2021-09-10",
         lengthM: 62,
@@ -223,14 +223,14 @@ function buildBlueprints(): VesselBlueprint[] {
       defectStories: [
         {
           type: "peknieciecie",
-          region: "Burta prawa, wzmocnienie kadluba",
+          region: "Burta prawa, wzmocnienie kadłuba",
           spec: { kind: "linear", u: 0.6, v: 0.06, angleRad: 1.4, lengthUV: 0.06, sigma: 0.007 },
           appearAt: 3,
           pattern: "late-onset-growing",
         },
         {
           type: "ubytek-powloki",
-          region: "Dziob, strefa kotwiczna",
+          region: "Dziób, strefa kotwiczna",
           spec: { kind: "radial", u: 0.88, v: 0.55, sigmaU: 0.04, sigmaV: 0.05, colorTint: [0.1, -0.03, -0.06] },
           appearAt: 0,
           pattern: "growing",
@@ -242,8 +242,8 @@ function buildBlueprints(): VesselBlueprint[] {
         id: "ms-neptun-baltic",
         name: "MS Neptun Baltic",
         type: "kontenerowiec",
-        shipyard: "Stocznia Gdansk",
-        homePort: "Gdansk",
+        shipyard: "Stocznia Gdańsk",
+        homePort: "Gdańsk",
         imo: "SIM-0005",
         commissioned: "2013-11-02",
         lengthM: 210,
@@ -253,7 +253,7 @@ function buildBlueprints(): VesselBlueprint[] {
       defectStories: [
         {
           type: "korozja",
-          region: "Dno kadluba, zbiornik balastowy nr 3",
+          region: "Dno kadłuba, zbiornik balastowy nr 3",
           spec: { kind: "radial", u: 0.4, v: 0.7, sigmaU: 0.07, sigmaV: 0.09, colorTint: [0.17, -0.06, -0.1] },
           appearAt: 0,
           pattern: "growing",
@@ -267,7 +267,7 @@ function buildBlueprints(): VesselBlueprint[] {
         },
         {
           type: "peknieciecie",
-          region: "Poklad glowny, wezel konstrukcyjny",
+          region: "Pokład główny, węzeł konstrukcyjny",
           spec: { kind: "linear", u: 0.5, v: 0.24, angleRad: 0.4, lengthUV: 0.07, sigma: 0.009 },
           appearAt: 5,
           pattern: "late-onset-growing",
@@ -290,21 +290,21 @@ const CONSTRUCTION_MILESTONES: { monthsBeforeCommissioning: number; progress: nu
   {
     monthsBeforeCommissioning: 15,
     progress: 0.38,
-    label: "Montaz sekcji dennych i rufowych",
+    label: "Montaż sekcji dennych i rufowych",
     description:
-      "Pierwsze sekcje kadluba polaczone na pochylni. Skanowanie na tym etapie sluzy do weryfikacji zgodnosci geometrii z projektem przed dalszym montazem.",
+      "Pierwsze sekcje kadłuba połączone na pochylni. Skanowanie na tym etapie służy do weryfikacji zgodności geometrii z projektem przed dalszym montażem.",
   },
   {
     monthsBeforeCommissioning: 9,
     progress: 0.72,
-    label: "Montaz sekcji srodokreciowych i nadbudowki",
-    description: "Kadlub wydluzony o sekcje srodkowe. Widoczna rosnaca zgodnosc z docelowa sylwetka jednostki.",
+    label: "Montaż sekcji śródokręciowych i nadbudówki",
+    description: "Kadłub wydłużony o sekcje środkowe. Widoczna rosnąca zgodność z docelową sylwetką jednostki.",
   },
   {
     monthsBeforeCommissioning: 4,
     progress: 1,
-    label: "Zamkniecie kadluba - gotowosc do wodowania",
-    description: "Kadlub kompletny geometrycznie, przed malowaniem i wyposazeniem koncowym. Ostatni skan przed wodowaniem.",
+    label: "Zamknięcie kadłuba - gotowość do wodowania",
+    description: "Kadłub kompletny geometrycznie, przed malowaniem i wyposażeniem końcowym. Ostatni skan przed wodowaniem.",
   },
 ];
 
@@ -336,7 +336,7 @@ export function buildSeedDataset(): SeededVessel[] {
       rawScans.push({
         id,
         timestamp: bp.scanDates[s],
-        label: s === 0 ? "Skan bazowy (wodowanie / pierwszy przeglad)" : `Przeglad okresowy #${s + 1}`,
+        label: s === 0 ? "Skan bazowy (wodowanie / pierwszy przegląd)" : `Przegląd okresowy #${s + 1}`,
         technician: technicians[s % technicians.length],
         deformed,
       });
@@ -364,11 +364,11 @@ export function buildSeedDataset(): SeededVessel[] {
       },
     };
 
-    // Etapy budowy - skany "przed eksploatacja", pokazujace postep montazu
-    // kadluba na pochylni (skrocona chmura punktow - odcinek jeszcze
-    // niezbudowany po prostu nie istnieje). Nie wchodza do listy `scans` (nie
-    // maja usterek/statystyk odchylenia) - sluza wylacznie do wizualizacji
-    // historii budowy w podgladzie 3D.
+    // Etapy budowy - skany "przed eksploatacją", pokazujące postęp montażu
+    // kadłuba na pochylni (skrócona chmura punktów - odcinek jeszcze
+    // niezbudowany po prostu nie istnieje). Nie wchodzą do listy `scans` (nie
+    // mają usterek/statystyk odchylenia) - służą wyłącznie do wizualizacji
+    // historii budowy w podglądzie 3D.
     const commissionedDate = new Date(bp.vessel.commissioned);
     const constructionMilestones: ScanDetail[] = CONSTRUCTION_MILESTONES.map((m, i) => {
       const snapshot = buildConstructionSnapshot(hullGrid, m.progress);
@@ -387,7 +387,7 @@ export function buildSeedDataset(): SeededVessel[] {
         surfaceChangedPct: 0,
         pointCloud: {
           positions: Array.from(snapshot.positions),
-          normals: [],
+          normals: Array.from(hullGrid.normals.subarray(0, snapshot.pointCount * 3)),
           baseColor: Array.from(snapshot.baseColor),
           grid: { uSteps: U_STEPS, vSteps: V_STEPS },
         },

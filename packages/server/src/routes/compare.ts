@@ -12,9 +12,9 @@ compareRouter.get("/", (req, res) => {
 
   const entryA = store.getScan(a);
   const entryB = store.getScan(b);
-  if (!entryA || !entryB) return res.status(404).json({ error: "Nie znaleziono jednego ze skanow" });
+  if (!entryA || !entryB) return res.status(404).json({ error: "Nie znaleziono jednego ze skanów" });
   if (entryA.vesselId !== entryB.vesselId) {
-    return res.status(400).json({ error: "Skany naleza do roznych jednostek - porownanie wymaga tej samej jednostki" });
+    return res.status(400).json({ error: "Skany należą do różnych jednostek - porównanie wymaga tej samej jednostki" });
   }
 
   const seeded = store.getVessel(entryA.vesselId)!;

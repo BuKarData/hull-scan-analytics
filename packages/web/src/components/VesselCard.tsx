@@ -1,10 +1,11 @@
 import { Link } from "react-router-dom";
 import type { VesselListItem } from "../lib/types";
-import { VESSEL_TYPE_LABELS } from "../lib/types";
 import { SeverityBadge } from "./SeverityBadge";
 import { formatDate, formatMm } from "../lib/format";
+import { useLang } from "../lib/i18n";
 
 export function VesselCard({ item }: { item: VesselListItem }) {
+  const { lang, t } = useLang();
   const { vessel, latestScan, scanCount, openDefectCount, worstSeverity, avgDeviationTrendMm } = item;
   const trendTone = avgDeviationTrendMm > 0.02 ? "bad" : avgDeviationTrendMm < -0.02 ? "good" : "neutral";
   const trendVar = trendTone === "bad" ? "var(--status-critical)" : trendTone === "good" ? "var(--success-text)" : "var(--text-muted)";
@@ -21,7 +22,7 @@ export function VesselCard({ item }: { item: VesselListItem }) {
             {vessel.name}
           </h3>
           <p className="text-xs" style={{ color: "var(--text-muted)" }}>
-            {VESSEL_TYPE_LABELS[vessel.type]} &middot; {vessel.homePort} &middot; {vessel.shipyard}
+            {t.vesselType[vessel.type]} &middot; {vessel.homePort} &middot; {vessel.shipyard}
           </p>
         </div>
         <SeverityBadge severity={worstSeverity} />
@@ -30,7 +31,7 @@ export function VesselCard({ item }: { item: VesselListItem }) {
       <div className="grid grid-cols-3 gap-3 text-sm mb-3">
         <div>
           <div className="text-xs" style={{ color: "var(--text-muted)" }}>
-            Otwarte usterki
+            {t.dashboard.openDefects}
           </div>
           <div className="tabular-nums font-medium" style={{ color: "var(--text-primary)" }}>
             {openDefectCount}
@@ -38,7 +39,7 @@ export function VesselCard({ item }: { item: VesselListItem }) {
         </div>
         <div>
           <div className="text-xs" style={{ color: "var(--text-muted)" }}>
-            Odchylenie (szczyt)
+            {t.dashboard.peakDeviation}
           </div>
           <div className="tabular-nums font-medium" style={{ color: "var(--text-primary)" }}>
             {formatMm(latestScan.maxDeviationMm, 1)}
@@ -46,7 +47,7 @@ export function VesselCard({ item }: { item: VesselListItem }) {
         </div>
         <div>
           <div className="text-xs" style={{ color: "var(--text-muted)" }}>
-            Trend od ost. przegladu
+            {t.dashboard.trendSinceLast}
           </div>
           <div className="tabular-nums font-medium" style={{ color: trendVar }}>
             {avgDeviationTrendMm >= 0 ? "+" : ""}
@@ -57,9 +58,9 @@ export function VesselCard({ item }: { item: VesselListItem }) {
 
       <div className="flex items-center justify-between text-xs" style={{ color: "var(--text-muted)" }}>
         <span>
-          {scanCount} skanow &middot; ostatni: {formatDate(latestScan.timestamp)}
+          {t.dashboard.scansCount(scanCount)} &middot; {t.dashboard.lastScan}: {formatDate(latestScan.timestamp, lang)}
         </span>
-        <span style={{ color: "var(--brand)" }}>Zobacz historie &rarr;</span>
+        <span style={{ color: "var(--brand)" }}>{t.dashboard.viewHistory} &rarr;</span>
       </div>
     </Link>
   );

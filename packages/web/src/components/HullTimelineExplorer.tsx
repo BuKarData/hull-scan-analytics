@@ -1,18 +1,20 @@
 import { useMemo, useState } from "react";
 import type { VesselDetailResponse } from "../lib/types";
-import { DEFECT_STATUS_LABELS, DEFECT_TYPE_LABELS } from "../lib/types";
 import { useAsync } from "../hooks/useAsync";
 import { api } from "../lib/api";
-import { HullViewer, type PickInfo } from "./HullViewer";
+import { HullViewer, type PickInfo, type RenderMode } from "./HullViewer";
 import { TimelineSlider, type TimelineItem } from "./TimelineSlider";
 import { SeverityBadge } from "./SeverityBadge";
 import { Sparkline } from "./Sparkline";
 import { findNearestDefect, regionLabelFromUV, uvFromIndex } from "../lib/geometry";
 import { formatDate, formatMm } from "../lib/format";
+import { useLang } from "../lib/i18n";
 
 const SEVERITY_RANK = { good: 0, warning: 1, serious: 2, critical: 3 } as const;
 
 export function HullTimelineExplorer({ vessel }: { vessel: VesselDetailResponse }) {
+  const { lang, t } = useLang();
+
   const items: TimelineItem[] = useMemo(() => {
     const fromMilestones: TimelineItem[] = vessel.constructionMilestones.map((m) => ({
       id: m.id,
@@ -39,6 +41,7 @@ export function HullTimelineExplorer({ vessel }: { vessel: VesselDetailResponse 
 
   const [index, setIndex] = useState(items.length - 1);
   const [sizeScale, setSizeScale] = useState(1);
+  const [renderMode, setRenderMode] = useState<RenderMode>("points");
   const [pick, setPick] = useState<{ u: number; v: number } | null>(null);
 
   const current = items[index];
@@ -64,31 +67,41 @@ export function HullTimelineExplorer({ vessel }: { vessel: VesselDetailResponse 
       <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
         <div>
           <h2 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
-            Historia w 3D: budowa i eksploatacja
+            {t.vessel.timelineTitle}
           </h2>
           <p className="text-xs" style={{ color: "var(--text-muted)" }}>
-            Przesun suwak, aby zobaczyc postep budowy kadluba i kolejne przeglady. Najedz na punkt modelu, aby zobaczyc opis.
+            {t.vessel.timelineSubtitle}
           </p>
         </div>
       </div>
 
-      <TimelineSlider items={items} index={index} onChange={(i) => { setIndex(i); setPick(null); }} />
+      <TimelineSlider
+        items={items}
+        index={index}
+        onChange={(i) => {
+          setIndex(i);
+          setPick(null);
+        }}
+      />
 
       <div className="grid lg:grid-cols-[1.4fr_1fr] gap-4 mt-4">
         <div>
           {scanQ.loading || !scanQ.data ? (
             <div className="h-[380px] flex items-center justify-center text-sm" style={{ color: "var(--text-muted)" }}>
-              Wczytywanie modelu...
+              {t.common.loadingModel}
             </div>
           ) : (
             <HullViewer
               height={380}
               sizeScale={sizeScale}
+              renderMode={renderMode}
               layers={[
                 {
                   key: current.id,
                   positions: scanQ.data.pointCloud.positions,
                   colors: scanQ.data.pointCloud.baseColor,
+                  normals: scanQ.data.pointCloud.normals,
+                  grid: scanQ.data.pointCloud.grid,
                   size: 1,
                   opacity: 1,
                   pickable: true,
@@ -98,26 +111,56 @@ export function HullTimelineExplorer({ vessel }: { vessel: VesselDetailResponse 
               onPick={handlePickEvent}
             />
           )}
-          <div className="flex items-center gap-3 mt-2 text-xs" style={{ color: "var(--text-secondary)" }}>
-            <label className="flex items-center gap-2">
-              Rozmiar punktu
-              <input type="range" min={0.3} max={3} step={0.1} value={sizeScale} onChange={(e) => setSizeScale(Number(e.target.value))} />
-            </label>
-            <span style={{ color: "var(--text-muted)" }}>Obroc: przeciagnij &middot; Zoom: scroll &middot; Opis punktu: najedz kursorem</span>
+          <div className="flex items-center gap-3 mt-2 flex-wrap text-xs" style={{ color: "var(--text-secondary)" }}>
+            <div className="flex items-center gap-1 rounded-full p-1" style={{ background: "var(--surface-2)", border: "1px solid var(--border)" }}>
+              {(
+                [
+                  ["points", t.vessel.viewModePoints],
+                  ["mesh", t.vessel.viewModeMesh],
+                ] as [RenderMode, string][]
+              ).map(([m, label]) => (
+                <button
+                  key={m}
+                  onClick={() => setRenderMode(m)}
+                  className="text-xs font-medium rounded-full px-2.5 py-1"
+                  style={{
+                    background: renderMode === m ? "var(--brand)" : "transparent",
+                    color: renderMode === m ? "white" : "var(--text-secondary)",
+                  }}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+            {renderMode === "points" && (
+              <label className="flex items-center gap-2">
+                {t.vessel.pointSize}
+                <input
+                  type="range"
+                  className="slim-range"
+                  min={0.3}
+                  max={3}
+                  step={0.02}
+                  value={sizeScale}
+                  onChange={(e) => setSizeScale(Number(e.target.value))}
+                />
+              </label>
+            )}
+            <span style={{ color: "var(--text-muted)" }}>{t.vessel.controlsHint}</span>
           </div>
         </div>
 
         <div className="rounded-lg p-3 text-sm" style={{ background: "var(--surface-2)", border: "1px solid var(--border)" }}>
           <div className="mb-3">
             <div className="text-xs uppercase tracking-wide" style={{ color: "var(--text-muted)" }}>
-              {current.phase === "budowa" ? "Etap budowy" : "Przeglad / stan referencyjny"}
+              {current.phase === "budowa" ? t.vessel.phaseBuild : t.vessel.phaseInspectionOrRef}
             </div>
             <div className="font-medium" style={{ color: "var(--text-primary)" }}>
               {current.label}
             </div>
             <div className="text-xs" style={{ color: "var(--text-muted)" }}>
-              {formatDate(current.timestamp)}
-              {scanQ.data?.technician && scanQ.data.technician !== "-" ? ` · technik: ${scanQ.data.technician}` : ""}
+              {formatDate(current.timestamp, lang)}
+              {scanQ.data?.technician && scanQ.data.technician !== "-" ? ` · ${t.vessel.technician.toLowerCase()}: ${scanQ.data.technician}` : ""}
             </div>
             {milestoneMeta?.description && (
               <p className="text-xs mt-2" style={{ color: "var(--text-secondary)" }}>
@@ -126,46 +169,53 @@ export function HullTimelineExplorer({ vessel }: { vessel: VesselDetailResponse 
             )}
             {scanQ.data && current.phase === "eksploatacja" && current.id !== vessel.baseline.id && (
               <div className="flex gap-3 mt-2 text-xs tabular-nums" style={{ color: "var(--text-secondary)" }}>
-                <span>odchylenie szczyt.: {formatMm(scanQ.data.maxDeviationMm, 1)}</span>
-                <span>usterki: {scanQ.data.openDefectCount}</span>
+                <span>
+                  {t.vessel.peakDeviationShort}: {formatMm(scanQ.data.maxDeviationMm, 1)}
+                </span>
+                <span>
+                  {t.vessel.defectsShort}: {scanQ.data.openDefectCount}
+                </span>
               </div>
             )}
           </div>
 
           <div className="pt-3" style={{ borderTop: "1px solid var(--border)" }}>
             <div className="text-xs uppercase tracking-wide mb-1.5" style={{ color: "var(--text-muted)" }}>
-              Opis punktu pod kursorem
+              {t.vessel.pointDescriptionTitle}
             </div>
             {!pick && (
               <p className="text-xs" style={{ color: "var(--text-muted)" }}>
-                Najedz kursorem na model, aby zobaczyc, ktora sekcja kadluba jest pod kursorem i czy zarejestrowano tam usterke.
+                {t.vessel.pointDescriptionHint}
               </p>
             )}
             {pick && (
               <div className="flex flex-col gap-2">
                 <div className="text-xs" style={{ color: "var(--text-secondary)" }}>
-                  Sekcja: <span style={{ color: "var(--text-primary)" }}>{regionLabelFromUV(pick.u, pick.v)}</span>
+                  {t.vessel.section}:{" "}
+                  <span style={{ color: "var(--text-primary)" }}>
+                    {regionLabelFromUV(pick.u, pick.v, t.region.lengthBands, t.region.girthSectorsLower)}
+                  </span>
                 </div>
                 {current.phase === "budowa" ? (
                   <p className="text-xs" style={{ color: "var(--text-muted)" }}>
-                    Kadlub jeszcze w budowie - brak danych eksploatacyjnych dla tego punktu.
+                    {t.vessel.underConstructionNoData}
                   </p>
                 ) : nearestDefect ? (
                   <div className="rounded-md p-2" style={{ background: "var(--surface-1)", border: "1px solid var(--border)" }}>
                     <div className="flex items-center justify-between gap-2 mb-1">
                       <span className="font-medium text-xs" style={{ color: "var(--text-primary)" }}>
-                        {DEFECT_TYPE_LABELS[nearestDefect.type]}
+                        {t.defectType[nearestDefect.type]}
                       </span>
                       <SeverityBadge severity={nearestDefect.history[nearestDefect.history.length - 1].severity} />
                     </div>
                     <div className="text-xs mb-1" style={{ color: "var(--text-secondary)" }}>
-                      {nearestDefect.region} &middot; status: {DEFECT_STATUS_LABELS[nearestDefect.status]}
+                      {nearestDefect.region} &middot; {t.vessel.colStatus.toLowerCase()}: {t.defectStatus[nearestDefect.status]}
                     </div>
                     <Sparkline values={nearestDefect.history.map((h) => h.magnitudeMm)} width={140} height={30} />
                   </div>
                 ) : (
                   <p className="text-xs" style={{ color: "var(--text-muted)" }}>
-                    Brak zarejestrowanej usterki w tym miejscu - powierzchnia w normie.
+                    {t.vessel.noDefectHere}
                   </p>
                 )}
               </div>

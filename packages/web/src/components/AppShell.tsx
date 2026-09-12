@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useLang } from "../lib/i18n";
 
 type ThemeChoice = "system" | "light" | "dark";
 
@@ -9,6 +10,7 @@ function applyTheme(choice: ThemeChoice) {
 }
 
 function ThemeToggle() {
+  const { t } = useLang();
   const [choice, setChoice] = useState<ThemeChoice>(() => {
     const stored = localStorage.getItem("hull-scan-theme") as ThemeChoice | null;
     return stored ?? "system";
@@ -20,24 +22,39 @@ function ThemeToggle() {
   }, [choice]);
 
   const next: Record<ThemeChoice, ThemeChoice> = { system: "light", light: "dark", dark: "system" };
-  const iconLabel: Record<ThemeChoice, string> = { system: "Auto", light: "Jasny", dark: "Ciemny" };
+  const iconLabel: Record<ThemeChoice, string> = { system: t.common.themeAuto, light: t.common.themeLight, dark: t.common.themeDark };
 
   return (
     <button
       onClick={() => setChoice(next[choice])}
       className="text-xs font-medium rounded-full px-3 py-1.5 transition-colors"
       style={{ border: "1px solid var(--border)", color: "var(--text-secondary)" }}
-      title="Przelacz motyw (auto / jasny / ciemny)"
+      title={t.common.themeToggleTitle}
     >
       {iconLabel[choice]}
     </button>
   );
 }
 
-const NAV = [{ to: "/", label: "Flota" }];
+function LangToggle() {
+  const { lang, setLang, t } = useLang();
+  return (
+    <button
+      onClick={() => setLang(lang === "pl" ? "en" : "pl")}
+      className="text-xs font-semibold rounded-full px-3 py-1.5 transition-colors tabular-nums"
+      style={{ border: "1px solid var(--border)", color: "var(--text-secondary)" }}
+      title={t.common.langToggleTitle}
+    >
+      {lang === "pl" ? "PL" : "EN"}
+    </button>
+  );
+}
 
 export function AppShell({ children }: { children: ReactNode }) {
   const location = useLocation();
+  const { t } = useLang();
+  const NAV = [{ to: "/", label: t.common.fleet }];
+
   return (
     <div className="min-h-full flex flex-col" style={{ background: "var(--page-plane)" }}>
       <header
@@ -76,14 +93,15 @@ export function AppShell({ children }: { children: ReactNode }) {
             className="hidden sm:inline text-xs rounded-full px-2.5 py-1"
             style={{ color: "var(--text-muted)", border: "1px solid var(--border)" }}
           >
-            Dane demonstracyjne (syntetyczne)
+            {t.common.demoData}
           </span>
+          <LangToggle />
           <ThemeToggle />
         </div>
       </header>
       <main className="flex-1 px-6 py-6 w-full max-w-[1400px] mx-auto">{children}</main>
       <footer className="px-6 py-4 text-xs text-center" style={{ color: "var(--text-muted)" }}>
-        HullSight - dual use &middot; Gaussian Splatting &middot; analiza porownawcza kadlubow. Dane pokazowe.
+        {t.common.footer}
       </footer>
     </div>
   );

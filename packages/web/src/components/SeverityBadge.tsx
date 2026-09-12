@@ -1,5 +1,5 @@
 import type { Severity } from "../lib/types";
-import { severityLabel } from "../lib/theme";
+import { useLang } from "../lib/i18n";
 
 const DOT_VAR: Record<Severity, string> = {
   good: "var(--status-good)",
@@ -9,6 +9,7 @@ const DOT_VAR: Record<Severity, string> = {
 };
 
 export function SeverityBadge({ severity }: { severity: Severity }) {
+  const { t } = useLang();
   return (
     <span
       className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium"
@@ -23,7 +24,7 @@ export function SeverityBadge({ severity }: { severity: Severity }) {
         className="h-2 w-2 rounded-full shrink-0"
         style={{ background: DOT_VAR[severity] }}
       />
-      {severityLabel(severity)}
+      {t.severity[severity]}
     </span>
   );
 }

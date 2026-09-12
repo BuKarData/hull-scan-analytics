@@ -118,3 +118,48 @@ body {
 ::selection {
   background: color-mix(in srgb, var(--brand) 30%, transparent);
 }
+
+/* Kompaktowy, jednolity wyglad natywnych <input type="range"> we wszystkich
+   przegladarkach - domyslny suwak systemowy bywa nieproporcjonalnie duzy. */
+.slim-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 14px;
+  background: transparent;
+  cursor: pointer;
+  vertical-align: middle;
+}
+.slim-range::-webkit-slider-runnable-track {
+  height: 3px;
+  border-radius: 999px;
+  background: var(--baseline);
+}
+.slim-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  margin-top: -4.5px;
+  height: 12px;
+  width: 12px;
+  border-radius: 999px;
+  background: var(--brand);
+  border: 2px solid var(--surface-1);
+  box-shadow: 0 0 0 1px var(--border);
+  transition: transform 0.1s ease;
+}
+.slim-range::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+.slim-range::-moz-range-track {
+  height: 3px;
+  border-radius: 999px;
+  background: var(--baseline);
+}
+.slim-range::-moz-range-thumb {
+  height: 12px;
+  width: 12px;
+  border-radius: 999px;
+  background: var(--brand);
+  border: 2px solid var(--surface-1);
+  box-shadow: 0 0 0 1px var(--border);
+}

@@ -110,6 +110,3 @@ export function divergingRgb01(valueMm: number, domainMaxMm: number, palette: Re
   return [r / 255, g / 255, b / 255];
 }
 
-export function severityLabel(s: Severity): string {
-  return { good: "W normie", warning: "Do obserwacji", serious: "Powazna", critical: "Krytyczna" }[s];
-}

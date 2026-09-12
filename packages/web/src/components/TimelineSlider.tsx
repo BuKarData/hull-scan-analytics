@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { ScanPhase, Severity } from "../lib/types";
 import { formatDate } from "../lib/format";
+import { useLang } from "../lib/i18n";
 
 export interface TimelineItem {
   id: string;
@@ -24,6 +25,7 @@ const SEVERITY_VAR: Record<Severity, string> = {
 };
 
 export function TimelineSlider({ items, index, onChange }: TimelineSliderProps) {
+  const { lang, t } = useLang();
   const [playing, setPlaying] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -52,14 +54,14 @@ export function TimelineSlider({ items, index, onChange }: TimelineSliderProps) 
           onClick={() => setPlaying((p) => !p)}
           className="shrink-0 h-7 w-7 rounded-full flex items-center justify-center text-xs font-medium"
           style={{ background: "var(--brand)", color: "white" }}
-          aria-label={playing ? "Zatrzymaj" : "Odtworz historie"}
-          title={playing ? "Zatrzymaj" : "Odtworz historie od tego miejsca"}
+          aria-label={playing ? t.vessel.pause : t.vessel.play}
+          title={playing ? t.vessel.pause : t.vessel.play}
         >
           {playing ? "❚❚" : "▶"}
         </button>
         <div className="text-sm">
           <span className="font-medium" style={{ color: "var(--text-primary)" }}>
-            {formatDate(current.timestamp)}
+            {formatDate(current.timestamp, lang)}
           </span>
           <span className="mx-1.5" style={{ color: "var(--text-muted)" }}>
             &middot;
@@ -72,7 +74,7 @@ export function TimelineSlider({ items, index, onChange }: TimelineSliderProps) 
               border: "1px solid var(--border)",
             }}
           >
-            {current.phase === "budowa" ? "Etap budowy" : "Przeglad"}
+            {current.phase === "budowa" ? t.vessel.phaseBuild : t.vessel.phaseInspection}
           </span>
         </div>
       </div>
@@ -87,11 +89,10 @@ export function TimelineSlider({ items, index, onChange }: TimelineSliderProps) 
           setPlaying(false);
           onChange(Number(e.target.value));
         }}
-        className="w-full"
-        style={{ accentColor: "var(--brand)" }}
+        className="slim-range w-full"
       />
 
-      <div className="relative h-5 mt-1">
+      <div className="relative h-4 mt-1">
         {items.map((item, i) => (
           <button
             key={item.id}
@@ -99,13 +100,13 @@ export function TimelineSlider({ items, index, onChange }: TimelineSliderProps) 
               setPlaying(false);
               onChange(i);
             }}
-            title={`${formatDate(item.timestamp)} - ${item.label}`}
-            className="absolute -translate-x-1/2 rounded-full transition-transform"
+            title={`${formatDate(item.timestamp, lang)} - ${item.label}`}
+            className="absolute -translate-x-1/2 rounded-full transition-all"
             style={{
               left: `${items.length <= 1 ? 50 : (i / (items.length - 1)) * 100}%`,
               top: 0,
-              width: i === index ? 10 : 7,
-              height: i === index ? 10 : 7,
+              width: i === index ? 8 : 5,
+              height: i === index ? 8 : 5,
               background: item.severity ? SEVERITY_VAR[item.severity] : item.phase === "budowa" ? "var(--text-muted)" : "var(--brand)",
               opacity: item.phase === "budowa" && !item.severity ? 0.6 : 1,
               boxShadow: i === index ? "0 0 0 3px color-mix(in srgb, var(--brand) 25%, transparent)" : "none",
@@ -114,8 +115,8 @@ export function TimelineSlider({ items, index, onChange }: TimelineSliderProps) 
         ))}
       </div>
       <div className="flex justify-between text-[10px] mt-3" style={{ color: "var(--text-muted)" }}>
-        <span>{formatDate(items[0].timestamp)}</span>
-        <span>{formatDate(items[items.length - 1].timestamp)}</span>
+        <span>{formatDate(items[0].timestamp, lang)}</span>
+        <span>{formatDate(items[items.length - 1].timestamp, lang)}</span>
       </div>
     </div>
   );

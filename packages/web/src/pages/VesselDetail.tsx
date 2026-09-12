@@ -2,17 +2,18 @@ import { useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useAsync } from "../hooks/useAsync";
 import { api } from "../lib/api";
-import { DEFECT_STATUS_LABELS, DEFECT_TYPE_LABELS, VESSEL_TYPE_LABELS } from "../lib/types";
 import { formatDate, formatMm, formatPct } from "../lib/format";
 import { TrendLineChart } from "../components/TrendLineChart";
 import { Sparkline } from "../components/Sparkline";
 import { SeverityBadge } from "../components/SeverityBadge";
 import { StatTile } from "../components/StatTile";
 import { HullTimelineExplorer } from "../components/HullTimelineExplorer";
+import { useLang } from "../lib/i18n";
 
 export function VesselDetail() {
   const { id = "" } = useParams();
   const navigate = useNavigate();
+  const { lang, t } = useLang();
   const { data, loading, error } = useAsync(() => api.vessel(id), [id]);
 
   const [scanA, setScanA] = useState<string>("");
@@ -20,38 +21,38 @@ export function VesselDetail() {
 
   const sortedScans = useMemo(() => (data ? [...data.scans].sort((a, b) => a.timestamp.localeCompare(b.timestamp)) : []), [data]);
 
-  if (loading) return <div style={{ color: "var(--text-muted)" }}>Wczytywanie danych jednostki...</div>;
-  if (error) return <div style={{ color: "var(--status-critical)" }}>Blad: {error}</div>;
+  if (loading) return <div style={{ color: "var(--text-muted)" }}>{t.common.loadingVessel}</div>;
+  if (error) return <div style={{ color: "var(--status-critical)" }}>{t.common.error}: {error}</div>;
   if (!data) return null;
 
   const { vessel, defects } = data;
   const effA = scanA || sortedScans[0]?.id;
   const effB = scanB || sortedScans[sortedScans.length - 1]?.id;
 
-  const xLabels = sortedScans.map((s) => formatDate(s.timestamp));
+  const xLabels = sortedScans.map((s) => formatDate(s.timestamp, lang));
 
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <Link to="/" className="text-xs" style={{ color: "var(--text-muted)" }}>
-            &larr; Flota
+            &larr; {t.vessel.back}
           </Link>
           <h1 className="text-xl font-semibold mt-1" style={{ color: "var(--text-primary)" }}>
             {vessel.name}
           </h1>
           <p className="text-sm mt-0.5" style={{ color: "var(--text-secondary)" }}>
-            {VESSEL_TYPE_LABELS[vessel.type]} &middot; IMO {vessel.imo} &middot; {vessel.shipyard} &middot; port macierzysty:{" "}
-            {vessel.homePort}
+            {t.vesselType[vessel.type]} &middot; IMO {vessel.imo} &middot; {vessel.shipyard} &middot; {vessel.homePort}
           </p>
           <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>
-            Dlugosc {vessel.lengthM} m &middot; szerokosc {vessel.beamM} m &middot; w sluzbie od {formatDate(vessel.commissioned)}
+            {t.vessel.length} {vessel.lengthM} m &middot; {t.vessel.beam} {vessel.beamM} m &middot; {t.vessel.inServiceSince}{" "}
+            {formatDate(vessel.commissioned, lang)}
           </p>
         </div>
 
         <div className="flex items-end gap-2 rounded-xl p-3" style={{ background: "var(--surface-1)", border: "1px solid var(--border)" }}>
           <label className="text-xs flex flex-col gap-1">
-            <span style={{ color: "var(--text-muted)" }}>Skan A (wczesniejszy)</span>
+            <span style={{ color: "var(--text-muted)" }}>{t.vessel.scanA}</span>
             <select
               className="rounded-md px-2 py-1.5 text-sm"
               style={{ background: "var(--surface-2)", border: "1px solid var(--border)", color: "var(--text-primary)" }}
@@ -60,13 +61,13 @@ export function VesselDetail() {
             >
               {sortedScans.map((s) => (
                 <option key={s.id} value={s.id}>
-                  {formatDate(s.timestamp)} - {s.label}
+                  {formatDate(s.timestamp, lang)} - {s.label}
                 </option>
               ))}
             </select>
           </label>
           <label className="text-xs flex flex-col gap-1">
-            <span style={{ color: "var(--text-muted)" }}>Skan B (pozniejszy)</span>
+            <span style={{ color: "var(--text-muted)" }}>{t.vessel.scanB}</span>
             <select
               className="rounded-md px-2 py-1.5 text-sm"
               style={{ background: "var(--surface-2)", border: "1px solid var(--border)", color: "var(--text-primary)" }}
@@ -75,7 +76,7 @@ export function VesselDetail() {
             >
               {sortedScans.map((s) => (
                 <option key={s.id} value={s.id}>
-                  {formatDate(s.timestamp)} - {s.label}
+                  {formatDate(s.timestamp, lang)} - {s.label}
                 </option>
               ))}
             </select>
@@ -86,7 +87,7 @@ export function VesselDetail() {
             className="text-sm font-medium rounded-md px-3 py-1.5 text-white disabled:opacity-40"
             style={{ background: "var(--brand)" }}
           >
-            Porownaj
+            {t.vessel.compare}
           </button>
         </div>
       </div>
@@ -94,26 +95,26 @@ export function VesselDetail() {
       <HullTimelineExplorer vessel={data} />
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <StatTile label="Liczba skanow" value={String(sortedScans.length)} />
-        <StatTile label="Otwarte usterki" value={String(defects.filter((d) => d.status !== "naprawiona").length)} />
+        <StatTile label={t.vessel.statScanCount} value={String(sortedScans.length)} />
+        <StatTile label={t.vessel.statOpenDefects} value={String(defects.filter((d) => d.status !== "naprawiona").length)} />
         <StatTile
-          label="Ostatnie odchylenie szczytowe"
+          label={t.vessel.statLastPeak}
           value={formatMm(sortedScans[sortedScans.length - 1]?.maxDeviationMm ?? 0, 1)}
         />
         <StatTile
-          label="Powierzchnia zmieniona (ost. skan)"
+          label={t.vessel.statSurfaceChanged}
           value={formatPct(sortedScans[sortedScans.length - 1]?.surfaceChangedPct ?? 0)}
-          hint="wzgledem geometrii projektowej"
+          hint={t.vessel.statSurfaceChangedHint}
         />
       </div>
 
       <section className="grid lg:grid-cols-2 gap-4">
         <div className="rounded-xl p-4" style={{ background: "var(--surface-1)", border: "1px solid var(--border)" }}>
           <h2 className="text-sm font-semibold mb-1" style={{ color: "var(--text-primary)" }}>
-            Odchylenie od geometrii projektowej
+            {t.vessel.deviationChartTitle}
           </h2>
           <p className="text-xs mb-3" style={{ color: "var(--text-muted)" }}>
-            Srednie i szczytowe odchylenie kadluba wzgledem stanu odniesienia, w kolejnych przegladach.
+            {t.vessel.deviationChartSubtitle}
           </p>
           <TrendLineChart
             xLabels={xLabels}
@@ -121,14 +122,14 @@ export function VesselDetail() {
             series={[
               {
                 key: "avg",
-                label: "Srednie |odchylenie|",
+                label: t.vessel.avgDeviation,
                 color: getComputedColor("--series-blue"),
                 values: sortedScans.map((s) => s.avgDeviationMm),
                 formatValue: (v) => formatMm(v, 2),
               },
               {
                 key: "max",
-                label: "Szczytowe |odchylenie|",
+                label: t.vessel.peakDeviation,
                 color: getComputedColor("--series-orange"),
                 values: sortedScans.map((s) => s.maxDeviationMm),
                 formatValue: (v) => formatMm(v, 2),
@@ -139,10 +140,10 @@ export function VesselDetail() {
 
         <div className="rounded-xl p-4" style={{ background: "var(--surface-1)", border: "1px solid var(--border)" }}>
           <h2 className="text-sm font-semibold mb-1" style={{ color: "var(--text-primary)" }}>
-            Powierzchnia kadluba objeta zmiana
+            {t.vessel.surfaceChartTitle}
           </h2>
           <p className="text-xs mb-3" style={{ color: "var(--text-muted)" }}>
-            Odsetek powierzchni ze zmiana wieksza niz prog szumu skanu (1.2&nbsp;mm).
+            {t.vessel.surfaceChartSubtitle}
           </p>
           <TrendLineChart
             xLabels={xLabels}
@@ -150,7 +151,7 @@ export function VesselDetail() {
             series={[
               {
                 key: "pct",
-                label: "% powierzchni zmienionej",
+                label: t.vessel.surfacePct,
                 color: getComputedColor("--series-aqua"),
                 values: sortedScans.map((s) => s.surfaceChangedPct),
                 formatValue: (v) => formatPct(v, 2),
@@ -162,17 +163,19 @@ export function VesselDetail() {
 
       <section>
         <h2 className="text-sm font-semibold mb-3" style={{ color: "var(--text-primary)" }}>
-          Rejestr usterek ({defects.length})
+          {t.vessel.defectRegistry(defects.length)}
         </h2>
         <div className="overflow-x-auto rounded-xl" style={{ border: "1px solid var(--border)" }}>
           <table className="w-full text-sm" style={{ borderCollapse: "collapse" }}>
             <thead>
               <tr style={{ background: "var(--surface-1)" }}>
-                {["Typ", "Rejon kadluba", "Status", "Aktualne nasilenie", "Historia (mm)", "Wykryto"].map((h) => (
-                  <th key={h} className="text-left p-3 text-xs font-medium" style={{ color: "var(--text-muted)" }}>
-                    {h}
-                  </th>
-                ))}
+                {[t.vessel.colType, t.vessel.colRegion, t.vessel.colStatus, t.vessel.colSeverity, t.vessel.colHistory, t.vessel.colDetected].map(
+                  (h) => (
+                    <th key={h} className="text-left p-3 text-xs font-medium" style={{ color: "var(--text-muted)" }}>
+                      {h}
+                    </th>
+                  )
+                )}
               </tr>
             </thead>
             <tbody>
@@ -181,13 +184,13 @@ export function VesselDetail() {
                 return (
                   <tr key={d.id} style={{ borderTop: "1px solid var(--gridline)" }}>
                     <td className="p-3" style={{ color: "var(--text-primary)" }}>
-                      {DEFECT_TYPE_LABELS[d.type]}
+                      {t.defectType[d.type]}
                     </td>
                     <td className="p-3" style={{ color: "var(--text-secondary)" }}>
                       {d.region}
                     </td>
                     <td className="p-3" style={{ color: "var(--text-secondary)" }}>
-                      {DEFECT_STATUS_LABELS[d.status]}
+                      {t.defectStatus[d.status]}
                     </td>
                     <td className="p-3">
                       <SeverityBadge severity={last.severity} />
@@ -196,7 +199,7 @@ export function VesselDetail() {
                       <Sparkline values={d.history.map((h) => h.magnitudeMm)} color={getComputedColor("--series-violet")} />
                     </td>
                     <td className="p-3 tabular-nums" style={{ color: "var(--text-secondary)" }}>
-                      {formatDate(d.history.find((h) => Math.abs(h.magnitudeMm) > 0.05)?.timestamp ?? d.history[0].timestamp)}
+                      {formatDate(d.history.find((h) => Math.abs(h.magnitudeMm) > 0.05)?.timestamp ?? d.history[0].timestamp, lang)}
                     </td>
                   </tr>
                 );
@@ -208,28 +211,28 @@ export function VesselDetail() {
 
       <section>
         <h2 className="text-sm font-semibold mb-3" style={{ color: "var(--text-primary)" }}>
-          Historia skanow
+          {t.vessel.scanHistory}
         </h2>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {[...sortedScans].reverse().map((s) => (
             <div key={s.id} className="rounded-xl p-4" style={{ background: "var(--surface-1)", border: "1px solid var(--border)" }}>
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
-                  {formatDate(s.timestamp)}
+                  {formatDate(s.timestamp, lang)}
                 </span>
                 <span className="text-xs" style={{ color: "var(--text-muted)" }}>
-                  {s.pointCount.toLocaleString("pl-PL")} pkt
+                  {s.pointCount.toLocaleString(lang === "pl" ? "pl-PL" : "en-GB")} {t.vessel.points}
                 </span>
               </div>
               <p className="text-xs mt-1" style={{ color: "var(--text-secondary)" }}>
                 {s.label}
               </p>
               <p className="text-xs" style={{ color: "var(--text-muted)" }}>
-                Technik: {s.technician}
+                {t.vessel.technician}: {s.technician}
               </p>
               <div className="flex items-center gap-3 mt-2 text-xs tabular-nums" style={{ color: "var(--text-secondary)" }}>
-                <span>szczyt {formatMm(s.maxDeviationMm, 1)}</span>
-                <span>{s.openDefectCount} usterek</span>
+                <span>{t.vessel.peak} {formatMm(s.maxDeviationMm, 1)}</span>
+                <span>{s.openDefectCount} {t.vessel.defectsWord}</span>
               </div>
             </div>
           ))}

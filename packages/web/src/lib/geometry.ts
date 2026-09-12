@@ -6,9 +6,6 @@ export function uvFromIndex(index: number, uSteps: number, vSteps: number): { u:
   return { u: i / (uSteps - 1), v: j / vSteps };
 }
 
-const LENGTH_BANDS = ["Rufa", "Rufa-srodokrecie", "Srodokrecie", "Srodokrecie-dziob", "Dziob"];
-const GIRTH_SECTORS = ["burta prawa (linia wodna)", "poklad / nadburcie", "burta lewa (linia wodna)", "dno / stepka"];
-
 function girthSectorIndex(v01: number): number {
   const deg = ((v01 % 1) + 1) % 1;
   if (deg < 0.125 || deg >= 0.875) return 0;
@@ -17,10 +14,10 @@ function girthSectorIndex(v01: number): number {
   return 3;
 }
 
-export function regionLabelFromUV(u: number, v: number): string {
-  const row = Math.min(LENGTH_BANDS.length - 1, Math.floor(u * LENGTH_BANDS.length));
+export function regionLabelFromUV(u: number, v: number, lengthBands: readonly string[], girthSectorsLower: readonly string[]): string {
+  const row = Math.min(lengthBands.length - 1, Math.floor(u * lengthBands.length));
   const col = girthSectorIndex(v);
-  return `${LENGTH_BANDS[row]}, ${GIRTH_SECTORS[col]}`;
+  return `${lengthBands[row]}, ${girthSectorsLower[col]}`;
 }
 
 function angularDiff01(a: number, b: number): number {
