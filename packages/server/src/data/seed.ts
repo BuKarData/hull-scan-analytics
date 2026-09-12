@@ -45,6 +45,12 @@ interface DefectStory {
   spec: DefectSpec;
   appearAt: number; // indeks skanu, od ktorego defekt jest widoczny
   pattern: "sudden-stable" | "growing" | "growing-then-repaired" | "cyclical-fouling" | "late-onset-growing";
+  /** Opcjonalne nadpisanie domyslnego szczytowego natezenia dla danego typu -
+   *  domyslne stale w magnitudeAt() sa dobrane tak, by wiekszosc historii
+   *  ladowala w "powazne" (patrz severityOf) - do zbudowania faktycznego
+   *  zroznicowania floty (jednostka w bardzo dobrym ALBO krytycznym stanie)
+   *  trzeba pojedynczej historii pozwolic wyjsc poza ten domyslny zakres. */
+  peakOverrideMm?: number;
 }
 
 function iso(monthsAgoFromAnchor: number, anchor: Date): string {
@@ -57,11 +63,12 @@ function magnitudeAt(story: DefectStory, scanIndex: number, scanCount: number): 
   if (scanIndex < story.appearAt) return 0;
   const t = scanIndex - story.appearAt; // "wiek" defektu w skanach
   const peakBase =
-    story.type === "wgniecenie" ? -5.5 :
+    story.peakOverrideMm ??
+    (story.type === "wgniecenie" ? -5.5 :
     story.type === "peknieciecie" ? -2.2 :
     story.type === "korozja" ? -4.0 :
     story.type === "ubytek-powloki" ? -1.6 :
-    3.2; // porost-biologiczny
+    3.2); // porost-biologiczny
 
   switch (story.pattern) {
     case "sudden-stable":
@@ -183,7 +190,7 @@ function buildBlueprints(): VesselBlueprint[] {
         id: "prom-wolin",
         name: "Prom Wolin",
         type: "prom",
-        shipyard: "Stocznia Szczecińska",
+        shipyard: "Remontowa Shipbuilding, Gdańsk",
         homePort: "Świnoujście",
         imo: "SIM-0003",
         commissioned: "2015-06-20",
@@ -218,8 +225,8 @@ function buildBlueprints(): VesselBlueprint[] {
     },
     {
       vessel: {
-        id: "sts-kaszubia",
-        name: "STS Kaszubia",
+        id: "orp-kaszubia",
+        name: "ORP Kaszubia",
         type: "jednostka-patrolowa",
         shipyard: "Stocznia Crist, Świnoujście",
         homePort: "Gdańsk",
@@ -228,15 +235,20 @@ function buildBlueprints(): VesselBlueprint[] {
         lengthM: 62,
         beamM: 10,
       },
+      // Najmlodsza jednostka floty (2021) i celowo najlepiej utrzymana - kontrast
+      // wobec reszty floty na dashboardzie: same drobne, kosmetyczne sygnaly,
+      // zaden nie przekracza progu "dobra" (patrz severityOf) - pokazuje, ze
+      // narzedzie faktycznie rozroznia stan jednostek, a nie kazdej pokazuje to samo.
       modelKind: "patrol",
       scanDates: scanDates5,
       defectStories: [
         {
-          type: "peknieciecie",
-          region: "Burta prawa, wzmocnienie kadłuba",
-          spec: { kind: "linear", u: 0.6, v: 0.06, angleRad: 1.4, lengthUV: 0.06, sigma: 0.007 },
-          appearAt: 3,
-          pattern: "late-onset-growing",
+          type: "porost-biologiczny",
+          region: "Dno kadłuba, śródokręcie",
+          spec: { kind: "radial", u: 0.5, v: 0.72, sigmaU: 0.15, sigmaV: 0.1, colorTint: [-0.06, 0.05, -0.03] },
+          appearAt: 0,
+          pattern: "cyclical-fouling",
+          peakOverrideMm: 1.0,
         },
         {
           type: "ubytek-powloki",
@@ -244,6 +256,7 @@ function buildBlueprints(): VesselBlueprint[] {
           spec: { kind: "radial", u: 0.88, v: 0.55, sigmaU: 0.04, sigmaV: 0.05, colorTint: [0.1, -0.03, -0.06] },
           appearAt: 0,
           pattern: "growing",
+          peakOverrideMm: -1.0,
         },
       ],
     },
@@ -259,6 +272,11 @@ function buildBlueprints(): VesselBlueprint[] {
         lengthM: 210,
         beamM: 30,
       },
+      // Najstarsza jednostka handlowa floty i celowo najgorzej utrzymana -
+      // niepowlekana/zaniedbana korozja zbiornika balastowego eskalujaca do
+      // stanu "krytycznego" (patrz severityOf) w ostatnich przegladach, zgodnie
+      // z realnymi tempami korozji wgniebieniowej (pitting) na niepowlekanym
+      // dnie zbiornika balastowego (rzedu kilku mm/rok w skrajnych przypadkach).
       modelKind: "container",
       scanDates: scanDates6,
       defectStories: [
@@ -268,6 +286,7 @@ function buildBlueprints(): VesselBlueprint[] {
           spec: { kind: "radial", u: 0.4, v: 0.7, sigmaU: 0.07, sigmaV: 0.09, colorTint: [0.17, -0.06, -0.1] },
           appearAt: 0,
           pattern: "growing",
+          peakOverrideMm: -6.8,
         },
         {
           type: "wgniecenie",

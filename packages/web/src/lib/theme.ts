@@ -91,10 +91,14 @@ function rampColor(ramp: [string, string, string, string], t: number): string {
 }
 
 // Typowe odchylenie samego szumu skanu/rekonstrukcji (patrz deformShipModel:
-// gaussianRandom(0, scanNoiseMm*0.35) z domyslnym scanNoiseMm=0.6) - ponizej
-// tej wartosci kolor zostaje neutralny, zeby szum nie "podswietlal sie" na
-// calym kadlubie tak samo jak realna usterka.
-const NOISE_FLOOR_MM = 0.3;
+// gaussianRandom(0, scanNoiseMm*0.35) z domyslnym scanNoiseMm=0.6 -> odchylenie
+// std. ~0.21mm). Prog ustawiony na ~3 odchylenia standardowe tego szumu, zeby
+// czysto losowy szum bez zadnej realnej usterki "zapalal" kolor na mniej niz
+// ~0.3% wierzcholkow (zamiast ~15% przy progu 1.4 odchylenia, co na jednostce
+// bez usterek dawalo widoczny, ciagly "pas" fałszywego uszkodzenia wzdluz
+// stepki - artefakt cieniowania Gouraud na waskiej, jednowierzcholkowej linii
+// dna kadluba, nie realny defekt).
+const NOISE_FLOOR_MM = 0.65;
 
 /**
  * Odchylenie -> kolor rozbiezny (diverging): niebieski = narost/wybrzuszenie

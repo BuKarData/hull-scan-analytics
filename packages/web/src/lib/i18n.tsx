@@ -233,7 +233,8 @@ const pl: Dict = {
     tabConstruction: "Historia budowy",
     tabService: "Eksploatacja",
     constructionSubtitle: "Przesuń suwak, aby zobaczyć postęp budowy kadłuba na pochylni - od pierwszych sekcji do wodowania.",
-    serviceSubtitle: "Przesuń suwak, aby zobaczyć kolejne przeglądy od odbioru jednostki do dziś.",
+    serviceSubtitle:
+      "Przesuń suwak, aby zobaczyć kolejne przeglądy od odbioru jednostki do dziś. Regularne skanowanie 3D wdrożono flotowo w 2024 r. - wcześniejsze lata eksploatacji nie mają jeszcze cyfrowej historii porównawczej.",
     pointSize: "Rozmiar punktu",
     deformationScaleNote: (factor: number) =>
       factor <= 1
@@ -276,7 +277,8 @@ const pl: Dict = {
     noChange: "brak zmiany",
     bulge: "narost",
     clustersTitle: (n: number) => `Automatycznie wykryte skupiska zmian (${n})`,
-    clustersEmpty: (mm: number) => `Brak zmian przekraczających próg szumu skanu (${mm} mm) między wybranymi skanami.`,
+    clustersEmpty: (mm: number) =>
+      `Brak spójnego, przestrzennie ciągłego obszaru zmian przekraczającego próg szumu skanu (${mm} mm) między wybranymi skanami. Heatmapa regionów obok pokazuje surowe średnie odchylenie w danym regionie i może wciąż pokazywać kolor przy drobnych, rozproszonych różnicach, które nie tworzą klastra.`,
     colSuggestedType: "Sugerowany typ",
     colNature: "Charakter",
     colPeak: "Szczyt",
@@ -409,7 +411,8 @@ const en: Dict = {
     tabConstruction: "Construction history",
     tabService: "Service",
     constructionSubtitle: "Drag the slider to see the hull build progress on the slipway - from the first sections to launch.",
-    serviceSubtitle: "Drag the slider to see successive inspections from delivery to today.",
+    serviceSubtitle:
+      "Drag the slider to see successive inspections from delivery to today. Fleet-wide 3D scanning rolled out in 2024 - earlier years of service don't yet have a digital comparison history.",
     pointSize: "Point size",
     deformationScaleNote: (factor: number) =>
       factor <= 1
@@ -451,7 +454,8 @@ const en: Dict = {
     noChange: "no change",
     bulge: "bulge",
     clustersTitle: (n: number) => `Automatically detected change clusters (${n})`,
-    clustersEmpty: (mm: number) => `No changes above the scan noise threshold (${mm} mm) between the selected scans.`,
+    clustersEmpty: (mm: number) =>
+      `No spatially contiguous area of change above the scan noise threshold (${mm} mm) between the selected scans. The region heatmap alongside shows raw average deviation per region and can still show color for small, scattered differences that don't form a cluster.`,
     colSuggestedType: "Suggested type",
     colNature: "Nature",
     colPeak: "Peak",
