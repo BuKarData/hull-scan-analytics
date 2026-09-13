@@ -29,6 +29,7 @@ export interface Copy {
     toast: string;
     rec: string;
     dateStamp: string;
+    qrHook: string;
   };
   problem: { kicker: string; title: string; subtitle: string; costLabel: string; costValue: string; costHint: string };
   bridge: { kicker: string; title: string; subtitle: string; head: string[]; rows: { who: string; cost: string; speed: string; access: string; depth: string; verdict: string; accent?: boolean }[]; summaryLabel: string; summaryTime: string; summaryCost: string; summaryNote: string };
@@ -123,6 +124,7 @@ const pl: Copy = {
     toast: "Film demo startuje na pełnym ekranie — wyciszony, w pętli.",
     rec: "INSP",
     dateStamp: "2026-09-12",
+    qrHook: "Oszczędź 100 000 zł. Zeskanuj →",
   },
   problem: {
     kicker: "Problem",
@@ -228,7 +230,7 @@ const pl: Copy = {
     gsdLead: "To nie magia, tylko geometria: im gęstszy piksel na kadłubie, tym mniejszy detal do odczytania. Poniżej rozdzielczość pomiaru rzędu GSD dla typowych scen.",
     gsdHead: ["Źródło nagrania", "Rozdzielczość", "Dystans", "Rozdzielczość pomiaru"],
     gsd: [
-      ["Telefon flotowy (48 MP)", "48 MP", "3-4 m", "≈ 1-2 mm"],
+      ["Telefon wyższej półki (48 MP)", "48 MP", "3-4 m", "≈ 1-2 mm"],
       ["Telefon (12 MP)", "12 MP", "4-5 m", "≈ 2-4 mm"],
       ["Kamera nabrzeża 4K (8 MP)", "8 MP", "6-10 m", "≈ 4-8 mm"],
       ["Kamera CCTV (2 MP)", "2 MP", "10-15 m", "≈ 8-15 mm"],
@@ -333,6 +335,7 @@ const en: Copy = {
     toast: "The demo film runs full-screen — muted, looping.",
     rec: "INSP",
     dateStamp: "2026-09-12",
+    qrHook: "Save €25,000. Scan →",
   },
   problem: {
     kicker: "The problem",
@@ -438,7 +441,7 @@ const en: Copy = {
     gsdLead: "Not magic — geometry: the denser the pixel on the hull, the smaller the detail you can read. Below, measurement resolution on the order of GSD for typical capture scenes.",
     gsdHead: ["Capture source", "Resolution", "Distance", "Measurement resolution"],
     gsd: [
-      ["Fleet phone (48 MP)", "48 MP", "3-4 m", "≈ 1-2 mm"],
+      ["Premium-tier phone (48 MP)", "48 MP", "3-4 m", "≈ 1-2 mm"],
       ["Phone (12 MP)", "12 MP", "4-5 m", "≈ 2-4 mm"],
       ["Berth camera 4K (8 MP)", "8 MP", "6-10 m", "≈ 4-8 mm"],
       ["CCTV camera (2 MP)", "2 MP", "10-15 m", "≈ 8-15 mm"],

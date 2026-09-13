@@ -477,7 +477,10 @@ function heroMarkup(): string {
     <div class="grain"></div>
 
     <a class="hero-qr" href="https://hullsight.pl" target="_blank" rel="noopener" aria-label="Zeskanuj kod, aby otworzyc hullsight.pl">
-      <img src="/hullsight-qr.png" alt="Kod QR do hullsight.pl" width="256" height="256" loading="eager">
+      <span class="hero-qr-hook" id="qrHook"></span>
+      <span class="hero-qr-ring">
+        <img src="/hullsight-qr.png" alt="Kod QR do hullsight.pl" width="256" height="256" loading="eager">
+      </span>
       <span class="hero-qr-label">hullsight.pl</span>
     </a>
 
@@ -589,6 +592,7 @@ export function boot() {
     setText("ctaFilm", c.ctaSecondary);
     setText("ctaWhy", c.ctaTertiary);
     setText("scrollHintLabel", c.scrollHint);
+    setText("qrHook", c.qrHook);
   }
 
   function renderSections() {
