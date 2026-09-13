@@ -202,7 +202,7 @@ const pl: Copy = {
       "SBOM + rejestr aktualizacji — gotowość pod CRA",
       "Model open-source: audytowalny, powielalny u klienta",
     ],
-    quote: "Wygramy ten hackathon. Po nim nie znikamy — zostajemy na wodzie, z pilotami ENAMOR i armatorów Bałtyku.",
+    quote: "Ten hackathon to dla nas akcelerator, nie meta. Zaraz po nim wychodzimy z tym na rynek — na wodę, z pilotami ENAMOR i armatorów Bałtyku.",
   },
   market: {
     kicker: "Rynek i konkurencja",
@@ -411,7 +411,7 @@ const en: Copy = {
       "SBOM + update registry — CRA-ready",
       "Open-source model — auditable, re-runnable at the client",
     ],
-    quote: "We'll win this hackathon. And afterwards we stay on the water — with ENAMOR and Baltic owners on pilot.",
+    quote: "This hackathon is an accelerator for us, not the finish line. Right after it we take this to market — on the water, with ENAMOR and Baltic owners on pilot.",
   },
   market: {
     kicker: "Market & competition",

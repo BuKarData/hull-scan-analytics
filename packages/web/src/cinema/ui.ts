@@ -699,13 +699,49 @@ export function boot() {
     window.addEventListener("resize", check, { passive: true });
   }
 
+  // Chapters are long-form scrolling panels, not literal one-screen slides,
+  // so jumping to one via the rail/scroll-hint normally only reveals its top
+  // sliver on a laptop-height screen - the rest needs a manual scroll. When
+  // navigating between chapters (as opposed to free scrolling), shrink the
+  // chapter to fit the viewport so the whole thing is visible at once, like
+  // an actual presentation slide. Uses CSS zoom (not transform: scale)
+  // specifically because zoom reflows layout, so the section's own height
+  // shrinks to match - no leftover blank gap below it.
+  function fitChapterToViewport(target: HTMLElement) {
+    if (!target.classList.contains("sec")) return;
+    const inner = target.querySelector<HTMLElement>(".sec-inner");
+    if (!inner) return;
+    target.style.paddingTop = "";
+    target.style.paddingBottom = "";
+    inner.style.zoom = "1";
+    const cs = getComputedStyle(target);
+    const padTop = parseFloat(cs.paddingTop) || 0;
+    const padBottom = parseFloat(cs.paddingBottom) || 0;
+    const innerH = inner.getBoundingClientRect().height;
+    const natural = padTop + innerH + padBottom;
+    const navOffset = 84;
+    const breathing = 20;
+    const available = window.innerHeight - navOffset - breathing;
+    if (natural > available && available > 0) {
+      const scale = Math.max(0.52, Math.min(1, available / natural));
+      target.style.paddingTop = `${padTop * scale}px`;
+      target.style.paddingBottom = `${padBottom * scale}px`;
+      inner.style.zoom = String(scale);
+    }
+  }
+
+  function goToSection(target: HTMLElement) {
+    fitChapterToViewport(target);
+    target.scrollIntoView({ behavior: "smooth" });
+  }
+
   function wireScrollHint() {
     const hint = document.getElementById("scrollHint");
     if (!hint) return;
     window.setTimeout(() => hint.classList.add("show"), 3000);
     hint.addEventListener("click", () => {
       const target = document.getElementById("gap");
-      if (target) target.scrollIntoView({ behavior: "smooth" });
+      if (target) goToSection(target);
     });
   }
 
@@ -748,7 +784,7 @@ export function boot() {
         const target = document.querySelector<HTMLElement>(href);
         if (target) {
           e.preventDefault();
-          target.scrollIntoView({ behavior: "smooth" });
+          goToSection(target);
         }
       });
     });
