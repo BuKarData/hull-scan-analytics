@@ -734,7 +734,17 @@ export function boot() {
     if (!hint) return;
     window.setTimeout(() => hint.classList.add("show"), 3000);
     hint.addEventListener("click", () => {
-      const target = document.getElementById("gap");
+      // Advance to the chapter after the current one, not a fixed target -
+      // the hint stays visible/clickable for the whole page (it only hides
+      // near the very bottom), so each click should move further on.
+      const cen = window.scrollY + window.innerHeight * 0.5;
+      let cur = -1;
+      RAIL_IDS.forEach((id, i) => {
+        const s = document.getElementById(id);
+        if (s && s.getBoundingClientRect().top + window.scrollY <= cen) cur = i;
+      });
+      const next = RAIL_IDS[Math.min(cur + 1, RAIL_IDS.length - 1)];
+      const target = document.getElementById(next);
       if (target) goToSection(target);
     });
   }
