@@ -39,11 +39,12 @@ function secProblem(lang: Lang): string {
   const p = DICTS[lang].problem;
   return `
   <section id="why" class="sec">
-    <div class="sec-inner reveal">
-      <span class="eyebrow">${p.kicker}</span>
-      <h2 class="sec-title">${p.title}</h2>
-      <p class="sec-sub">${p.subtitle}</p>
-      <div class="split">
+    <div class="sec-inner stagger stagger--slow">
+      <span class="sec-num" aria-hidden="true">01</span>
+      <span class="eyebrow" style="--i:1">${p.kicker}</span>
+      <h2 class="sec-title" style="--i:2">${p.title}</h2>
+      <p class="sec-sub" style="--i:3">${p.subtitle}</p>
+      <div class="split" style="--i:4">
         <div class="split-num">${p.costValue}</div>
         <div>
           <div class="label-bad">${p.costLabel}</div>
@@ -58,22 +59,31 @@ function secBridge(lang: Lang): string {
   const b = DICTS[lang].bridge;
   const head = b.head.map((h) => `<span>${h}</span>`).join("");
   const rows = b.rows
-    .map((r) => {
+    .map((r, i) => {
       const cells = [r.who, r.cost, r.speed, r.access, r.depth, r.verdict]
         .map((c, j) => `<div class="b-cell${j === 0 ? " b-who" : ""}${j === 5 ? " b-verdict" : ""}"><span class="mobile-label">${b.head[j]}</span>${c}</div>`)
         .join("");
-      return `<div class="b-row${r.accent ? " b-accent" : ""}">${cells}</div>`;
+      return `<div class="b-row${r.accent ? " b-accent" : ""}" style="--i:${i + 1}">${cells}</div>`;
     })
     .join("");
   return `
   <section id="gap" class="sec">
-    <div class="sec-inner reveal">
-      <span class="eyebrow">${b.kicker}</span>
-      <h2 class="sec-title">${b.title}</h2>
-      <p class="sec-sub">${b.subtitle}</p>
-      <div class="b-table">
-        <div class="b-head">${head}</div>
+    <div class="sec-inner stagger">
+      <span class="sec-num" aria-hidden="true">02</span>
+      <span class="eyebrow" style="--i:1">${b.kicker}</span>
+      <h2 class="sec-title" style="--i:2">${b.title}</h2>
+      <p class="sec-sub" style="--i:3">${b.subtitle}</p>
+      <div class="b-table stagger" style="--i:4">
+        <div class="b-head" style="--i:0">${head}</div>
         ${rows}
+      </div>
+      <div class="b-summary stagger" style="--i:5">
+        <span class="hud dim" style="--i:1">${b.summaryLabel}</span>
+        <div class="b-sgrid" style="--i:2">
+          <div class="b-s"><b>CZAS</b><span>${b.summaryTime}</span></div>
+          <div class="b-s"><b>KOSZT</b><span>${b.summaryCost}</span></div>
+        </div>
+        <p class="dim slim" style="--i:3">${b.summaryNote}</p>
       </div>
     </div>
   </section>`;
@@ -83,79 +93,158 @@ function secHow(lang: Lang): string {
   const h = DICTS[lang].how;
   const steps = h.steps
     .map(
-      (s) => `
-      <div class="step">
+      (s, i) => `
+      <div class="step" style="--i:${i + 1}">
         <div class="step-num">${s.n}</div>
         <h3 class="step-title">${s.t}</h3>
         <p class="dim step-d">${s.d}</p>
       </div>`
     )
     .join("");
-  const tech = h.tech.map((x) => `<span class="hud-tag"><span class="accent">/</span> ${x}</span>`).join("");
+  const tech = h.tech.map((x, i) => `<span class="hud-tag" style="--i:${i + 1}"><span class="accent">/</span> ${x}</span>`).join("");
   return `
   <section id="how" class="sec">
-    <div class="sec-inner reveal">
-      <span class="eyebrow">${h.kicker}</span>
-      <h2 class="sec-title">${h.title}</h2>
-      <p class="sec-sub">${h.subtitle}</p>
-      <div class="steps">${steps}</div>
-      <div class="tech-row">${tech}</div>
+    <div class="sec-inner stagger">
+      <span class="sec-num" aria-hidden="true">03</span>
+      <span class="eyebrow" style="--i:1">${h.kicker}</span>
+      <h2 class="sec-title" style="--i:2">${h.title}</h2>
+      <p class="sec-sub" style="--i:3">${h.subtitle}</p>
+      <div class="steps stagger stagger--fast" style="--i:4">${steps}</div>
+      <div class="tech-row stagger" style="--i:5">${tech}</div>
     </div>
   </section>`;
 }
 
-function heatCells(): string {
-  let out = "";
-  for (let r = 0; r < 10; r++) {
-    for (let c = 0; c < 20; c++) {
-      const x = c / 20;
-      const y = r / 10;
-      let v = Math.sin(x * 9 + y * 4) * 0.12;
-      if ((x > 0.55 && x < 0.72 && y > 0.5 && y < 0.75) || (x > 0.1 && x < 0.22 && y > 0.15 && y < 0.4)) v = -0.85;
-      if (x > 0.3 && x < 0.45 && y > 0.6 && y < 0.95) v = -0.55;
-      if (x > 0.74 && x < 0.9 && y < 0.32) v = 0.75;
-      out += `<i style="background:${v < 0 ? `rgba(255,92,108,${0.15 + -v * 0.85})` : v > 0 ? `rgba(55,242,255,${0.5 + v * 0.5})` : "rgba(140,160,185,0.16)"}"></i>`;
-    }
-  }
-  return out;
+function secStatus(lang: Lang): string {
+  const s = DICTS[lang].status;
+  const li = (xs: string[]) => xs.map((x, i) => `<li style="--i:${i + 1}"><i class="dot"></i>${x}</li>`).join("");
+  return `
+  <section id="status" class="sec">
+    <div class="sec-inner stagger">
+      <span class="sec-num" aria-hidden="true">04</span>
+      <span class="eyebrow" style="--i:1">${s.kicker}</span>
+      <h2 class="sec-title" style="--i:2">${s.title}</h2>
+      <p class="sec-sub" style="--i:3">${s.subtitle}</p>
+      <div class="st-phase" style="--i:4">
+        <div class="hud dim">${s.phaseLabel}</div>
+        <div class="st-phases stagger">
+          <div class="card st-card" style="--i:1">
+            <span class="st-tag">${s.hatTag}</span>
+            <span class="st-flag">${s.hatFlag}</span>
+            <h3 class="st-title">${s.hatTitle}</h3>
+            <ul class="st-list">${li(s.hatItems)}</ul>
+          </div>
+          <div class="st-arrow" aria-hidden="true">&rarr;</div>
+          <div class="card st-card st-mid" style="--i:2">
+            <span class="st-tag">${s.midTag}</span>
+            <span class="st-flag st-flag-hot">${s.midFlag}</span>
+            <h3 class="st-title">${s.midTitle}</h3>
+            <ul class="st-list">${li(s.midItems)}</ul>
+          </div>
+          <div class="st-arrow" aria-hidden="true">&rarr;</div>
+          <div class="card st-card" style="--i:3">
+            <span class="st-tag">${s.fatTag}</span>
+            <span class="st-flag">${s.fatFlag}</span>
+            <h3 class="st-title">${s.fatTitle}</h3>
+            <ul class="st-list">${li(s.fatItems)}</ul>
+          </div>
+        </div>
+        <p class="hud dim st-ace"><span class="accent">⚑</span> ${s.aceNote}</p>
+      </div>
+      <div class="grid-3 stagger" style="--i:5">
+        <div class="card st-card" style="--i:1">
+          <span class="st-tag">${s.enamorTag}</span>
+          <h3 class="st-title">${s.enamorTitle}</h3>
+          <p class="dim slim">${s.enamorBody}</p>
+        </div>
+        <div class="card st-card" style="--i:2">
+          <span class="st-tag">${s.sunreefTag}</span>
+          <h3 class="st-title">${s.sunreefTitle}</h3>
+          <p class="dim slim">${s.sunreefBody}</p>
+        </div>
+        <div class="card st-card" style="--i:3">
+          <span class="st-tag">${s.modelTag}</span>
+          <h3 class="st-title">${s.modelTitle}</h3>
+          <p class="dim slim">${s.modelBody}</p>
+        </div>
+      </div>
+      <div class="card cra-box" style="--i:6">
+        <div class="cra-badge" aria-hidden="true">
+          <svg class="cra-shield" viewBox="0 0 48 56" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"><path d="M24 2 L44 8 V28 C44 41 35 49 24 54 C13 49 4 41 4 28 V8 Z"></path><path d="M16 27 l6 6 l11 -13"></path></svg>
+          <span class="cra-letters">CRA</span>
+        </div>
+        <div class="cra-in">
+          <span class="hud dim" style="--i:1">${s.craTag}</span>
+          <h3 class="st-title" style="--i:2">${s.craTitle}</h3>
+          <p class="dim slim" style="--i:3">${s.craBody}</p>
+          <ul class="st-list cra-list stagger" style="--i:4">${li(s.craItems)}</ul>
+        </div>
+      </div>
+      <blockquote class="quote" style="--i:7">${s.quote}</blockquote>
+    </div>
+  </section>`;
 }
 
-function secDetect(lang: Lang): string {
-  const d = DICTS[lang].detect;
-  const rows = d.defects
+function secMarket(lang: Lang): string {
+  const m = DICTS[lang].market;
+  const players = m.players
     .map(
-      (df) => `
-      <div class="d-row">
-        <div class="d-main">
-          <div class="d-name">${lang === "pl" ? df.name : df.en}</div>
-          <div class="dim d-desc">${df.d}</div>
+      (p, i) => `
+      <div class="m-row" style="--i:${i + 1}">
+        <div>
+          <div class="m-name">${p.name}</div>
+          <div class="dim slim m-what">${p.what}</div>
         </div>
-        <div class="d-side">
-          <span class="d-sev">${df.sev}</span>
-          <span class="d-mm">${df.mm}</span>
-        </div>
+        <div class="m-lens"><span class="label-accent" style="color:var(--b-bad)">${lang === "pl" ? "patrzy:" : "lens:"}</span> ${p.lens}</div>
       </div>`
     )
     .join("");
-  const legend = d.gridLegend
-    .map((l, i) => `<span class="lg"><i class="lg-dot" style="background:${["#ff5c6c", "#8ca0b9", "#37f2ff"][i]}"></i>${l}</span>`)
+  const diffHead = m.diffHead.map((h) => `<span>${h}</span>`).join("");
+  const diffRows = m.diffRows
+    .map(
+      (r, i) => `
+      <div class="m-diff-row" style="--i:${i + 1}">
+        <b class="m-cat">${r[0]}</b>
+        <span class="m-them">${r[1]}</span>
+        <span class="m-us">${r[2]}</span>
+      </div>`
+    )
+    .join("");
+  const gsdHead = m.gsdHead.map((h) => `<span>${h}</span>`).join("");
+  const gsdRows = m.gsd
+    .map(
+      (r, i) => `
+      <div class="gsd-row${i === 0 ? " gsd-top" : ""}" style="--i:${i + 1}">
+        ${r.map((c, j) => `<span class="gsd-cell${j === 3 ? " gsd-mm" : ""}">${c}</span>`).join("")}
+      </div>`
+    )
     .join("");
   return `
-  <section id="detect" class="sec">
-    <div class="sec-inner reveal">
-      <span class="eyebrow">${d.kicker}</span>
-      <h2 class="sec-title">${d.title}</h2>
-      <p class="sec-sub">${d.subtitle}</p>
-      <div class="grid-2">
-        <div class="d-list">${rows}</div>
-        <div class="card heat-card">
-          <div class="card-head">
-            <span class="hud dim">${d.gridCaption}</span>
-            <span class="pulse-dot"></span>
-          </div>
-          <div class="heat-grid">${heatCells()}</div>
-          <div class="heat-legend">${legend}</div>
+  <section id="market" class="sec">
+    <div class="sec-inner stagger">
+      <span class="sec-num" aria-hidden="true">05</span>
+      <span class="eyebrow" style="--i:1">${m.kicker}</span>
+      <h2 class="sec-title" style="--i:2">${m.title}</h2>
+      <p class="sec-sub" style="--i:3">${m.subtitle}</p>
+      <blockquote class="quote" style="--i:4">${m.claim}</blockquote>
+      <div class="m-play" style="--i:5">
+        <div class="hud dim">${m.playersTitle}</div>
+        <div class="m-rows stagger">${players}</div>
+      </div>
+      <div class="m-diff stagger" style="--i:6">
+        <div class="m-diff-head" style="--i:0">${diffHead}</div>
+        ${diffRows}
+      </div>
+      <div class="card gsd" style="--i:7">
+        <div class="card-head" style="--i:1">
+          <span class="hud dim">${m.gsdKicker}</span>
+          <span class="pulse-dot"></span>
         </div>
+        <h3 class="gsd-title" style="--i:2">${m.gsdTitle}</h3>
+        <p class="dim slim" style="--i:3">${m.gsdLead}</p>
+        <div class="gsd-head" style="--i:0">${gsdHead}</div>
+        ${gsdRows}
+        <p class="hud dim gsd-formula" style="--i:8">${m.gsdFormula}</p>
       </div>
     </div>
   </section>`;
@@ -163,22 +252,44 @@ function secDetect(lang: Lang): string {
 
 function secDual(lang: Lang): string {
   const d = DICTS[lang].dualuse;
-  const cards = (k: "civilian" | "defense") =>
-    `<div class="card dcard" style="border-top:2px solid ${k === "civilian" ? "#3b9dff" : "#8b6cff"}">
-      <div class="label-accent" style="color:${k === "civilian" ? "#3b9dff" : "#8b6cff"}">${d[k].head}</div>
+  const color: Record<string, string> = { civilian: "#2a78d6", defense: "#4a3aa7", yard: "#c07d26", consumer: "#0e7a6a" };
+  const cards = (k: "civilian" | "defense" | "yard" | "consumer", i: number) =>
+    `<div class="card dcard stagger stagger--${i % 2 ? "inL" : "inR"}" style="--i:${i};border-top:2px solid ${color[k]}">
+      <div class="label-accent" style="color:${color[k]}">${d[k].head}</div>
       <h3 class="dcard-title">${d[k].title}</h3>
       <ul class="dcard-list">
-        ${d[k].items.map((it) => `<li><i class="dot" style="background:${k === "civilian" ? "#3b9dff" : "#8b6cff"}"></i>${it}</li>`).join("")}
+        ${d[k].items.map((it) => `<li><i class="dot" style="background:${color[k]}"></i>${it}</li>`).join("")}
       </ul>
     </div>`;
+  const money = d.money
+    .map(
+      (mo, i) => `
+      <div class="mcard" style="--i:${i + 1}">
+        <div class="mcard-big">${mo.big}</div>
+        <div class="mcard-label">${mo.label}</div>
+        <div class="hud dim mcard-note">${mo.note}</div>
+      </div>`
+    )
+    .join("");
   return `
   <section id="dual" class="sec">
-    <div class="sec-inner reveal">
-      <span class="eyebrow">${d.kicker}</span>
-      <h2 class="sec-title">${d.title}</h2>
-      <p class="sec-sub">${d.subtitle}</p>
-      <div class="grid-2">${cards("civilian")}${cards("defense")}</div>
-      <blockquote class="quote">${d.line}</blockquote>
+    <div class="sec-inner stagger">
+      <span class="sec-num" aria-hidden="true">06</span>
+      <span class="eyebrow" style="--i:1">${d.kicker}</span>
+      <h2 class="sec-title" style="--i:2">${d.title}</h2>
+      <p class="sec-sub" style="--i:3">${d.subtitle}</p>
+      <div class="dcards stagger" style="--i:4">
+        ${cards("civilian", 1)}${cards("defense", 2)}${cards("yard", 3)}${cards("consumer", 4)}
+      </div>
+      <div class="money stagger" style="--i:5">
+        <div class="card-head" style="--i:1">
+          <span class="hud dim">${d.moneyCaption}</span>
+          <span class="pulse-dot"></span>
+        </div>
+        <h3 class="dcard-title" style="--i:2">${d.moneyTitle}</h3>
+        <div class="money-grid stagger" style="--i:3">${money}</div>
+      </div>
+      <blockquote class="quote" style="--i:6">${d.line}</blockquote>
     </div>
   </section>`;
 }
@@ -194,21 +305,21 @@ function sparkline(): string {
   <svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" class="spark">
     <defs>
       <linearGradient id="sg" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="rgba(59,157,255,0.35)"></stop>
-        <stop offset="1" stop-color="rgba(59,157,255,0.02)"></stop>
+        <stop offset="0" stop-color="rgba(42,120,214,0.3)"></stop>
+        <stop offset="1" stop-color="rgba(42,120,214,0.02)"></stop>
       </linearGradient>
     </defs>
     <path d="${area}" fill="url(#sg)"></path>
-    <path d="${peak}" fill="none" stroke="#8fa3bd" stroke-width="2" vector-effect="non-scaling-stroke"></path>
-    <path d="${avg}" fill="none" stroke="#3b9dff" stroke-width="2" vector-effect="non-scaling-stroke"></path>
-    <line x1="0" y1="${h}" x2="${w}" y2="${h}" stroke="rgba(226,232,240,0.1)" stroke-width="1" vector-effect="non-scaling-stroke"></line>
-    <line x1="0" y1="${h * 0.25}" x2="${w}" y2="${h * 0.25}" stroke="rgba(226,232,240,0.06)" stroke-width="1" vector-effect="non-scaling-stroke"></line>
-    <g fill="#3b9dff">
+    <path d="${peak}" fill="none" stroke="#9aa0a6" stroke-width="2" vector-effect="non-scaling-stroke"></path>
+    <path d="${avg}" fill="none" stroke="#2a78d6" stroke-width="2" vector-effect="non-scaling-stroke"></path>
+    <line x1="0" y1="${h}" x2="${w}" y2="${h}" stroke="rgba(11,11,11,0.1)" stroke-width="1" vector-effect="non-scaling-stroke"></line>
+    <line x1="0" y1="${h * 0.25}" x2="${w}" y2="${h * 0.25}" stroke="rgba(11,11,11,0.05)" stroke-width="1" vector-effect="non-scaling-stroke"></line>
+    <g fill="#2a78d6">
       <circle cx="${TREND_AVG.length - 1}" cy="${h - 4}" r="0"></circle>
     </g>
     ${ticks
       .split(" ")
-      .map((x, i) => `<text x="${x}" y="${h + 18}" text-anchor="middle" fill="rgba(226,232,240,0.45)" font-family="ui-monospace,monospace" font-size="10">SC${i + 1}</text>`)
+      .map((x, i) => `<text x="${x}" y="${h + 18}" text-anchor="middle" fill="rgba(11,11,11,0.45)" font-family="ui-monospace,monospace" font-size="10">SC${i + 1}</text>`)
       .join("")}
   </svg>`;
 }
@@ -217,17 +328,17 @@ function secProof(lang: Lang): string {
   const p = DICTS[lang].proof;
   const stats = p.stats
     .map(
-      (s) => `
-      <div class="stat">
-        <div class="stat-big">${s.big}${s.unit && `<span class="stat-unit">${s.unit}</span>`}</div>
+      (s, i) => `
+      <div class="stat" style="--i:${i + 1}">
+        <div class="stat-big" data-cnt="${s.big}${s.unit}">0${s.unit && `<span class="stat-unit">${s.unit}</span>`}</div>
         <div class="stat-label">${s.label}</div>
         <div class="hud dim stat-note">${s.note}</div>
       </div>`
     )
     .join("");
   const fleet = FLEET.map(
-    (f) => `
-    <a class="card fleet" href="#cta">
+    (f, i) => `
+    <a class="card fleet" href="#cta" style="--i:${i + 1}">
       <div class="fhead"><span class="hud dim">${f.type}</span><span class="num dim">${f.len} m</span></div>
       <div class="fname">${f.name}</div>
       <div class="fmeta">${f.scans} scans · ${f.defects} open</div>
@@ -235,22 +346,23 @@ function secProof(lang: Lang): string {
   ).join("");
   return `
   <section id="proof" class="sec">
-    <div class="sec-inner reveal">
-      <span class="eyebrow">${p.kicker}</span>
-      <h2 class="sec-title">${p.title}</h2>
-      <p class="sec-sub">${p.subtitle}</p>
-      <div class="stats">${stats}</div>
-      <div class="card trend-card">
-        <div class="card-head">
+    <div class="sec-inner stagger">
+      <span class="sec-num" aria-hidden="true">07</span>
+      <span class="eyebrow" style="--i:1">${p.kicker}</span>
+      <h2 class="sec-title" style="--i:2">${p.title}</h2>
+      <p class="sec-sub" style="--i:3">${p.subtitle}</p>
+      <div class="stats stagger count-group" style="--i:4">${stats}</div>
+      <div class="card trend-card stagger" style="--i:5">
+        <div class="card-head" style="--i:1">
           <span class="t-title">${p.trendTitle}</span>
-          <span class="t-legend"><i class="lg-dot" style="background:#3b9dff"></i>${p.trendLegend1}<i class="lg-dot" style="background:#8fa3bd"></i>${p.trendLegend2}</span>
+          <span class="t-legend"><i class="lg-dot" style="background:#2a78d6"></i>${p.trendLegend1}<i class="lg-dot" style="background:#9aa0a6"></i>${p.trendLegend2}</span>
         </div>
-        <div class="spark-wrap">${sparkline()}</div>
-        <div class="card-foot">${p.trendCaption}</div>
+        <div class="spark-wrap" style="--i:2">${sparkline()}</div>
+        <div class="card-foot" style="--i:3">${p.trendCaption}</div>
       </div>
-      <div class="fleet-label">${p.fleet}</div>
-      <div class="fleet-grid">${fleet}</div>
-      <div class="card tooling">
+      <div class="fleet-label" style="--i:6">${p.fleet}</div>
+      <div class="fleet-grid stagger" style="--i:7">${fleet}</div>
+      <div class="card tooling" style="--i:8">
         <div class="t-title">${p.toolingTitle}</div>
         <p class="dim slim">${p.toolingText}</p>
         <p class="warn slim">${p.note}</p>
@@ -264,7 +376,7 @@ function secObjects(lang: Lang): string {
   const items = o.items
     .map(
       (it, i) => `
-      <details class="obj" ${i === 0 ? "open" : ""}>
+      <details class="obj" ${i === 0 ? "open" : ""} style="--i:${i + 1}">
         <summary class="obj-q">${it.q}<span class="obj-x"></span></summary>
         <p class="obj-a">${it.a}</p>
       </details>`
@@ -272,10 +384,11 @@ function secObjects(lang: Lang): string {
     .join("");
   return `
   <section id="obj" class="sec narrow">
-    <div class="reveal">
-      <span class="eyebrow">${o.kicker}</span>
-      <h2 class="sec-title">${o.title}</h2>
-      <div class="obj-list">${items}</div>
+    <div class="stagger stagger--slow">
+      <span class="sec-num" aria-hidden="true">08</span>
+      <span class="eyebrow" style="--i:1">${o.kicker}</span>
+      <h2 class="sec-title" style="--i:2">${o.title}</h2>
+      <div class="obj-list stagger" style="--i:3">${items}</div>
     </div>
   </section>`;
 }
@@ -284,15 +397,19 @@ function secCta(lang: Lang): string {
   const c = DICTS[lang].cta;
   return `
   <section id="cta" class="sec cta">
-    <div class="cta-inner reveal">
-      <span class="eyebrow center">${c.kicker}</span>
-      <h2 class="cta-title">${c.title}</h2>
-      <p class="cta-sub">${c.subtitle}</p>
-      <div class="cta-btns">
+    <video class="cta-video" autoplay muted loop playsinline preload="auto" aria-hidden="true"><source src="/render_poprawka.mp4" type="video/mp4"></video>
+    <div class="cta-scrim" aria-hidden="true"></div>
+    <span class="sec-num light" aria-hidden="true">09</span>
+    <div class="cta-inner stagger" style="--step:0.16s">
+      <p class="cta-vision" style="--i:1">${c.vision}</p>
+      <span class="eyebrow center" style="--i:2">${c.kicker}</span>
+      <h2 class="cta-title" style="--i:3">${c.title}</h2>
+      <p class="cta-sub" style="--i:4">${c.subtitle}</p>
+      <div class="cta-btns" style="--i:5">
         <a class="btn btn-solid" id="ctaPrimary" href="#waitList">${c.primary}</a>
         <a class="btn btn-hair" href="/">${c.secondary}</a>
       </div>
-      <form class="wait" id="waitList" novalidate>
+      <form class="wait" id="waitList" novalidate style="--i:6">
         <div class="wait-head">${c.formLabel}</div>
         <div class="wait-rel">
           <input class="wait-input" id="waitEmail" type="email" required placeholder="${c.formPlaceholder}">
@@ -301,7 +418,7 @@ function secCta(lang: Lang): string {
         <p class="wait-note dim slim">${c.formNote}</p>
         <p class="wait-ok hid" id="waitOk">${c.formOk}</p>
       </form>
-      <div class="hud dim cta-note">${c.note}</div>
+      <div class="hud dim cta-note" style="--i:7">${c.note}</div>
     </div>
   </section>`;
 }
@@ -309,7 +426,7 @@ function secCta(lang: Lang): string {
 function secFooter(lang: Lang): string {
   const f = DICTS[lang].footer;
   return `
-  <footer class="footer">
+  <footer class="footer reveal">
     <div class="footer-grid">
       <div>
         <div class="brand-row">
@@ -337,54 +454,39 @@ function secFooter(lang: Lang): string {
 
 function heroMarkup(): string {
   return `
+  <div class="scr-bar" id="scrBar"></div>
   <section id="hero" class="hero">
-    <div class="hero-bg"></div>
-    <div class="hero-grid"></div>
+    <video
+      class="demo-video"
+      id="demoVideo"
+      src="/render_poprawka.mp4"
+      muted
+      loop
+      playsinline
+      preload="auto"
+      aria-label="HullSight demo film"
+    ></video>
+    <div class="hero-scrim"></div>
     <div class="grain"></div>
-    <div class="vig"></div>
 
     <div class="hero-inner">
-      <div class="hero-left reveal in">
-        <div class="hero-chips">
-          <span class="chip" id="heroChip"></span>
-          <span class="chip" id="liveChip"></span>
-        </div>
+      <div class="hero-left" id="heroLeft">
         <h1 class="h1"><span id="h1a"></span><span class="accent" id="h1b"></span></h1>
         <p class="hero-sub" id="heroSub"></p>
         <div class="hero-ctas">
           <a class="btn btn-solid" id="ctaOpen" href="/"></a>
-          <a class="btn btn-hair" id="ctaFilm" href="#video"></a>
+          <a class="btn btn-hair" id="ctaFilm" href="#how"></a>
           <a class="btn btn-link" id="ctaWhy" href="#why"></a>
         </div>
-        <div class="hero-tags" id="heroTags"></div>
-      </div>
-
-      <div class="hero-right reveal in">
-        <div class="video-stage" id="video">
-          <video class="demo-video" id="demoVideo" muted playsinline loop preload="none"></video>
-          <div class="video-ph" id="videoPh">
-            <div class="film-strip film-top"></div>
-            <div class="film-strip film-bot"></div>
-            <div class="v-grid"></div>
-            <div class="v-scan"></div>
-            <div class="v-hud"><span class="rec-dot"></span><span id="vHud"></span></div>
-            <div class="v-center">
-              <button class="v-play" id="playDemo" aria-label="play">
-                <svg viewBox="0 0 20 20" width="22" height="22"><path d="M7 4.5v11l9-5.5z"/></svg>
-              </button>
-              <div class="v-title" id="vTitle"></div>
-              <div class="v-meta">
-                <span class="chip" id="vTimer"></span>
-                <span class="v-sub" id="vSub"></span>
-              </div>
-            </div>
-            <div class="v-toast" id="vToast"></div>
-          </div>
-          <div class="v-progress"><i id="vProg"></i></div>
-        </div>
-        <div class="v-cap"><span id="vCap"></span><span class="v-cap-r hud dim">16:9 · H.264 · <span class="warn-soft">PLACEHOLDER</span></span></div>
       </div>
     </div>
+
+    <div class="hero-scroll" id="scrollHint">
+      <span class="hero-scroll-label" id="scrollHintLabel"></span>
+      <svg class="hero-scroll-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+    </div>
+
+    <div class="v-progress"><i id="vProg"></i></div>
   </section>`;
 }
 
@@ -408,11 +510,48 @@ export function boot() {
   navBar.id = "nav";
   document.body.prepend(navBar);
 
+  const rail = document.createElement("nav");
+  rail.className = "ch-rail";
+  rail.id = "chRail";
+  rail.setAttribute("aria-label", "Chapters");
+  document.body.appendChild(rail);
+
+  const RAIL_IDS = ["why", "gap", "how", "status", "market", "dual", "proof", "obj", "cta"];
+  const RAIL_NUM: Record<string, string> = { why: "01", gap: "02", how: "03", status: "04", market: "05", dual: "06", proof: "07", obj: "08", cta: "09" };
+  function railLabels(): Record<string, string> {
+    return {
+      why: DICTS[lang].problem.kicker,
+      gap: DICTS[lang].bridge.kicker,
+      how: DICTS[lang].how.kicker,
+      status: DICTS[lang].status.kicker,
+      market: DICTS[lang].market.kicker,
+      dual: DICTS[lang].dualuse.kicker,
+      proof: DICTS[lang].proof.kicker,
+      obj: DICTS[lang].objections.kicker,
+      cta: DICTS[lang].cta.kicker,
+    };
+  }
+  function renderRail() {
+    const r = document.getElementById("chRail");
+    if (!r) return;
+    const labels = railLabels();
+    r.innerHTML = RAIL_IDS.map(
+      (id) => `
+    <a class="ch" href="#${id}" data-sec="${id}">
+      <i class="ch-dot"></i>
+      <b class="ch-num">${RAIL_NUM[id]}</b>
+      <span class="ch-lab">${labels[id]}</span>
+    </a>`
+    ).join("");
+  }
+
+  renderRail();
   renderNav();
   renderHeroText();
   renderSections();
   wireVideo();
   wireScroll();
+  wireScrollHint();
   wireWaitlist();
   wireAnchors();
   revealInit();
@@ -424,26 +563,20 @@ export function boot() {
     renderHeroText();
     renderSections();
     wireWaitlist();
+    renderRail();
     wireAnchors();
     revealInit();
   }
 
   function renderHeroText() {
     const c = DICTS[lang].hero;
-    setText("heroChip", c.chipTop);
-    setText("liveChip", c.liveBadge);
     setText("h1a", c.h1Line1);
     setText("h1b", c.h1Line2);
     setText("heroSub", c.sub);
     setText("ctaOpen", c.ctaPrimary);
     setText("ctaFilm", c.ctaSecondary);
     setText("ctaWhy", c.ctaTertiary);
-    setText("vHud", c.videoKicker);
-    setText("vTitle", c.videoTitle);
-    setText("vTimer", c.videoTimer);
-    setText("vSub", c.videoSub);
-    setText("vCap", c.videoCap);
-    document.getElementById("heroTags")!.innerHTML = c.tags.map((t) => `<span class="chip">${t}</span>`).join("");
+    setText("scrollHintLabel", c.scrollHint);
   }
 
   function renderSections() {
@@ -453,7 +586,8 @@ export function boot() {
         secProblem(lang),
         secBridge(lang),
         secHow(lang),
-        secDetect(lang),
+        secStatus(lang),
+        secMarket(lang),
         secDual(lang),
         secProof(lang),
         secObjects(lang),
@@ -482,66 +616,92 @@ export function boot() {
         <a href="#dual">${c.dualUse}</a>
         <a href="#how">${c.how}</a>
         <a href="#proof">${c.live}</a>
+        <a href="/demo">${c.demo}</a>
       </nav>
       <div class="nav-right">
-        <button id="langbtn" class="btn btn-hair sm">${lang === "pl" ? "EN" : "PL"}</button>
+        <button id="langbtn" class="btn btn-hair sm lang-sm">${lang === "pl" ? "EN" : "PL"}</button>
         <a class="btn btn-hair sm" href="/">${c.openApp}</a>
-        <a class="btn btn-solid sm" href="#cta">${c.book}</a>
+        <a class="btn btn-solid sm book-sm" href="#cta">${c.book}</a>
       </div>`;
     document.getElementById("langbtn")?.addEventListener("click", () => toggleLang());
   }
 
   function wireVideo() {
-    const stage = document.getElementById("video");
+    const hero = document.getElementById("hero");
     const video = document.getElementById("demoVideo") as HTMLVideoElement | null;
-    const playBtn = document.getElementById("playDemo");
     const prog = document.getElementById("vProg");
-    let toastTimer: ReturnType<typeof setTimeout> | null = null;
 
-    const toggle = () => {
-      if (!stage || !video) return;
-      if (video.currentSrc) {
-        if (video.paused) {
-          video.play();
-          stage.classList.add("playing");
-        } else {
-          video.pause();
-          stage.classList.remove("playing");
-        }
-      } else {
-        stage.classList.remove("wants-play");
-        void stage.offsetWidth;
-        stage.classList.add("wants-play");
-        setText("vToast", DICTS[lang].hero.toast);
-        if (toastTimer) clearTimeout(toastTimer);
-        toastTimer = setTimeout(() => stage.classList.remove("wants-play"), 3600);
-      }
+    const start = () => {
+      if (!video) return;
+      const p = video.play();
+      if (p) p.catch(() => undefined);
     };
 
-    playBtn?.addEventListener("click", (e) => {
-      e.stopPropagation();
-      toggle();
+    video?.addEventListener("loadedmetadata", () => {
+      if (video) video.currentTime = 0;
     });
-    stage?.addEventListener("click", (e) => {
-      if ((e.target as HTMLElement).closest("#playDemo")) return;
-      toggle();
+    video?.addEventListener("timeupdate", () => {
+      if (!video || !video.duration) return;
+      if (prog) prog.style.width = `${(video.currentTime / video.duration) * 100}%`;
+    });
+    video?.addEventListener("ended", start);
+
+    hero?.addEventListener("click", () => {
+      if (video && video.paused) start();
     });
 
     if (video) {
-      video.addEventListener("timeupdate", () => {
-        if (prog && video.duration) prog.style.width = `${(video.currentTime / video.duration) * 100}%`;
-      });
-      video.addEventListener("ended", () => {
-        stage?.classList.remove("playing");
-      });
+      video.addEventListener("loadeddata", start, { once: true });
+      video.addEventListener("canplaythrough", start, { once: true });
     }
   }
 
   function wireScroll() {
     const html = document.documentElement;
-    const check = () => html.classList.toggle("scrolled", window.scrollY > 10);
+    const threshold = () => Math.max(1, window.innerHeight - 100);
+    const check = () => {
+      const past = window.scrollY > threshold();
+      html.classList.toggle("nav-show", past);
+      const atBottom = window.scrollY > html.scrollHeight - window.innerHeight - 180;
+      document.getElementById("scrollHint")?.classList.toggle("hide", atBottom);
+      const bar = document.getElementById("scrBar");
+      if (bar) {
+        const max = html.scrollHeight - window.innerHeight;
+        bar.style.transform = `scaleX(${max > 0 ? Math.min(1, window.scrollY / max) : 0})`;
+      }
+      const hl = document.getElementById("heroLeft");
+      if (hl) hl.style.transform = `translate3d(0, ${window.scrollY * 0.35}px, 0)`;
+      const rail = document.getElementById("chRail");
+      if (rail) {
+        const heroH = threshold();
+        const shown = window.scrollY > heroH * 0.6 && !atBottom;
+        rail.classList.toggle("rail-hid", !shown);
+        if (shown) {
+          const cen = window.scrollY + window.innerHeight * 0.5;
+          let cur = 0;
+          RAIL_IDS.forEach((id, i) => {
+            const s = document.getElementById(id);
+            if (s && s.getBoundingClientRect().top + window.scrollY <= cen) cur = i;
+          });
+          rail.querySelectorAll(".ch").forEach((a, i) => a.classList.toggle("on", i === cur));
+          const max = html.scrollHeight - window.innerHeight;
+          rail.style.setProperty("--pct", `${max > 0 ? Math.max(0, Math.min(1, (window.scrollY - heroH) / Math.max(1, max - heroH))) : 0}`);
+        }
+      }
+    };
     check();
     window.addEventListener("scroll", check, { passive: true });
+    window.addEventListener("resize", check, { passive: true });
+  }
+
+  function wireScrollHint() {
+    const hint = document.getElementById("scrollHint");
+    if (!hint) return;
+    window.setTimeout(() => hint.classList.add("show"), 8000);
+    hint.addEventListener("click", () => {
+      const target = document.getElementById("gap");
+      if (target) target.scrollIntoView({ behavior: "smooth" });
+    });
   }
 
   function wireWaitlist() {
@@ -591,20 +751,55 @@ export function boot() {
 }
 
 function revealInit() {
-  const els = document.querySelectorAll(".reveal");
+  const els = document.querySelectorAll<HTMLElement>(".reveal, .stagger");
   if (!("IntersectionObserver" in window)) {
     els.forEach((e) => e.classList.add("in"));
     return;
   }
   const io = new IntersectionObserver(
     (ents) => {
-      for (const en of ents)
+      for (const en of ents) {
+        const el = en.target as HTMLElement;
         if (en.isIntersecting) {
-          (en.target as HTMLElement).classList.add("in");
-          io.unobserve(en.target);
+          el.classList.add("in");
+          if (el.classList.contains("count-group")) {
+            el.querySelectorAll<HTMLElement>(".stat-big").forEach(countUp);
+          }
+        } else {
+          el.classList.remove("in");
         }
+      }
     },
-    { threshold: 0.1, rootMargin: "0px 0px -6% 0px" }
+    { threshold: 0.1, rootMargin: "0px 0px -7% 0px" }
   );
   els.forEach((e) => io.observe(e));
+}
+
+const counted = new WeakSet<HTMLElement>();
+function countUp(el: HTMLElement) {
+  const src = el.dataset.cnt;
+  if (!src) return;
+  const m = src.match(/^([\d]+(?:[.,]\d+)?)(.*)$/);
+  if (!m) return;
+  counted.add(el);
+  const target = parseFloat(m[1].replace(",", "."));
+  const suffix = m[2];
+  const dec = m[1].includes(".") || m[1].includes(",") ? (m[1].split(/[.,]/)[1]?.length ?? 1) : 0;
+  const fmt = (v: number) => (dec ? v.toFixed(dec).replace(".", ",") : Math.round(v).toString());
+  const dur = 1300;
+  el.classList.remove("done");
+  el.innerHTML = "";
+  const t0 = performance.now();
+  const tick = (t: number) => {
+    const p = Math.min(1, (t - t0) / dur);
+    const eased = 1 - Math.pow(1 - p, 3);
+    const txt = fmt(target * eased);
+    el.innerHTML = txt + (suffix ? `<span class="stat-unit">${suffix}</span>` : "");
+    if (p < 1) {
+      requestAnimationFrame(tick);
+    } else {
+      el.classList.add("done");
+    }
+  };
+  requestAnimationFrame(tick);
 }
