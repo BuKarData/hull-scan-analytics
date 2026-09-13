@@ -38,7 +38,7 @@ export function VesselDetail() {
   const survey = estimateSurveyImpact(sortedScans.length, DEFAULT_ASSUMPTIONS);
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 [&>*]:min-w-0">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <Link to="/" className="text-xs" style={{ color: "var(--text-muted)" }}>
@@ -56,14 +56,14 @@ export function VesselDetail() {
           </p>
         </div>
 
-        <div className="flex items-end gap-2 flex-wrap">
+        <div className="flex items-end gap-2 flex-wrap min-w-0 w-full sm:w-auto">
           <PrintButton />
           <PrintButton mode="combined" label={t.common.printFullReport} />
-          <div className="no-print flex items-end gap-2 rounded-xl p-3" style={{ background: "var(--surface-1)", border: "1px solid var(--border)" }}>
-          <label className="text-xs flex flex-col gap-1">
+          <div className="no-print flex items-end gap-2 flex-wrap w-full sm:w-auto rounded-xl p-3" style={{ background: "var(--surface-1)", border: "1px solid var(--border)" }}>
+          <label className="text-xs flex flex-col gap-1 min-w-0 w-full sm:w-auto">
             <span style={{ color: "var(--text-muted)" }}>{t.vessel.scanA}</span>
             <select
-              className="rounded-md px-2 py-1.5 text-sm"
+              className="rounded-md px-2 py-1.5 text-sm w-full sm:w-auto max-w-full min-w-0"
               style={{ background: "var(--surface-2)", border: "1px solid var(--border)", color: "var(--text-primary)" }}
               value={effA}
               onChange={(e) => setScanA(e.target.value)}
@@ -75,10 +75,10 @@ export function VesselDetail() {
               ))}
             </select>
           </label>
-          <label className="text-xs flex flex-col gap-1">
+          <label className="text-xs flex flex-col gap-1 min-w-0 w-full sm:w-auto">
             <span style={{ color: "var(--text-muted)" }}>{t.vessel.scanB}</span>
             <select
-              className="rounded-md px-2 py-1.5 text-sm"
+              className="rounded-md px-2 py-1.5 text-sm w-full sm:w-auto max-w-full min-w-0"
               style={{ background: "var(--surface-2)", border: "1px solid var(--border)", color: "var(--text-primary)" }}
               value={effB}
               onChange={(e) => setScanB(e.target.value)}

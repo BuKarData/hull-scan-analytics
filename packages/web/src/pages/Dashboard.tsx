@@ -18,7 +18,7 @@ export function Dashboard() {
   const avgMax = data.reduce((sum, v) => sum + v.latestScan.maxDeviationMm, 0) / (data.length || 1);
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 [&>*]:min-w-0">
       <div
         className="flex items-center gap-4 rounded-xl p-4"
         style={{ background: "var(--surface-1)", border: "1px solid var(--border)" }}

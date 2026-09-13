@@ -19,7 +19,7 @@ export function PrintButton({ mode = "technical", label }: { mode?: "technical" 
   return (
     <button
       onClick={handlePrint}
-      className="no-print text-sm font-medium rounded-md px-3 py-1.5 flex items-center gap-1.5 shrink-0"
+      className="no-print text-sm font-medium rounded-md px-3 py-1.5 flex items-center gap-1.5"
       style={{ border: "1px solid var(--border)", color: "var(--text-primary)" }}
       title={t.common.printHint}
     >

@@ -4,8 +4,10 @@ import tailwindcss from "@tailwindcss/vite";
 import mpaCleanUrls from "./vite-mpa.ts";
 
 // Opt-in landing build: `npx vite build -c vite.landing.config.ts`
-// Emits BOTH the app (index.html), the landing (landing.html) and the /demo
-// proof page (demo.html) into dist/.
+// Emits the landing page (landing.html, served at "/" and "/landing"), the
+// video proof page (demo.html, served at "/demo") and the analytics app
+// (index.html, served at "/app") into dist/. See packages/server/src/index.ts
+// and vite-mpa.ts for how each entry is mapped to its clean URL.
 // Kept as a separate file so the team's vite.config.ts stays untouched.
 
 export default defineConfig({

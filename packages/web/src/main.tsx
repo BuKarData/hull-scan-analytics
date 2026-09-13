@@ -8,7 +8,7 @@ import { LangProvider } from './lib/i18n'
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <LangProvider>
-      <BrowserRouter>
+      <BrowserRouter basename="/app">
         <App />
       </BrowserRouter>
     </LangProvider>

@@ -203,7 +203,7 @@ export function Compare() {
   const { stats, clusters, regionGrid, scanA, scanB } = cmpQ.data;
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 [&>*]:min-w-0">
       <div>
         <Link to={`/vessels/${id}`} className="text-xs" style={{ color: "var(--text-muted)" }}>
           &larr; {vesselQ.data.vessel.name}
@@ -224,13 +224,13 @@ export function Compare() {
         <StatTile label={t.compare.statClusters} value={String(clusters.length)} />
       </div>
 
-      <div className="grid lg:grid-cols-[1.3fr_1fr] gap-4">
+      <div className="grid lg:grid-cols-[1.3fr_1fr] gap-4 [&>*]:min-w-0">
         <div className="rounded-xl p-4" style={{ background: "var(--surface-1)", border: "1px solid var(--border)" }}>
           <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
             <h2 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
               {t.compare.model3d}
             </h2>
-            <div className="flex items-center gap-1 rounded-full p-1" style={{ background: "var(--surface-2)", border: "1px solid var(--border)" }}>
+            <div className="flex items-center gap-1 flex-wrap rounded-full p-1" style={{ background: "var(--surface-2)", border: "1px solid var(--border)" }}>
               {(
                 [
                   ["heatmap", t.compare.modeHeatmap],

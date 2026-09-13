@@ -269,6 +269,47 @@ html.nav-show .hs-nav {
   animation: grain-shift 0.7s steps(4) infinite;
 }
 
+.hero-qr {
+  position: absolute;
+  top: 1.1rem;
+  right: 1.1rem;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  text-decoration: none;
+  transition: transform 0.2s ease;
+}
+.hero-qr:hover {
+  transform: scale(1.04);
+}
+.hero-qr img {
+  display: block;
+  width: clamp(64px, 9vw, 128px);
+  height: clamp(64px, 9vw, 128px);
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+.hero-qr-label {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #fff;
+  background: rgba(11, 15, 20, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  padding: 0.22rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  white-space: nowrap;
+}
+@media (min-width: 640px) {
+  .hero-qr-label {
+    font-size: 12px;
+  }
+}
+
 .hero-inner {
   position: relative;
   z-index: 6;

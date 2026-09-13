@@ -61,7 +61,7 @@ export function EconomicImpact() {
   const hasFouling = fuel.penaltyPct > 0;
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 [&>*]:min-w-0">
       <div className="flex items-start justify-between flex-wrap gap-3">
         <div>
           <Link to={`/vessels/${vessel.id}`} className="text-xs" style={{ color: "var(--text-muted)" }}>

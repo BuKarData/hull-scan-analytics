@@ -224,7 +224,7 @@ function secOffer(lang: Lang): string {
       <h2 class="cta-title">${c.title}</h2>
       <p class="cta-sub">${c.subtitle}</p>
       <div class="cta-btns">
-        <a class="btn btn-solid" href="/">${c.primary}</a>
+        <a class="btn btn-solid" href="/app">${c.primary}</a>
         <a class="btn btn-hair" href="#v1">${c.secondary}</a>
       </div>
       <div class="hud dim cta-note">${c.note}</div>
@@ -269,7 +269,7 @@ function heroMarkup(): string {
       <p class="d-hero-sub" id="heroSub"></p>
       <div class="d-hero-ctas">
         <a class="btn btn-solid" id="ctaPlay" href="#films"></a>
-        <a class="btn btn-hair" id="ctaLive" href="/"></a>
+        <a class="btn btn-hair" id="ctaLive" href="/app"></a>
         <a class="btn btn-link" id="ctaCase" href="#uses"></a>
       </div>
       <p class="d-hero-note" id="heroNote"></p>
@@ -357,18 +357,18 @@ export function boot() {
   function renderNav() {
     const c = DICTS[lang].nav;
     nav.innerHTML = `
-      <a href="/landing" class="brand-row">
+      <a href="/" class="brand-row">
         <img class="logo" src="/brand/hullsight-logo.png" alt="">
         <span class="brand-name">Hull<span class="accent">Sight</span></span>
       </a>
       <nav class="demo-links hide-m">
-        <a href="/landing">${c.landing}</a>
+        <a href="/">${c.landing}</a>
         <a href="#films" class="on">${c.films}</a>
-        <a href="/">${c.app}</a>
+        <a href="/app">${c.app}</a>
       </nav>
       <div class="demo-nav-right">
         <button id="langbtn" class="btn btn-hair sm lang-sm demo-lang">${lang === "pl" ? "EN" : "PL"}</button>
-        <a class="btn btn-solid sm book-sm" href="/">${c.app}</a>
+        <a class="btn btn-solid sm book-sm" href="/app">${c.app}</a>
       </div>`;
     document.getElementById("langbtn")?.addEventListener("click", () => toggleLang());
   }

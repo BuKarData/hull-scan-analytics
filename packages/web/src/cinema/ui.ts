@@ -407,7 +407,7 @@ function secCta(lang: Lang): string {
       <p class="cta-sub" style="--i:4">${c.subtitle}</p>
       <div class="cta-btns" style="--i:5">
         <a class="btn btn-solid" id="ctaPrimary" href="#waitList">${c.primary}</a>
-        <a class="btn btn-hair" href="/">${c.secondary}</a>
+        <a class="btn btn-hair" href="/app">${c.secondary}</a>
       </div>
       <form class="wait" id="waitList" novalidate style="--i:6">
         <div class="wait-head">${c.formLabel}</div>
@@ -469,12 +469,17 @@ function heroMarkup(): string {
     <div class="hero-scrim"></div>
     <div class="grain"></div>
 
+    <a class="hero-qr" href="https://hullsight.pl" target="_blank" rel="noopener" aria-label="Zeskanuj kod, aby otworzyc hullsight.pl">
+      <img src="/hullsight-qr.png" alt="Kod QR do hullsight.pl" width="256" height="256" loading="eager">
+      <span class="hero-qr-label">hullsight.pl</span>
+    </a>
+
     <div class="hero-inner">
       <div class="hero-left" id="heroLeft">
         <h1 class="h1"><span id="h1a"></span><span class="accent" id="h1b"></span></h1>
         <p class="hero-sub" id="heroSub"></p>
         <div class="hero-ctas">
-          <a class="btn btn-solid" id="ctaOpen" href="/"></a>
+          <a class="btn btn-solid" id="ctaOpen" href="/app"></a>
           <a class="btn btn-hair" id="ctaFilm" href="#how"></a>
           <a class="btn btn-link" id="ctaWhy" href="#why"></a>
         </div>
@@ -607,7 +612,7 @@ export function boot() {
     const nav = document.getElementById("nav");
     if (!nav) return;
     nav.innerHTML = `
-      <a href="#" class="brand-row">
+      <a href="/" class="brand-row">
         <img class="logo" src="/brand/hullsight-logo.png" alt="">
         <span class="brand-name">Hull<span class="accent">Sight</span></span>
       </a>
@@ -620,7 +625,7 @@ export function boot() {
       </nav>
       <div class="nav-right">
         <button id="langbtn" class="btn btn-hair sm lang-sm">${lang === "pl" ? "EN" : "PL"}</button>
-        <a class="btn btn-hair sm" href="/">${c.openApp}</a>
+        <a class="btn btn-hair sm" href="/app">${c.openApp}</a>
         <a class="btn btn-solid sm book-sm" href="#cta">${c.book}</a>
       </div>`;
     document.getElementById("langbtn")?.addEventListener("click", () => toggleLang());
