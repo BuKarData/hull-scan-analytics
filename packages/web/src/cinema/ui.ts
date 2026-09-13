@@ -397,7 +397,7 @@ function secCta(lang: Lang): string {
   const c = DICTS[lang].cta;
   return `
   <section id="cta" class="sec cta">
-    <video class="cta-video" autoplay muted loop playsinline preload="auto" aria-hidden="true"><source src="/render_poprawka.mp4" type="video/mp4"></video>
+    <video class="cta-video" poster="/hullsight-poster.jpg" autoplay muted loop playsinline preload="auto" aria-hidden="true"><source src="/hullsight.mp4" type="video/mp4"></video>
     <div class="cta-scrim" aria-hidden="true"></div>
     <span class="sec-num light" aria-hidden="true">09</span>
     <div class="cta-inner stagger" style="--step:0.16s">
@@ -406,24 +406,10 @@ function secCta(lang: Lang): string {
       <h2 class="cta-title" style="--i:3">${c.title}</h2>
       <p class="cta-sub" style="--i:4">${c.subtitle}</p>
       <div class="cta-btns" style="--i:5">
-        <a class="btn btn-solid" id="ctaPrimary" href="#waitList">${c.primary}</a>
-        <a class="btn btn-hair" href="/app">${c.secondary}</a>
+        <a class="btn btn-solid" id="ctaPrimary" href="/app">${c.primary}</a>
       </div>
-      <form class="wait" id="waitList" novalidate style="--i:6">
-        <div class="wait-head">${c.formLabel}</div>
-        <div class="wait-rel">
-          <input class="wait-input" id="waitEmail" type="email" required placeholder="${c.formPlaceholder}">
-          <button class="btn btn-solid sm wait-btn" type="submit">&rarr;</button>
-        </div>
-        <p class="wait-note dim slim">${c.formNote}</p>
-        <p class="wait-ok hid" id="waitOk">${c.formOk}</p>
-      </form>
+      <p class="wait-note dim slim" style="--i:6">${c.formNote}</p>
       <div class="hud dim cta-note" style="--i:7">${c.note}</div>
-    </div>
-    <div class="cta-finale">
-      <img class="cta-finale-img" src="/hullsight-poster.jpg" alt="" aria-hidden="true">
-      <div class="cta-finale-scrim" aria-hidden="true"></div>
-      <span class="cta-finale-caption">${c.finaleCaption}</span>
     </div>
   </section>`;
 }
@@ -477,11 +463,11 @@ function heroMarkup(): string {
     <div class="grain"></div>
 
     <a class="hero-qr" href="https://hullsight.pl" target="_blank" rel="noopener" aria-label="Zeskanuj kod, aby otworzyc hullsight.pl">
-      <span class="hero-qr-hook" id="qrHook"></span>
-      <span class="hero-qr-ring">
-        <img src="/hullsight-qr.png" alt="Kod QR do hullsight.pl" width="256" height="256" loading="eager">
+      <span class="hero-qr-card">
+        <span class="hero-qr-hook" id="qrHook"></span>
+        <img class="hero-qr-img" src="/hullsight-qr.png" alt="Kod QR do hullsight.pl" width="256" height="256" loading="eager">
+        <span class="hero-qr-label">hullsight.pl</span>
       </span>
-      <span class="hero-qr-label">hullsight.pl</span>
     </a>
 
     <div class="hero-inner">
@@ -567,7 +553,6 @@ export function boot() {
   wireVideo();
   wireScroll();
   wireScrollHint();
-  wireWaitlist();
   wireAnchors();
   revealInit();
 
@@ -577,7 +562,6 @@ export function boot() {
     renderNav();
     renderHeroText();
     renderSections();
-    wireWaitlist();
     renderRail();
     wireAnchors();
     revealInit();
@@ -770,37 +754,6 @@ export function boot() {
       const next = RAIL_IDS[Math.min(cur + 1, RAIL_IDS.length - 1)];
       const target = document.getElementById(next);
       if (target) goToSection(target);
-    });
-  }
-
-  function wireWaitlist() {
-    const form = document.getElementById("waitList") as HTMLFormElement | null;
-    const ok = document.getElementById("waitOk");
-    const input = document.getElementById("waitEmail") as HTMLInputElement | null;
-    form?.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const val = (input?.value ?? "").trim();
-      if (!val || !val.includes("@")) {
-        form.classList.remove("shake");
-        void form.offsetWidth;
-        form.classList.add("shake");
-        return;
-      }
-      form.classList.add("ok");
-      ok?.classList.remove("hid");
-      try {
-        const list = JSON.parse(localStorage.getItem("hs-waitlist") ?? "[]");
-        list.push({ email: val, ts: Date.now() });
-        localStorage.setItem("hs-waitlist", JSON.stringify(list));
-      } catch {
-        /* noop */
-      }
-    });
-    document.getElementById("ctaPrimary")?.addEventListener("click", (e) => {
-      e.preventDefault();
-      const list = document.getElementById("waitList");
-      list?.scrollIntoView({ behavior: "smooth", block: "center" });
-      setTimeout(() => (document.getElementById("waitEmail") as HTMLInputElement)?.focus(), 520);
     });
   }
 

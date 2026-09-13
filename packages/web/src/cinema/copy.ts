@@ -99,7 +99,7 @@ export interface Copy {
     note: string;
   };
   objections: { kicker: string; title: string; items: { q: string; a: string }[] };
-  cta: { vision: string; kicker: string; title: string; subtitle: string; primary: string; secondary: string; formLabel: string; formPlaceholder: string; formNote: string; formOk: string; note: string; finaleCaption: string };
+  cta: { vision: string; kicker: string; title: string; subtitle: string; primary: string; formNote: string; note: string };
   footer: { tag: string; sub: string; colTech: string; colCtx: string; tech1: string; tech2: string; tech3: string; tech4: string; ctx1: string; ctx2: string; ctx3: string; desc: string; lang: string };
 }
 
@@ -287,15 +287,10 @@ const pl: Copy = {
     vision: "Wizja: koniec próbek punktowych i wizyt w doku. Każdy kadłub mierzalny — z kamer, które już stoją.",
     kicker: "Oferta",
     title: "Twój pilot startuje — zanim zrobi to konkurencja.",
-    subtitle: "Otwórz demo na żywo i sam przejrzyj pięć jednostek, albo dołącz do pilota i weź to na swój statek.",
-    primary: "Zapisz się na pilota",
-    secondary: "Otwórz demo na żywo",
-    formLabel: "Bądź pierwszy w pilocie",
-    formPlaceholder: "służbowy e-mail",
+    subtitle: "Otwórz demo na żywo i sam przejrzyj pięć jednostek.",
+    primary: "Otwórz demo na żywo",
     formNote: "Pierwsze stocznie, porty i armatorzy dostaną pilota przed zimą — ENAMOR już ustala termin pokazu. Kolejka rośnie.",
-    formOk: "Na liście. Odezwiemy się z dostępem do pilota.",
     note: "Zbudowane w 48 godzin na Baltic Dual Use Hackathon · Biblioteka Uniwersytetu Gdańskiego, wrzesień 2026",
-    finaleCaption: "Kadłub od środka, dokładnie tak jak widzi go HullSight",
   },
   footer: {
     tag: "HULLSIGHT",
@@ -498,15 +493,10 @@ const en: Copy = {
     vision: "The vision: the end of point samples and drydock visits. Every hull measurable — from the cameras already there.",
     kicker: "The offer",
     title: "Your pilot slot is now — before competitors take it.",
-    subtitle: "Open the live demo and scrub through five vessels, or join the pilot and put it on your hulls.",
-    primary: "Get pilot access",
-    secondary: "Open the live product",
-    formLabel: "Get early pilot access",
-    formPlaceholder: "work email",
+    subtitle: "Open the live demo and scrub through five vessels.",
+    primary: "Open the live demo",
     formNote: "The first yards, ports and owners get pilot access before winter — ENAMOR is already scheduling a show. The list grows daily.",
-    formOk: "You're on the list. We'll reach out with pilot access.",
     note: "Built in 48 hours at the Baltic Dual Use Hackathon · University of Gdansk library, Sept 2026",
-    finaleCaption: "The hull from the inside, exactly as HullSight sees it",
   },
   footer: {
     tag: "HULLSIGHT",
