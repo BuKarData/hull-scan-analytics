@@ -107,7 +107,7 @@ const pl: Copy = {
   hero: {
     chipTop: "BALTIC DUAL USE HACKATHON · GDAŃSK 2026",
     liveBadge: "LIVE · 5 jednostek · geometria kadłuba · 1,2 mm szumu",
-    h1Line1: "Skan kadłuba, który kosztowałby 100 000 zł.",
+    h1Line1: "Skan kadłuba za 100 000 zł.",
     h1Line2: "Z kamer, które już masz.",
     sub: "Telefon, monitoring, dron — zwykłe nagranie daje mierzalny bliźniak 3D kadłuba. Drogi sprzęt i specjaliści? Niepotrzebni.",
     ctaPrimary: "Otwórz demo na żywo",
@@ -317,7 +317,7 @@ const en: Copy = {
   hero: {
     chipTop: "BALTIC DUAL USE HACKATHON · GDANSK 2026",
     liveBadge: "LIVE · 5 vessels · hull geometry · 1.2 mm noise",
-    h1Line1: "A hull scan that would cost €25,000.",
+    h1Line1: "A €25,000 hull scan.",
     h1Line2: "From cameras you already own.",
     sub: "Phone, dock CCTV or drone footage becomes a measurable 3D hull twin. No expensive kits, no specialists.",
     ctaPrimary: "Open the live demo",

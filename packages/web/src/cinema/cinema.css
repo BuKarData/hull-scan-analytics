@@ -1779,8 +1779,7 @@ html.nav-show .hs-nav {
   color: #7fb3ee;
 }
 .cta .wait-note,
-.cta .cta-note,
-.cta .cta-finale-label {
+.cta .cta-note {
   color: rgba(255, 255, 255, 0.55);
 }
 .cta-vision {
@@ -1847,27 +1846,43 @@ html.nav-show .hs-nav {
   color: var(--b-dim);
 }
 .cta-finale {
-  margin-top: 3rem;
-}
-.cta-finale-label {
-  display: block;
-  margin-bottom: 0.85rem;
-}
-.cta-finale-frame {
-  max-width: 30rem;
-  margin: 0 auto;
-  border-radius: 10px;
+  position: relative;
+  margin: 5rem -1.25rem -8.5rem;
+  height: 42vh;
+  min-height: 260px;
+  max-height: 460px;
   overflow: hidden;
-  background: #000;
-  border: 1px solid rgba(255, 255, 255, 0.14);
 }
-.cta-finale-frame video {
-  display: block;
+.cta-finale-img {
+  position: absolute;
+  inset: 0;
   width: 100%;
-  height: auto;
-  max-height: 340px;
-  object-fit: contain;
-  background: #000;
+  height: 100%;
+  object-fit: cover;
+  animation: kenburns 22s ease-in-out infinite alternate;
+  will-change: transform;
+}
+.cta-finale-scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(0deg, rgba(7, 9, 13, 0.4) 0%, rgba(7, 9, 13, 0) 30%),
+    linear-gradient(180deg, rgba(7, 9, 13, 0.05) 0%, rgba(7, 9, 13, 0.2) 55%, rgba(7, 9, 13, 0.8) 100%);
+}
+.cta-finale-caption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 1.75rem;
+  z-index: 1;
+  text-align: center;
+  padding: 0 1.25rem;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.82);
 }
 
 /* -- waitlist / pilot form -- */

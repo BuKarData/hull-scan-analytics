@@ -419,12 +419,11 @@ function secCta(lang: Lang): string {
         <p class="wait-ok hid" id="waitOk">${c.formOk}</p>
       </form>
       <div class="hud dim cta-note" style="--i:7">${c.note}</div>
-      <div class="cta-finale" style="--i:8">
-        <span class="hud dim cta-finale-label">${c.finaleCaption}</span>
-        <div class="cta-finale-frame">
-          <video src="/hullsight.mp4" poster="/hullsight-poster.jpg" controls loop muted playsinline preload="metadata"></video>
-        </div>
-      </div>
+    </div>
+    <div class="cta-finale">
+      <img class="cta-finale-img" src="/hullsight-poster.jpg" alt="" aria-hidden="true">
+      <div class="cta-finale-scrim" aria-hidden="true"></div>
+      <span class="cta-finale-caption">${c.finaleCaption}</span>
     </div>
   </section>`;
 }
