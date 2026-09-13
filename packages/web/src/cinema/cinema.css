@@ -1779,7 +1779,8 @@ html.nav-show .hs-nav {
   color: #7fb3ee;
 }
 .cta .wait-note,
-.cta .cta-note {
+.cta .cta-note,
+.cta .cta-finale-label {
   color: rgba(255, 255, 255, 0.55);
 }
 .cta-vision {
@@ -1844,6 +1845,29 @@ html.nav-show .hs-nav {
   font-size: 10px;
   letter-spacing: 0.06em;
   color: var(--b-dim);
+}
+.cta-finale {
+  margin-top: 3rem;
+}
+.cta-finale-label {
+  display: block;
+  margin-bottom: 0.85rem;
+}
+.cta-finale-frame {
+  max-width: 30rem;
+  margin: 0 auto;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #000;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+.cta-finale-frame video {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 340px;
+  object-fit: contain;
+  background: #000;
 }
 
 /* -- waitlist / pilot form -- */

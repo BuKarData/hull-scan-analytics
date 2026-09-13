@@ -419,6 +419,12 @@ function secCta(lang: Lang): string {
         <p class="wait-ok hid" id="waitOk">${c.formOk}</p>
       </form>
       <div class="hud dim cta-note" style="--i:7">${c.note}</div>
+      <div class="cta-finale" style="--i:8">
+        <span class="hud dim cta-finale-label">${c.finaleCaption}</span>
+        <div class="cta-finale-frame">
+          <video src="/hullsight.mp4" poster="/hullsight-poster.jpg" controls loop muted playsinline preload="metadata"></video>
+        </div>
+      </div>
     </div>
   </section>`;
 }
@@ -634,7 +640,9 @@ export function boot() {
         <a class="btn btn-hair sm" href="/app">${c.openApp}</a>
         <a class="btn btn-solid sm book-sm" href="#cta">${c.book}</a>
       </div>`;
-    document.getElementById("langbtn")?.addEventListener("click", () => toggleLang());
+    // Click handling for #langbtn is attached once in renderSections() (it
+    // also covers the footer's #langbtn2); attaching it here too caused
+    // every click to fire the toggle twice, canceling itself out.
     const burger = document.getElementById("navBurger");
     const links = document.getElementById("navLinks");
     burger?.addEventListener("click", () => {
@@ -720,9 +728,22 @@ export function boot() {
         }
       }
     };
+    // check() reads several getBoundingClientRect()s and writes styles;
+    // running it straight off every native scroll event (which can fire far
+    // more than once per frame) caused the layout thrashing behind reports
+    // of heavy/sticky scrolling on phones. Batch it to once per frame.
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        check();
+        ticking = false;
+      });
+    };
     check();
-    window.addEventListener("scroll", check, { passive: true });
-    window.addEventListener("resize", check, { passive: true });
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
   }
 
   function goToSection(target: HTMLElement) {

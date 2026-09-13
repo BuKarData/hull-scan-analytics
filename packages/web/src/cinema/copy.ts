@@ -98,7 +98,7 @@ export interface Copy {
     note: string;
   };
   objections: { kicker: string; title: string; items: { q: string; a: string }[] };
-  cta: { vision: string; kicker: string; title: string; subtitle: string; primary: string; secondary: string; formLabel: string; formPlaceholder: string; formNote: string; formOk: string; note: string };
+  cta: { vision: string; kicker: string; title: string; subtitle: string; primary: string; secondary: string; formLabel: string; formPlaceholder: string; formNote: string; formOk: string; note: string; finaleCaption: string };
   footer: { tag: string; sub: string; colTech: string; colCtx: string; tech1: string; tech2: string; tech3: string; tech4: string; ctx1: string; ctx2: string; ctx3: string; desc: string; lang: string };
 }
 
@@ -107,14 +107,14 @@ const pl: Copy = {
   hero: {
     chipTop: "BALTIC DUAL USE HACKATHON · GDAŃSK 2026",
     liveBadge: "LIVE · 5 jednostek · geometria kadłuba · 1,2 mm szumu",
-    h1Line1: "Skan kadłuba za 100 000 zł.",
+    h1Line1: "Skan kadłuba, który kosztowałby 100 000 zł.",
     h1Line2: "Z kamer, które już masz.",
     sub: "Telefon, monitoring, dron — zwykłe nagranie daje mierzalny bliźniak 3D kadłuba. Drogi sprzęt i specjaliści? Niepotrzebni.",
     ctaPrimary: "Otwórz demo na żywo",
     ctaSecondary: "Jak to działa",
     ctaTertiary: "Dlaczego teraz",
     tags: ["Gaussian Splatting", "porównanie NN · szum 1,2 mm", "analiza offline, na pokładzie"],
-    videoKicker: "INSP · 2026–09–12 · DUAL USE",
+    videoKicker: "INSP · 2026-09-12 · DUAL USE",
     videoTitle: "Kadłub → bliźniak → pomiary",
     videoTimer: "00:16",
     videoSub: "NAGRANIE → REKONSTRUKCJA → POMIAR",
@@ -122,15 +122,15 @@ const pl: Copy = {
     scrollHint: "Przewiń",
     toast: "Film demo startuje na pełnym ekranie — wyciszony, w pętli.",
     rec: "INSP",
-    dateStamp: "2026–09–12",
+    dateStamp: "2026-09-12",
   },
   problem: {
     kicker: "Problem",
     title: "Kadłub to najdroższa część statku, której nie widać.",
     subtitle:
       "Statek dokuje średnio raz na 5 lat. Przez ten czas najdroższa część jednostki niszczeje niewidocznie: korozja pełza, powłoka odchodzi, pęknięcia czekają. Dziś łapiesz je za późno — albo wcale.",
-    costLabel: "Jedno niezlapane pęknięcie",
-    costValue: "≈ 4–21 mln zł",
+    costLabel: "Jedno niezłapane pęknięcie",
+    costValue: "≈ 4-21 mln zł",
     costHint: "naprawa + przestój + ubezpieczenie + odpowiedzialność · średnia szkoda kadłubowa ≈ 6 mln zł (baza IUMI, ~17 tys. roszczeń)",
   },
   bridge: {
@@ -139,9 +139,9 @@ const pl: Copy = {
     subtitle: "Każda dzisiejsza metoda każe wybierać między jakością a kosztem. HullSight daje jedno i drugie — sprzętem, który już masz.",
     head: ["Metoda", "Koszt", "Czas", "Kto", "Pokrycie", "Sedno"],
     rows: [
-      { who: "Nurek i przegląd ROV", cost: "35–260 tys. zł / dzień", speed: "dni–tygodnie", access: "tylko specjaliści", depth: "próbki punktowe", verdict: "płacisz za wizyty, nie za obraz" },
-      { who: "Pomiary ultradźwiękowe", cost: "85–350 tys. zł / seria", speed: "dni", access: "certyfikowana załoga", depth: "pojedyncze blachy", verdict: "ślepe tam, gdzie nie szukasz" },
-      { who: "Przegląd w suchym doku", cost: "215 tys.–1,7 mln zł / dok", speed: "tygodnie", access: "wolny termin doku", depth: "cały kadłub, co 5 lat", verdict: "za rzadko, za późno" },
+      { who: "Nurek i przegląd ROV", cost: "35-260 tys. zł / dzień", speed: "dni-tygodnie", access: "tylko specjaliści", depth: "próbki punktowe", verdict: "płacisz za wizyty, nie za obraz" },
+      { who: "Pomiary ultradźwiękowe", cost: "85-350 tys. zł / seria", speed: "dni", access: "certyfikowana załoga", depth: "pojedyncze blachy", verdict: "ślepe tam, gdzie nie szukasz" },
+      { who: "Przegląd w suchym doku", cost: "215 tys.-1,7 mln zł / dok", speed: "tygodnie", access: "wolny termin doku", depth: "cały kadłub, co 5 lat", verdict: "za rzadko, za późno" },
       { who: "HullSight", cost: "kamery, które już masz (albo telefon)", speed: "minuty", access: "bez zmian — nagrywa to, co już nagrywa", depth: "cała powierzchnia, milimetry", verdict: "Każdy kurs to przegląd.", accent: true },
     ],
     summaryLabel: "HULLSIGHT · UCZCIWY RACHUNEK",
@@ -212,14 +212,14 @@ const pl: Copy = {
     playersTitle: "JAK GRAJĄ INNI",
     players: [
       { name: "Greensea IQ · EverClean", what: "robot czyszczący kadłub + sondy ultradźwiękowe", lens: "sprzedaje wizytę robota na kadłubie" },
-      { name: "Blueye Robotics", what: "drony obserwacyjne do 150 m, ~4–5 tys. $", lens: "sprzedaje oko pod wodą i operatora w ekipie" },
+      { name: "Blueye Robotics", what: "drony obserwacyjne do 150 m, ~4-5 tys. $", lens: "sprzedaje oko pod wodą i operatora w ekipie" },
       { name: "Subsea Tech", what: "ROV / USV do inspekcji UWILD", lens: "sprzedaje sprzęt i operatorów za dzień roboczy" },
       { name: "Smart Hull Sight", what: "fotogrametria 3D z nurków / ROV + AI", lens: "najbliżej nas — ale ktoś musi wejść do wody" },
     ],
     diffHead: ["Kategoria", "Oni", "My"],
     diffRows: [
       ["Narzędzie przy kadłubie", "ROV / robot / nurek w wodzie", "kamera, która już nagrywa — telefon, CCTV, dron"],
-      ["Koszt pojedynczego przeglądu", "35–260 tys. zł / dzień + logistyka", "minuty GPU · 0 zł nowego sprzętu"],
+      ["Koszt pojedynczego przeglądu", "35-260 tys. zł / dzień + logistyka", "minuty GPU · 0 zł nowego sprzętu"],
       ["Częstotliwość", "raz do roku, gdy się zdecydują", "każdy rejs to kolejny skan"],
       ["Skalowanie", "więcej robotów i operatorów", "wzór + GPU — dokładność rośnie z kamerą klienta"],
     ],
@@ -228,12 +228,12 @@ const pl: Copy = {
     gsdLead: "To nie magia, tylko geometria: im gęstszy piksel na kadłubie, tym mniejszy detal do odczytania. Poniżej rozdzielczość pomiaru rzędu GSD dla typowych scen.",
     gsdHead: ["Źródło nagrania", "Rozdzielczość", "Dystans", "Rozdzielczość pomiaru"],
     gsd: [
-      ["Telefon flotowy (48 MP)", "48 MP", "3–4 m", "≈ 1–2 mm"],
-      ["Telefon (12 MP)", "12 MP", "4–5 m", "≈ 2–4 mm"],
-      ["Kamera nabrzeża 4K (8 MP)", "8 MP", "6–10 m", "≈ 4–8 mm"],
-      ["Kamera CCTV (2 MP)", "2 MP", "10–15 m", "≈ 8–15 mm"],
+      ["Telefon flotowy (48 MP)", "48 MP", "3-4 m", "≈ 1-2 mm"],
+      ["Telefon (12 MP)", "12 MP", "4-5 m", "≈ 2-4 mm"],
+      ["Kamera nabrzeża 4K (8 MP)", "8 MP", "6-10 m", "≈ 4-8 mm"],
+      ["Kamera CCTV (2 MP)", "2 MP", "10-15 m", "≈ 8-15 mm"],
     ],
-    gsdFormula: "GSD ≈ (wielkość sensora ÷ liczba pikseli) × dystans ÷ ogniskowa. Walidacje: fotogrametria smartfonowa vs. pomiar TLS/LiDAR — dokładność rzędu mm (ISPRS Archives XLVIII-2-2023, dane 1,1–14 m). Demo HullSight: próg 1,2 mm przy 48 MP.",
+    gsdFormula: "GSD ≈ (wielkość sensora ÷ liczba pikseli) × dystans ÷ ogniskowa. Walidacje: fotogrametria smartfonowa vs. pomiar TLS/LiDAR — dokładność rzędu mm (ISPRS Archives XLVIII-2-2023, dane 1,1-14 m). Demo HullSight: próg 1,2 mm przy 48 MP.",
   },
   dualuse: {
     kicker: "Cztery rynki, jeden pipeline",
@@ -242,13 +242,13 @@ const pl: Copy = {
     civilian: { head: "CYWILNY · ARMATORZY", title: "Żegluga taniej i bezpieczniej", items: ["Przeglądy bez doku, nurków i czekania", "Dowód stanu kadłuba dla klasy i ubezpieczeń", "Naprawa planowana, zanim usterka zaskoczy", "Monitoring kadłubów portów i terminali", "Raporty stanu przy czarterach i sprzedaży"] },
     defense: { head: "DUAL USE · OBRONNOŚĆ", title: "Świadomość uszkodzeń i infrastruktury", items: ["Szybka ocena uszkodzeń po incydencie", "Monitoring kadłubów krytycznej infrastruktury Bałtyku", "Gotowość floty u bazy bez logistyki", "Dowód na poziomie blachy w roszczeniach morskich", "Bliźniaki szkoleniowe własnych okrętów"] },
     yard: { head: "STOCZNIE · GWARANCJA", title: "Kadłub, który stocznia musi utrzymywać", items: ["Nowy statek ma ~12 mies. gwarancji — stocznia regularnie utrzymuje kadłub i za to płaci", "Stocznie same szukają tańszego i lepszego przeglądu", "Monitoring kadłuba między przeglądami jako element gwarancji", "Dowód stanu kadłuba przy przekazaniu i w roszczeniach", "Bliźniak 3D sprzedawany razem z jednostką"] },
-    consumer: { head: "KONSUMENCKI · SUNREEF", title: "Luksusowe jachty — monitoring bez ekipy", items: ["Zapytanie do Sunreef złożone — czekamy na odpowiedź", "Jacht 60–120 ft: kadłub to główny środek trwały", "Przegląd przed czarterem i przy sprzedaży", "Kamery jachtu i monitoring przy dokowaniu", "Zgłoszenie szkody ubezpieczycielowi z dowodem 3D"] },
+    consumer: { head: "KONSUMENCKI · SUNREEF", title: "Luksusowe jachty — monitoring bez ekipy", items: ["Zapytanie do Sunreef złożone — czekamy na odpowiedź", "Jacht 60-120 ft: kadłub to główny środek trwały", "Przegląd przed czarterem i przy sprzedaży", "Kamery jachtu i monitoring przy dokowaniu", "Zgłoszenie szkody ubezpieczycielowi z dowodem 3D"] },
     moneyTitle: "Ile to dziś płaci rynek",
     moneyCaption: "To liczby, które już są w obiegu — nie projekcje.",
     money: [
       { big: "≈ 6 mln zł", label: "średnia szkoda kadłubowa", note: "baza IUMI · ~17 tys. roszczeń" },
-      { big: "35–260 tys. zł", label: "jeden dzień przeglądu ROV / nurków", note: "tyle dziś płaci armator" },
-      { big: "2,5–10 mln €", label: "jacht klasy Sunreef", note: "przegląd kadłuba to jego ułamek; szkoda to całość" },
+      { big: "35-260 tys. zł", label: "jeden dzień przeglądu ROV / nurków", note: "tyle dziś płaci armator" },
+      { big: "2,5-10 mln €", label: "jacht klasy Sunreef", note: "przegląd kadłuba to jego ułamek; szkoda to całość" },
     ],
     line: "Krytyczna infrastruktura Bałtyku stoi na kadłubach. Kto je widzi, kontroluje grę.",
   },
@@ -293,6 +293,7 @@ const pl: Copy = {
     formNote: "Pierwsze stocznie, porty i armatorzy dostaną pilota przed zimą — ENAMOR już ustala termin pokazu. Kolejka rośnie.",
     formOk: "Na liście. Odezwiemy się z dostępem do pilota.",
     note: "Zbudowane w 48 godzin na Baltic Dual Use Hackathon · Biblioteka Uniwersytetu Gdańskiego, wrzesień 2026",
+    finaleCaption: "Kadłub od środka, dokładnie tak jak widzi go HullSight",
   },
   footer: {
     tag: "HULLSIGHT",
@@ -316,14 +317,14 @@ const en: Copy = {
   hero: {
     chipTop: "BALTIC DUAL USE HACKATHON · GDANSK 2026",
     liveBadge: "LIVE · 5 vessels · hull geometry · 1.2 mm noise",
-    h1Line1: "A €25,000 hull scan.",
+    h1Line1: "A hull scan that would cost €25,000.",
     h1Line2: "From cameras you already own.",
     sub: "Phone, dock CCTV or drone footage becomes a measurable 3D hull twin. No expensive kits, no specialists.",
     ctaPrimary: "Open the live demo",
     ctaSecondary: "How it works",
     ctaTertiary: "Why now",
     tags: ["Gaussian Splatting", "nearest-neighbour compare · 1.2 mm", "onboard, offline analysis"],
-    videoKicker: "INSP · 2026–09–12 · DUAL USE",
+    videoKicker: "INSP · 2026-09-12 · DUAL USE",
     videoTitle: "Hull → twin → measurements",
     videoTimer: "00:16",
     videoSub: "CAPTURE → RECONSTRUCTION → MEASUREMENT",
@@ -331,7 +332,7 @@ const en: Copy = {
     scrollHint: "Scroll",
     toast: "The demo film runs full-screen — muted, looping.",
     rec: "INSP",
-    dateStamp: "2026–09–12",
+    dateStamp: "2026-09-12",
   },
   problem: {
     kicker: "The problem",
@@ -339,7 +340,7 @@ const en: Copy = {
     subtitle:
       "A ship drydocks about once every 5 years. In between, the most expensive part of the vessel — the hull — rots invisibly: corrosion creeps, coating peels, cracks wait. Today you catch them too late, or not at all.",
     costLabel: "One hairline crack, uncaught",
-    costValue: "≈ PLN 4–21M",
+    costValue: "≈ PLN 4-21M",
     costHint: "repair + downtime + insurance + liability · average hull claim ≈ PLN 6M / US$1.4M (IUMI database, ~17k claims)",
   },
   bridge: {
@@ -348,9 +349,9 @@ const en: Copy = {
     subtitle: "Every current method forces a choice between quality and cost. HullSight delivers both — with hardware you already own.",
     head: ["Method", "Cost", "Time", "Who", "Coverage", "Bottom line"],
     rows: [
-      { who: "Diver & ROV survey", cost: "PLN 35–260k / day", speed: "days–weeks", access: "specialists only", depth: "point samples", verdict: "you pay for visits, not a picture" },
-      { who: "Ultrasonic gauging", cost: "PLN 85–350k / run", speed: "days", access: "certified crew", depth: "single plates", verdict: "blind where you don't think to look" },
-      { who: "Drydock inspection", cost: "PLN 215k–1.7M / haul", speed: "weeks", access: "open drydock slot", depth: "full hull, every 5 yrs", verdict: "too rare, too late" },
+      { who: "Diver & ROV survey", cost: "PLN 35-260k / day", speed: "days-weeks", access: "specialists only", depth: "point samples", verdict: "you pay for visits, not a picture" },
+      { who: "Ultrasonic gauging", cost: "PLN 85-350k / run", speed: "days", access: "certified crew", depth: "single plates", verdict: "blind where you don't think to look" },
+      { who: "Drydock inspection", cost: "PLN 215k-1.7M / haul", speed: "weeks", access: "open drydock slot", depth: "full hull, every 5 yrs", verdict: "too rare, too late" },
       { who: "HullSight", cost: "cameras you already have (or a phone)", speed: "minutes", access: "no change — it records what already records", depth: "full surface, mm-level", verdict: "Every trip is a survey.", accent: true },
     ],
     summaryLabel: "HULLSIGHT · THE HONEST BILL",
@@ -421,14 +422,14 @@ const en: Copy = {
     playersTitle: "HOW THE OTHERS PLAY",
     players: [
       { name: "Greensea IQ · EverClean", what: "hull-cleaning robot + ultrasonic probes", lens: "sells a robot visit on the hull" },
-      { name: "Blueye Robotics", what: "observation drones to 150 m, ~$4–5k", lens: "sells an underwater eye and an operator on crew" },
+      { name: "Blueye Robotics", what: "observation drones to 150 m, ~$4-5k", lens: "sells an underwater eye and an operator on crew" },
       { name: "Subsea Tech", what: "ROV / USV for UWILD inspections", lens: "sells gear and operators by the working day" },
       { name: "Smart Hull Sight", what: "3D photogrammetry from divers / ROV + AI", lens: "closest to us — but someone still has to go into the water" },
     ],
     diffHead: ["Category", "Them", "Us"],
     diffRows: [
       ["Tool at the hull", "ROV / robot / diver in the water", "a camera that already records — phone, CCTV, drone"],
-      ["Cost of one survey", "PLN 35–260k / day + logistics", "minutes of GPU · PLN 0 new hardware"],
+      ["Cost of one survey", "PLN 35-260k / day + logistics", "minutes of GPU · PLN 0 new hardware"],
       ["Frequency", "once a year, when they decide", "every voyage is another scan"],
       ["Scaling", "more robots and operators", "a model + GPU — accuracy grows with the client's camera"],
     ],
@@ -437,12 +438,12 @@ const en: Copy = {
     gsdLead: "Not magic — geometry: the denser the pixel on the hull, the smaller the detail you can read. Below, measurement resolution on the order of GSD for typical capture scenes.",
     gsdHead: ["Capture source", "Resolution", "Distance", "Measurement resolution"],
     gsd: [
-      ["Fleet phone (48 MP)", "48 MP", "3–4 m", "≈ 1–2 mm"],
-      ["Phone (12 MP)", "12 MP", "4–5 m", "≈ 2–4 mm"],
-      ["Berth camera 4K (8 MP)", "8 MP", "6–10 m", "≈ 4–8 mm"],
-      ["CCTV camera (2 MP)", "2 MP", "10–15 m", "≈ 8–15 mm"],
+      ["Fleet phone (48 MP)", "48 MP", "3-4 m", "≈ 1-2 mm"],
+      ["Phone (12 MP)", "12 MP", "4-5 m", "≈ 2-4 mm"],
+      ["Berth camera 4K (8 MP)", "8 MP", "6-10 m", "≈ 4-8 mm"],
+      ["CCTV camera (2 MP)", "2 MP", "10-15 m", "≈ 8-15 mm"],
     ],
-    gsdFormula: "GSD ≈ (sensor width ÷ pixels) × distance ÷ focal length. Validation: smartphone photogrammetry vs TLS/LiDAR ground truth — mm-level accuracy (ISPRS Archives XLVIII-2-2023, 1.1–14 m range). HullSight demo: 1.2 mm noise floor at 48 MP.",
+    gsdFormula: "GSD ≈ (sensor width ÷ pixels) × distance ÷ focal length. Validation: smartphone photogrammetry vs TLS/LiDAR ground truth — mm-level accuracy (ISPRS Archives XLVIII-2-2023, 1.1-14 m range). HullSight demo: 1.2 mm noise floor at 48 MP.",
   },
   dualuse: {
     kicker: "Four markets, one pipeline",
@@ -451,13 +452,13 @@ const en: Copy = {
     civilian: { head: "CIVILIAN · OWNERS", title: "Shipping that runs safer & cheaper", items: ["Inspection without drydock, divers or waiting", "Hull condition evidence for class and insurers", "Repairs scheduled before they surprise you", "Port and terminal hull monitoring", "Charter and resale condition reports"] },
     defense: { head: "DUAL USE · DEFENSE", title: "Damage and infrastructure awareness", items: ["Rapid hull damage assessment after an incident", "Monitoring Baltic critical-infrastructure hulls", "Fleet readiness at base with no logistics drag", "Plate-level evidence for naval claims", "Training twins of your own vessels"] },
     yard: { head: "SHIPYARDS · WARRANTY", title: "The hull a yard must look after", items: ["Newbuilds carry ~12 months of warranty — the yard maintains the hull at its own cost", "Yards are actively hunting for cheaper, better surveys", "Hull monitoring between surveys as a warranty element", "Hull condition evidence at delivery and in claims", "A 3D twin sold alongside the vessel"] },
-    consumer: { head: "CONSUMER · SUNREEF", title: "Luxury yachts — monitoring without a crew", items: ["Sunreef query sent — awaiting their reply", "A 60–120 ft yacht's hull is its core asset", "Pre-charter and resale surveys", "Yacht cameras + berthing monitoring", "Insurance claims with a 3D evidence record"] },
+    consumer: { head: "CONSUMER · SUNREEF", title: "Luxury yachts — monitoring without a crew", items: ["Sunreef query sent — awaiting their reply", "A 60-120 ft yacht's hull is its core asset", "Pre-charter and resale surveys", "Yacht cameras + berthing monitoring", "Insurance claims with a 3D evidence record"] },
     moneyTitle: "What this market already pays",
     moneyCaption: "Numbers already in circulation — not projections.",
     money: [
       { big: "≈ PLN 6M", label: "average hull claim", note: "IUMI database · ~17k claims" },
-      { big: "PLN 35–260k", label: "one day of ROV / diver survey", note: "what an owner pays today" },
-      { big: "€2.5–10M", label: "a Sunreef-class yacht", note: "a survey is a fraction; a claim is the whole" },
+      { big: "PLN 35-260k", label: "one day of ROV / diver survey", note: "what an owner pays today" },
+      { big: "€2.5-10M", label: "a Sunreef-class yacht", note: "a survey is a fraction; a claim is the whole" },
     ],
     line: "Baltic critical infrastructure sits on hulls. Whoever sees them controls the game.",
   },
@@ -502,6 +503,7 @@ const en: Copy = {
     formNote: "The first yards, ports and owners get pilot access before winter — ENAMOR is already scheduling a show. The list grows daily.",
     formOk: "You're on the list. We'll reach out with pilot access.",
     note: "Built in 48 hours at the Baltic Dual Use Hackathon · University of Gdansk library, Sept 2026",
+    finaleCaption: "The hull from the inside, exactly as HullSight sees it",
   },
   footer: {
     tag: "HULLSIGHT",
