@@ -460,9 +460,11 @@ function heroMarkup(): string {
       class="demo-video"
       id="demoVideo"
       src="/render_poprawka.mp4"
+      autoplay
       muted
       loop
       playsinline
+      webkit-playsinline="true"
       preload="auto"
       aria-label="HullSight demo film"
     ></video>
@@ -616,7 +618,7 @@ export function boot() {
         <img class="logo" src="/brand/hullsight-logo.png" alt="">
         <span class="brand-name">Hull<span class="accent">Sight</span></span>
       </a>
-      <nav class="links hide-m">
+      <nav class="links hide-m" id="navLinks">
         <a href="#why">${c.platform}</a>
         <a href="#dual">${c.dualUse}</a>
         <a href="#how">${c.how}</a>
@@ -624,11 +626,27 @@ export function boot() {
         <a href="/demo">${c.demo}</a>
       </nav>
       <div class="nav-right">
+        <button id="navBurger" class="nav-burger" aria-label="Menu" aria-expanded="false" aria-controls="navLinks">
+          <svg class="icon-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+          <svg class="icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="5" y1="5" x2="19" y2="19"></line><line x1="19" y1="5" x2="5" y2="19"></line></svg>
+        </button>
         <button id="langbtn" class="btn btn-hair sm lang-sm">${lang === "pl" ? "EN" : "PL"}</button>
         <a class="btn btn-hair sm" href="/app">${c.openApp}</a>
         <a class="btn btn-solid sm book-sm" href="#cta">${c.book}</a>
       </div>`;
     document.getElementById("langbtn")?.addEventListener("click", () => toggleLang());
+    const burger = document.getElementById("navBurger");
+    const links = document.getElementById("navLinks");
+    burger?.addEventListener("click", () => {
+      const open = links?.classList.toggle("open") ?? false;
+      burger.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+    links?.querySelectorAll("a").forEach((a) =>
+      a.addEventListener("click", () => {
+        links.classList.remove("open");
+        burger?.setAttribute("aria-expanded", "false");
+      })
+    );
   }
 
   function wireVideo() {
@@ -658,14 +676,23 @@ export function boot() {
     if (video) {
       video.addEventListener("loadeddata", start, { once: true });
       video.addEventListener("canplaythrough", start, { once: true });
+      document.addEventListener("visibilitychange", () => {
+        if (!document.hidden && video.paused) start();
+      });
+      if (video.readyState >= 2) start();
     }
   }
 
   function wireScroll() {
     const html = document.documentElement;
-    const threshold = () => Math.max(1, window.innerHeight - 100);
+    const heroEl = document.getElementById("hero");
+    // Use the hero's own (stable) rendered height rather than window.innerHeight,
+    // which jitters on mobile as the browser chrome collapses/expands during
+    // scroll - that jitter was making the nav reveal unreliable on phones.
+    const heroPx = () => Math.max(1, heroEl?.offsetHeight ?? window.innerHeight);
     const check = () => {
-      const past = window.scrollY > threshold();
+      const heroH = heroPx();
+      const past = window.scrollY > heroH * 0.5;
       html.classList.toggle("nav-show", past);
       const atBottom = window.scrollY > html.scrollHeight - window.innerHeight - 180;
       document.getElementById("scrollHint")?.classList.toggle("hide", atBottom);
@@ -678,7 +705,6 @@ export function boot() {
       if (hl) hl.style.transform = `translate3d(0, ${window.scrollY * 0.35}px, 0)`;
       const rail = document.getElementById("chRail");
       if (rail) {
-        const heroH = threshold();
         const shown = window.scrollY > heroH * 0.6 && !atBottom;
         rail.classList.toggle("rail-hid", !shown);
         if (shown) {
@@ -699,40 +725,8 @@ export function boot() {
     window.addEventListener("resize", check, { passive: true });
   }
 
-  // Chapters are long-form scrolling panels, not literal one-screen slides,
-  // so jumping to one via the rail/scroll-hint normally only reveals its top
-  // sliver on a laptop-height screen - the rest needs a manual scroll. When
-  // navigating between chapters (as opposed to free scrolling), shrink the
-  // chapter to fit the viewport so the whole thing is visible at once, like
-  // an actual presentation slide. Uses CSS zoom (not transform: scale)
-  // specifically because zoom reflows layout, so the section's own height
-  // shrinks to match - no leftover blank gap below it.
-  function fitChapterToViewport(target: HTMLElement) {
-    if (!target.classList.contains("sec")) return;
-    const inner = target.querySelector<HTMLElement>(".sec-inner");
-    if (!inner) return;
-    target.style.paddingTop = "";
-    target.style.paddingBottom = "";
-    inner.style.zoom = "1";
-    const cs = getComputedStyle(target);
-    const padTop = parseFloat(cs.paddingTop) || 0;
-    const padBottom = parseFloat(cs.paddingBottom) || 0;
-    const innerH = inner.getBoundingClientRect().height;
-    const natural = padTop + innerH + padBottom;
-    const navOffset = 84;
-    const breathing = 20;
-    const available = window.innerHeight - navOffset - breathing;
-    if (natural > available && available > 0) {
-      const scale = Math.max(0.52, Math.min(1, available / natural));
-      target.style.paddingTop = `${padTop * scale}px`;
-      target.style.paddingBottom = `${padBottom * scale}px`;
-      inner.style.zoom = String(scale);
-    }
-  }
-
   function goToSection(target: HTMLElement) {
-    fitChapterToViewport(target);
-    target.scrollIntoView({ behavior: "smooth" });
+    target.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   function wireScrollHint() {

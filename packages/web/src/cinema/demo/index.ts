@@ -367,16 +367,32 @@ export function boot() {
         <img class="logo" src="/brand/hullsight-logo.png" alt="">
         <span class="brand-name">Hull<span class="accent">Sight</span></span>
       </a>
-      <nav class="demo-links hide-m">
+      <nav class="demo-links hide-m" id="demoNavLinks">
         <a href="/">${c.landing}</a>
         <a href="#films" class="on">${c.films}</a>
         <a href="/app">${c.app}</a>
       </nav>
       <div class="demo-nav-right">
+        <button id="demoBurger" class="demo-burger" aria-label="Menu" aria-expanded="false" aria-controls="demoNavLinks">
+          <svg class="icon-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+          <svg class="icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="5" y1="5" x2="19" y2="19"></line><line x1="19" y1="5" x2="5" y2="19"></line></svg>
+        </button>
         <button id="langbtn" class="btn btn-hair sm lang-sm demo-lang">${lang === "pl" ? "EN" : "PL"}</button>
         <a class="btn btn-solid sm book-sm" href="/app">${c.app}</a>
       </div>`;
     document.getElementById("langbtn")?.addEventListener("click", () => toggleLang());
+    const burger = document.getElementById("demoBurger");
+    const links = document.getElementById("demoNavLinks");
+    burger?.addEventListener("click", () => {
+      const open = links?.classList.toggle("open") ?? false;
+      burger.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+    links?.querySelectorAll("a").forEach((a) =>
+      a.addEventListener("click", () => {
+        links.classList.remove("open");
+        burger?.setAttribute("aria-expanded", "false");
+      })
+    );
   }
 
   const players: (YtPlayer | null)[] = VIDS.map(() => null);
