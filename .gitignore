@@ -5,3 +5,5 @@ dist/
 *.log
 .env
 .env.local
+
+render_poprawka.mp4

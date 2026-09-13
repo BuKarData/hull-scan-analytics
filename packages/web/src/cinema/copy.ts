@@ -6,6 +6,7 @@ export interface Copy {
     dualUse: string;
     how: string;
     live: string;
+    demo: string;
     openApp: string;
     book: string;
   };
@@ -24,15 +25,64 @@ export interface Copy {
     videoTimer: string;
     videoSub: string;
     videoCap: string;
+    scrollHint: string;
     toast: string;
     rec: string;
     dateStamp: string;
   };
   problem: { kicker: string; title: string; subtitle: string; costLabel: string; costValue: string; costHint: string };
-  bridge: { kicker: string; title: string; subtitle: string; head: string[]; rows: { who: string; cost: string; speed: string; access: string; depth: string; verdict: string; accent?: boolean }[] };
+  bridge: { kicker: string; title: string; subtitle: string; head: string[]; rows: { who: string; cost: string; speed: string; access: string; depth: string; verdict: string; accent?: boolean }[]; summaryLabel: string; summaryTime: string; summaryCost: string; summaryNote: string };
   how: { kicker: string; title: string; subtitle: string; steps: { n: string; t: string; d: string }[]; tech: string[] };
-  detect: { kicker: string; title: string; subtitle: string; gridCaption: string; gridLegend: string[]; defects: { name: string; en: string; sev: string; mm: string; d: string }[] };
-  dualuse: { kicker: string; title: string; subtitle: string; line: string; civilian: { head: string; title: string; items: string[] }; defense: { head: string; title: string; items: string[] } };
+  status: {
+    kicker: string;
+    title: string;
+    subtitle: string;
+    phaseLabel: string;
+    hatTag: string;
+    hatFlag: string;
+    hatTitle: string;
+    hatItems: string[];
+    midTag: string;
+    midFlag: string;
+    midTitle: string;
+    midItems: string[];
+    fatTag: string;
+    fatFlag: string;
+    fatTitle: string;
+    fatItems: string[];
+    aceNote: string;
+    enamorTag: string;
+    enamorTitle: string;
+    enamorBody: string;
+    sunreefTag: string;
+    sunreefTitle: string;
+    sunreefBody: string;
+    modelTag: string;
+    modelTitle: string;
+    modelBody: string;
+    craTag: string;
+    craTitle: string;
+    craBody: string;
+    craItems: string[];
+    quote: string;
+  };
+  market: {
+    kicker: string;
+    title: string;
+    subtitle: string;
+    claim: string;
+    playersTitle: string;
+    players: { name: string; what: string; lens: string }[];
+    diffHead: string[];
+    diffRows: [string, string, string][];
+    gsdKicker: string;
+    gsdTitle: string;
+    gsdLead: string;
+    gsdHead: string[];
+    gsd: [string, string, string, string][];
+    gsdFormula: string;
+  };
+  dualuse: { kicker: string; title: string; subtitle: string; line: string; civilian: { head: string; title: string; items: string[] }; defense: { head: string; title: string; items: string[] }; yard: { head: string; title: string; items: string[] }; consumer: { head: string; title: string; items: string[] }; moneyTitle: string; moneyCaption: string; money: { big: string; label: string; note: string }[] };
   proof: {
     kicker: string;
     title: string;
@@ -48,29 +98,29 @@ export interface Copy {
     note: string;
   };
   objections: { kicker: string; title: string; items: { q: string; a: string }[] };
-  cta: { kicker: string; title: string; subtitle: string; primary: string; secondary: string; formLabel: string; formPlaceholder: string; formNote: string; formOk: string; note: string };
+  cta: { vision: string; kicker: string; title: string; subtitle: string; primary: string; secondary: string; formLabel: string; formPlaceholder: string; formNote: string; formOk: string; note: string };
   footer: { tag: string; sub: string; colTech: string; colCtx: string; tech1: string; tech2: string; tech3: string; tech4: string; ctx1: string; ctx2: string; ctx3: string; desc: string; lang: string };
 }
 
 const pl: Copy = {
-  nav: { platform: "Platforma", dualUse: "Dual use", how: "Jak to działa", live: "Dowody", openApp: "Otwórz demo", book: "Umów demo" },
+  nav: { platform: "Platforma", dualUse: "Dual use", how: "Jak to działa", live: "Dowody", demo: "Demo (filmy)", openApp: "Otwórz demo", book: "Umów demo" },
   hero: {
     chipTop: "BALTIC DUAL USE HACKATHON · GDAŃSK 2026",
     liveBadge: "LIVE · 5 jednostek · geometria kadłuba · 1,2 mm szumu",
-    h1Line1: "Statek na morzu.",
-    h1Line2: "Bliźniak mierzony w milimetrach.",
-    sub:
-      "HullSight zamienia rutynowe nagranie telefonem w mierzalny bliźniak 3D kadłuba — a każdy kolejny skan porównuje od startu, żeby korozja, wgniecenia i pęknięcia nigdy nie stały się awarią.",
+    h1Line1: "Skan kadłuba za 100 000 zł.",
+    h1Line2: "Z kamer, które już masz.",
+    sub: "Telefon, monitoring, dron — zwykłe nagranie daje mierzalny bliźniak 3D kadłuba. Drogi sprzęt i specjaliści? Niepotrzebni.",
     ctaPrimary: "Otwórz demo na żywo",
-    ctaSecondary: "Obejrzyj film",
+    ctaSecondary: "Jak to działa",
     ctaTertiary: "Dlaczego teraz",
     tags: ["Gaussian Splatting", "porównanie NN · szum 1,2 mm", "analiza offline, na pokładzie"],
     videoKicker: "INSP · 2026–09–12 · DUAL USE",
     videoTitle: "Kadłub → bliźniak → pomiary",
-    videoTimer: "00:17",
+    videoTimer: "00:16",
     videoSub: "NAGRANIE → REKONSTRUKCJA → POMIAR",
-    videoCap: "finalny film demo trafi w to miejsce — produkt działa na żywo już teraz",
-    toast: "Film demo jest w montażu przed pitchingiem. Tymczasem otwórz produkt na żywo.",
+    videoCap: "DEMO · H.264 · 1920×1080 · render 3D kadłuba HullSight",
+    scrollHint: "Przewiń",
+    toast: "Film demo startuje na pełnym ekranie — wyciszony, w pętli.",
     rec: "INSP",
     dateStamp: "2026–09–12",
   },
@@ -78,32 +128,35 @@ const pl: Copy = {
     kicker: "Problem",
     title: "Kadłub to najdroższa część statku, której nie widać.",
     subtitle:
-      "Jedna usterka kadłuba to tygodnie w doku, statek zawietrzony, roszczenie ubezpieczeniowe — albo podatność w krytycznej infrastrukturze. A między przeglądami kadłub jest praktycznie niewidoczny.",
+      "Statek dokuje średnio raz na 5 lat. Przez ten czas najdroższa część jednostki niszczeje niewidocznie: korozja pełza, powłoka odchodzi, pęknięcia czekają. Dziś łapiesz je za późno — albo wcale.",
     costLabel: "Jedno niezlapane pęknięcie",
-    costValue: "≈ 1–5 mln €",
-    costHint: "naprawa + przestój + ubezpieczenie + odpowiedzialność (wartość poglądowa)",
+    costValue: "≈ 4–21 mln zł",
+    costHint: "naprawa + przestój + ubezpieczenie + odpowiedzialność · średnia szkoda kadłubowa ≈ 6 mln zł (baza IUMI, ~17 tys. roszczeń)",
   },
   bridge: {
-    kicker: "Luka rynkowa",
-    title: "Narzędzia istnieją. Wąskim gardłem nigdy nie była technologia — tylko to, kto potrafi jej używać.",
-    subtitle: "Opcje dostępne dziś grają jakość przeciw kosztowi. HullSight przerywa ten kompromis.",
+    kicker: "Cena obecnych metod",
+    title: "Manualnie: fortuna i tygodnie. Automatycznie: nagranie, które już masz.",
+    subtitle: "Każda dzisiejsza metoda każe wybierać między jakością a kosztem. HullSight daje jedno i drugie — sprzętem, który już masz.",
     head: ["Metoda", "Koszt", "Czas", "Kto", "Pokrycie", "Sedno"],
     rows: [
-      { who: "Nurek i przegląd ROV", cost: "8–60 tys. € / dzień", speed: "dni–tygodnie", access: "tylko specjaliści", depth: "próbki punktowe", verdict: "poza zasięgiem rutynowych kontroli" },
-      { who: "Pomiary ultradźwiękowe", cost: "20–80 tys. € / seria", speed: "dni", access: "certyfikowana załoga", depth: "pojedyncze blachy", verdict: "świetne tam, gdzie wiadomo; ślepe gdzie indziej" },
-      { who: "Przegląd w suchym doku", cost: "50–400 tys. € / dok", speed: "tygodnie", access: "wolny termin doku", depth: "cały kadłub, co 5 lat", verdict: "zbyt rzadko, zbyt późno" },
-      { who: "HullSight", cost: "telefon + spacer", speed: "minuty", access: "każdy członek załogi", depth: "cała powierzchnia, milimetry", verdict: "Każdy kurs to przegląd.", accent: true },
+      { who: "Nurek i przegląd ROV", cost: "35–260 tys. zł / dzień", speed: "dni–tygodnie", access: "tylko specjaliści", depth: "próbki punktowe", verdict: "płacisz za wizyty, nie za obraz" },
+      { who: "Pomiary ultradźwiękowe", cost: "85–350 tys. zł / seria", speed: "dni", access: "certyfikowana załoga", depth: "pojedyncze blachy", verdict: "ślepe tam, gdzie nie szukasz" },
+      { who: "Przegląd w suchym doku", cost: "215 tys.–1,7 mln zł / dok", speed: "tygodnie", access: "wolny termin doku", depth: "cały kadłub, co 5 lat", verdict: "za rzadko, za późno" },
+      { who: "HullSight", cost: "kamery, które już masz (albo telefon)", speed: "minuty", access: "bez zmian — nagrywa to, co już nagrywa", depth: "cała powierzchnia, milimetry", verdict: "Każdy kurs to przegląd.", accent: true },
     ],
+    summaryLabel: "HULLSIGHT · UCZCIWY RACHUNEK",
+    summaryTime: "~15 minut nagrania + kilka minut GPU — mierzalny bliźniak kadłuba",
+    summaryCost: "kilka złotych za przetwarzanie, 0 zł za sprzęt — kamery już stoją",
+    summaryNote: "Bez nurka, bez terminu w doku, bez serii pomiarów. Koszt, który możesz powtórzyć przy każdym rejsie.",
   },
   how: {
     kicker: "Jak to działa",
-    title: "Trzy kroki. Bez dronów, nurków i doków.",
-    subtitle:
-      "Pipeline jest uczciwy: rejestracja przez bazowy serwer GS (COLMAP + Gaussian Splatting), analiza na wierzchu. Ten produkt pracuje po skanie — porównanie, historia i detekcja.",
+    title: "Ciężką robotę robi maszyna. Nie ty.",
+    subtitle: "Nie mierzysz, nie kalibrujesz, nie kursujesz na nurka. Nagrywasz — dopasowanie, odchylenie i detekcję robi HullSight.",
     steps: [
-      { n: "01", t: "Spacer wokół kadłuba z telefonem", d: "Członek załogi filmuje kadłub — kilkaset zdjęć, kilkanaście minut marszu. Żaden specjalistyczny czujnik, pilot ani certyfikat." },
-      { n: "02", t: "Model 3D powstaje w kilka minut", d: "Serwer GS odtwarza powierzchnię jako model Gaussian Splatting. HullSight wpisuje go jako najnowszy skan jednostki." },
-      { n: "03", t: "Porównaj. Wykryj. Zdecyduj.", d: "HullSight dopasowuje dowolne dwa skany, nanosi odchylenie od bazy, znajduje skupiska zmian i proponuje typ usterki — z historią od startu." },
+      { n: "01", t: "Zwykłe nagranie — choćby z samego monitoringu", d: "Telefon załoganta, dron albo kamera, która już stoi na nabrzeżu — wystarczy każde nagranie, w którym jest kadłub. Kilkanaście minut obrazu. Zero nowego sprzętu, zero certyfikatów." },
+      { n: "02", t: "Model 3D powstaje sam", d: "Gaussian Splatting odtwarza powierzchnię z nagrania i wpisuje ją jako najnowszy skan jednostki. Nikt nie klika, nic nie mierzy." },
+      { n: "03", t: "HullSight porównuje. Ty decydujesz.", d: "Maszyna dopasowuje każdy skan do bazy, nanosi odchylenie od stanu wyjściowego, grupuje skupiska zmian i proponuje typ usterki — z historią od pierwszego dnia." },
     ],
     tech: [
       "Porównanie 3D najbliższych sąsiadów",
@@ -113,37 +166,101 @@ const pl: Copy = {
       "Deterministyczna flota demo na realnych kadłubach",
     ],
   },
-  detect: {
-    kicker: "Co widzi HullSight",
-    title: "Nie obrazek — pomiary.",
-    subtitle: "Ten sam pipeline, który obsłuży prawdziwe rekonstrukcje, już dziś odczytuje wielkość, znak i kształt zmian z floty demo.",
-    gridCaption: "Siatka regionów kadłuba · średnie odchylenie z ostatniego porównania",
-    gridLegend: ["wgniecenie", "średnia", "wybrzuszenie"],
-    defects: [
-      { name: "Wgniecenie", en: "Dent", sev: "Krytyczne", mm: "−5,5 mm", d: "Nagłe uderzenie, stabilne między przeglądami — typ usterki, którą mają łapać przeglądy ROV." },
-      { name: "Korozja", en: "Corrosion", sev: "Poważne", mm: "−4,0 mm", d: "Narasta między przeglądami na blachach dennych. Wcześnie to łatka; późno — wymiana blachy." },
-      { name: "Pęknięcie", en: "Crack", sev: "Krytyczne", mm: "−2,2 mm", d: "Liniowe, późne, zawsze traktowane jako strukturalne niezależnie od głębokości. To ono zatrzymuje statek." },
-      { name: "Ubytek powłoki", en: "Coating loss", sev: "Ostrzeżenie", mm: "−1,6 mm", d: "Wczesny sygnał przed korozją — najtańsza usterka do naprawienia, jeśli ją zobaczysz." },
-      { name: "Porost biologiczny", en: "Biofouling", sev: "Ostrzeżenie", mm: "+3,2 mm", d: "Cykliczny wzrost między dokowaniami; każdego dnia podnosi opory i zużycie paliwa." },
+  status: {
+    kicker: "Status i zaufanie",
+    title: "Między HAT a FAT stocznia trzyma kadłub. Tam jesteśmy.",
+    subtitle: "Statek przechodzi próby portowe (HAT) i odbiór końcowy (FAT). W fazie między nimi stocznia musi regularnie utrzymywać kadłub i za to płacić — dokładnie tam działa HullSight.",
+    phaseLabel: "FAZA ŻYCIA STATKU · HAT → FAT",
+    hatTag: "HAT",
+    hatFlag: "PO WODOWANIU",
+    hatTitle: "Harbour Acceptance Test",
+    hatItems: ["Statek w porcie stoczni — pierwsze próby na wodzie", "Kadłub po raz pierwszy narażony na styki i osiadanie", "Start historii pomiarów jednostki"],
+    midTag: "MIĘDZY HAT A FAT",
+    midFlag: "TU DZIAŁA HULLSIGHT",
+    midTitle: "Faza, w której stocznia utrzymuje kadłub",
+    midItems: ["Stocznia regularnie utrzymuje kadłub — i za to płaci", "Przegląd bez nurka, doku i ekip: kamera, która już stoi", "Skany dziś → mierzalne porównanie przy FAT"],
+    fatTag: "FAT",
+    fatFlag: "PRZY PRZEKAZANIU",
+    fatTitle: "Final Acceptance Test",
+    fatItems: ["Odbiór końcowy u armatora", "Dowód stanu kadłuba ze skanów, nie z okularów", "Bliźniak 3D przekazany z dokumentacją"],
+    aceNote: "HullSight przechodzi tę samą drogę u siebie: własne FAT ✓ (zaliczone) → HAT w harmonogramie.",
+    enamorTag: "KONTRAKT",
+    enamorTitle: "ENAMOR — wstępny kontakt nawiązany",
+    enamorBody: "Zapisali się na pokaz i ustalamy termin. Ich zespół techniczny zobaczy pipeline na żywo — nie slajdy.",
+    sunreefTag: "RYNEK KONSUMENCKI",
+    sunreefTitle: "Sunreef Yachts — czekamy na odpowiedź",
+    sunreefBody: "Wysłaliśmy zapytanie o monitoring kadłubów jachtów. Konsument to trzeci rynek z tego samego pipeline'u.",
+    modelTag: "MODEL AI",
+    modelTitle: "Trenujemy sami, na otwartych podstawach",
+    modelBody: "Otwarta implementacja Gaussian Splatting + model trenowany na danych kadłubowych. Zero black-boxów, zero licencji za skan — audytowalne i powielalne.",
+    craTag: "CRA",
+    craTitle: "Zgodność z EU Cyber Resilience Act — od pierwszego dnia",
+    craBody: "Projektujemy pod CRA i bezpieczeństwo danych jednostki tak, żeby być audytowalnym i bez vendor lock-in. To nie deklaracja — to architektura.",
+    craItems: [
+      "Analiza offline, na pokładzie — nagranie nie musi opuszczać jednostki",
+      "Szyfrowanie w spoczynku i w tranzycie · role i audyt",
+      "SBOM + rejestr aktualizacji — gotowość pod CRA",
+      "Model open-source: audytowalny, powielalny u klienta",
     ],
+    quote: "Wygramy ten hackathon. Po nim nie znikamy — zostajemy na wodzie, z pilotami ENAMOR i armatorów Bałtyku.",
+  },
+  market: {
+    kicker: "Rynek i konkurencja",
+    title: "Konkurencja wysyła coś pod wodę. My zostajemy na brzegu — z kamerą, która już stoi.",
+    subtitle: "Branża myśli sprzętem: ROV-y, roboty czyszczące, sonary, nurkowie. Ale kamera nad wodą już jest — wystarczy z niej skorzystać.",
+    claim: "Żeby zrobić przegląd, oni muszą wysłać na miejsce ekipę, robota i logistykę. My potrzebujemy tylko nagrania, które i tak powstało.",
+    playersTitle: "JAK GRAJĄ INNI",
+    players: [
+      { name: "Greensea IQ · EverClean", what: "robot czyszczący kadłub + sondy ultradźwiękowe", lens: "sprzedaje wizytę robota na kadłubie" },
+      { name: "Blueye Robotics", what: "drony obserwacyjne do 150 m, ~4–5 tys. $", lens: "sprzedaje oko pod wodą i operatora w ekipie" },
+      { name: "Subsea Tech", what: "ROV / USV do inspekcji UWILD", lens: "sprzedaje sprzęt i operatorów za dzień roboczy" },
+      { name: "Smart Hull Sight", what: "fotogrametria 3D z nurków / ROV + AI", lens: "najbliżej nas — ale ktoś musi wejść do wody" },
+    ],
+    diffHead: ["Kategoria", "Oni", "My"],
+    diffRows: [
+      ["Narzędzie przy kadłubie", "ROV / robot / nurek w wodzie", "kamera, która już nagrywa — telefon, CCTV, dron"],
+      ["Koszt pojedynczego przeglądu", "35–260 tys. zł / dzień + logistyka", "minuty GPU · 0 zł nowego sprzętu"],
+      ["Częstotliwość", "raz do roku, gdy się zdecydują", "każdy rejs to kolejny skan"],
+      ["Skalowanie", "więcej robotów i operatorów", "wzór + GPU — dokładność rośnie z kamerą klienta"],
+    ],
+    gsdKicker: "DOKŁADNOŚĆ ROŚNIE Z ROZDZIELCZOŚCIĄ",
+    gsdTitle: "Kamera X przy res Y daje precyzję Z.",
+    gsdLead: "To nie magia, tylko geometria: im gęstszy piksel na kadłubie, tym mniejszy detal do odczytania. Poniżej rozdzielczość pomiaru rzędu GSD dla typowych scen.",
+    gsdHead: ["Źródło nagrania", "Rozdzielczość", "Dystans", "Rozdzielczość pomiaru"],
+    gsd: [
+      ["Telefon flotowy (48 MP)", "48 MP", "3–4 m", "≈ 1–2 mm"],
+      ["Telefon (12 MP)", "12 MP", "4–5 m", "≈ 2–4 mm"],
+      ["Kamera nabrzeża 4K (8 MP)", "8 MP", "6–10 m", "≈ 4–8 mm"],
+      ["Kamera CCTV (2 MP)", "2 MP", "10–15 m", "≈ 8–15 mm"],
+    ],
+    gsdFormula: "GSD ≈ (wielkość sensora ÷ liczba pikseli) × dystans ÷ ogniskowa. Walidacje: fotogrametria smartfonowa vs. pomiar TLS/LiDAR — dokładność rzędu mm (ISPRS Archives XLVIII-2-2023, dane 1,1–14 m). Demo HullSight: próg 1,2 mm przy 48 MP.",
   },
   dualuse: {
-    kicker: "Dwa rynki, jeden pipeline",
-    title: "Cywilna wartość dziś. Obronna wartość na tej samej powierzchni.",
-    subtitle: "Jeden czujnik, jeden model, jeden rejestr — dwóch odbiorców.",
-    civilian: { head: "CYWILNY", title: "Żegluga, która działa taniej i bezpieczniej", items: ["Przeglądy okresowe bez doku", "Dowód stanu kadłuba dla ubezpieczeń i klasy", "Planowanie utrzymania predykcyjnego", "Monitoring kadłubów portów i terminali", "Raporty stanu przy czarterach i sprzedaży"] },
-    defense: { head: "DUAL USE · OBRONNOŚĆ", title: "Świadomość uszkodzeń i infrastruktury", items: ["Szybka ocena uszkodzeń po incydencie", "Monitoring kadłubów krytycznej infrastruktury Bałtyku", "Gotowość floty u baz przy minimalnej logistyce", "Dowód na poziomie blach w roszczeniach morskich", "Cyfrowe bliźniaki szkoleniowe własnych okrętów"] },
-    line: "Bałtyk jest pierwszą linią. Następny przełom będzie żył po obu stronach — cywilnej i obronnej.",
+    kicker: "Cztery rynki, jeden pipeline",
+    title: "Czterech klientów kupuje ten sam wynik.",
+    subtitle: "Cywilni armatorzy, obronność Bałtyku, stocznie w okresie gwarancyjnym i luksusowe jachty — jeden czujnik, jeden model, jeden rejestr.",
+    civilian: { head: "CYWILNY · ARMATORZY", title: "Żegluga taniej i bezpieczniej", items: ["Przeglądy bez doku, nurków i czekania", "Dowód stanu kadłuba dla klasy i ubezpieczeń", "Naprawa planowana, zanim usterka zaskoczy", "Monitoring kadłubów portów i terminali", "Raporty stanu przy czarterach i sprzedaży"] },
+    defense: { head: "DUAL USE · OBRONNOŚĆ", title: "Świadomość uszkodzeń i infrastruktury", items: ["Szybka ocena uszkodzeń po incydencie", "Monitoring kadłubów krytycznej infrastruktury Bałtyku", "Gotowość floty u bazy bez logistyki", "Dowód na poziomie blachy w roszczeniach morskich", "Bliźniaki szkoleniowe własnych okrętów"] },
+    yard: { head: "STOCZNIE · GWARANCJA", title: "Kadłub, który stocznia musi utrzymywać", items: ["Nowy statek ma ~12 mies. gwarancji — stocznia regularnie utrzymuje kadłub i za to płaci", "Stocznie same szukają tańszego i lepszego przeglądu", "Monitoring kadłuba między przeglądami jako element gwarancji", "Dowód stanu kadłuba przy przekazaniu i w roszczeniach", "Bliźniak 3D sprzedawany razem z jednostką"] },
+    consumer: { head: "KONSUMENCKI · SUNREEF", title: "Luksusowe jachty — monitoring bez ekipy", items: ["Zapytanie do Sunreef złożone — czekamy na odpowiedź", "Jacht 60–120 ft: kadłub to główny środek trwały", "Przegląd przed czarterem i przy sprzedaży", "Kamery jachtu i monitoring przy dokowaniu", "Zgłoszenie szkody ubezpieczycielowi z dowodem 3D"] },
+    moneyTitle: "Ile to dziś płaci rynek",
+    moneyCaption: "To liczby, które już są w obiegu — nie projekcje.",
+    money: [
+      { big: "≈ 6 mln zł", label: "średnia szkoda kadłubowa", note: "baza IUMI · ~17 tys. roszczeń" },
+      { big: "35–260 tys. zł", label: "jeden dzień przeglądu ROV / nurków", note: "tyle dziś płaci armator" },
+      { big: "2,5–10 mln €", label: "jacht klasy Sunreef", note: "przegląd kadłuba to jego ułamek; szkoda to całość" },
+    ],
+    line: "Krytyczna infrastruktura Bałtyku stoi na kadłubach. Kto je widzi, kontroluje grę.",
   },
   proof: {
-    kicker: "Dowody",
-    title: "Już czyta realną flotę.",
-    subtitle: "Dane demonstracyjne są deterministyczne: ta sama architektura, te same wskaźniki, ten sam wynik — do powtórzenia w każdej chwili.",
+    kicker: "Dowody, nie obietnice",
+    title: "Działa — deterministycznie, na pięciu jednostkach.",
+    subtitle: "Pełne historie skanów, 27 trajektorii usterek, udokumentowany próg szumu. Każdy wynik odtworzysz na własnym telefonie.",
     stats: [
       { big: "5", unit: "", label: "jednostek z pełną historią skanów", note: "flota demo" },
-      { big: "27", unit: "", label: "trajektorii usterek symulowanych i wykrytych", note: "deterministycznie" },
-      { big: "1,2", unit: "mm", label: "próg szumu porównania", note: "dokumentowany" },
-      { big: "2", unit: "", label: "rynki z jednego pipeline'u", note: "cywilny · obronny" },
+      { big: "27", unit: "", label: "trajektorii usterek wykrytych i opisanych", note: "deterministycznie" },
+      { big: "1,2", unit: "mm", label: "udokumentowany próg szumu", note: "porównanie 3D" },
+      { big: "4", unit: "", label: "rynki z jednego pipeline'u", note: "armatorzy · obronność · stocznie · jachty" },
     ],
     trendTitle: "Odchylenie kadłuba w historii skanów · „M/S Neptun Bałtycki”",
     trendCaption: "średnie i szczytowe odchylenie na skan",
@@ -152,27 +269,28 @@ const pl: Copy = {
     fleet: "Flota demo",
     toolingTitle: "Narzędzia",
     toolingText: "Monorepo TypeScript · React + Three.js · REST API (Express) · integracja Gaussian Splatting (GS Server) czyta prawdziwe modele .ply.",
-    note: "Dane demo są syntetyczne — uczciwie oznaczone, żeby mentorzy mogli pytać. Pipeline (porównanie NN, agregacja regionów, detekcja skupisk) to prawdziwa architektura, gotowa na wczytywanie .ply na żywo.",
+    note: "Dane demo są syntetyczne — oznaczone uczciwie. Pipeline (porównanie NN, agregacja regionów, detekcja skupisk) to prawdziwa architektura, gotowa na wczytywanie .ply na żywo.",
   },
   objections: {
-    kicker: "Uczciwe pytania",
+    kicker: "Pytania, które usłyszycie",
     title: "Odpowiadamy, zanim zapytacie.",
     items: [
-      { q: "Czy to wystarczająco dokładne do klasyfikacji?", a: "Pipeline porównania raportuje odchylenie ze znakiem, z udokumentowanym progiem szumu 1,2 mm i rejestrem usterek jako wzorcem. Wizja wspiera inspektora — raport i tak podpisuje człowiek." },
-      { q: "Dwa skany same się nie dopasują.", a: "Prawda — realne nagrania wymagają rejestracji (ICP / punkty odniesienia) przed porównaniem. To największy krok integracyjny; jest już opisany w dokumentacji architektury, nie ukrywany." },
-      { q: "Statki pływają bez internetu.", a: "Analiza działa lokalnie / na pokładzie. Model GS powstaje tam, gdzie nagrane są dane; HullSight porównuje offline i synchronizuje wyniki, gdy pojawi się łączność." },
-      { q: "Czemu nie dron podwodny?", a: "Drony wygrywają tam, gdzie linia wodna jest niedostępna. Na powierzchni i w doku telefon przechodzi kadłub w kilka minut przy ~1% środków — a załoga już go ma." },
+      { q: "Czy to wystarczająco dokładne do klasyfikacji?", a: "Pipeline raportuje odchylenie ze znakiem, z udokumentowanym progiem szumu 1,2 mm i rejestrem usterek jako wzorcem. Wizja wspiera inspektora — raport i tak podpisuje człowiek." },
+      { q: "Dwa skany same się nie dopasują.", a: "Prawda — realne nagrania wymagają rejestracji (ICP / punkty odniesienia) przed porównaniem. To największy krok integracyjny; jest opisany w dokumentacji architektury, nie ukrywany." },
+      { q: "Statki pływają bez internetu.", a: "Analiza działa lokalnie / na pokładzie. Model GS powstaje tam, gdzie nagrano dane; HullSight porównuje offline i synchronizuje wyniki, gdy pojawi się łączność." },
+      { q: "Czemu nie dron podwodny?", a: "Drony wygrywają tam, gdzie linia wodna jest niedostępna. Na powierzchni i w doku zwykłe nagranie — telefonem albo kamerą, która już stoi — pokrywa kadłub w kilka minut przy ~1% środków." },
     ],
   },
   cta: {
+    vision: "Wizja: koniec próbek punktowych i wizyt w doku. Każdy kadłub mierzalny — z kamer, które już stoją.",
     kicker: "Oferta",
-    title: "Weź to na swój statek i na swoje kontrakty.",
-    subtitle: "Zarezerwuj 15-minutowe demo na żywo albo otwórz produkt i przewiń skany pięciu jednostek sam.",
+    title: "Twój pilot startuje — zanim zrobi to konkurencja.",
+    subtitle: "Otwórz demo na żywo i sam przejrzyj pięć jednostek, albo dołącz do pilota i weź to na swój statek.",
     primary: "Zapisz się na pilota",
     secondary: "Otwórz demo na żywo",
     formLabel: "Bądź pierwszy w pilocie",
     formPlaceholder: "służbowy e-mail",
-    formNote: "Pierwsze stocznie, porty i armatorzy dostaną pilota przed zimą — kolejka rośnie.",
+    formNote: "Pierwsze stocznie, porty i armatorzy dostaną pilota przed zimą — ENAMOR już ustala termin pokazu. Kolejka rośnie.",
     formOk: "Na liście. Odezwiemy się z dostępem do pilota.",
     note: "Zbudowane w 48 godzin na Baltic Dual Use Hackathon · Biblioteka Uniwersytetu Gdańskiego, wrzesień 2026",
   },
@@ -194,57 +312,60 @@ const pl: Copy = {
 };
 
 const en: Copy = {
-  nav: { platform: "Platform", dualUse: "Dual use", how: "How it works", live: "Proof", openApp: "Open demo", book: "Book demo" },
+  nav: { platform: "Platform", dualUse: "Dual use", how: "How it works", live: "Proof", demo: "Demo (films)", openApp: "Open demo", book: "Book demo" },
   hero: {
     chipTop: "BALTIC DUAL USE HACKATHON · GDANSK 2026",
     liveBadge: "LIVE · 5 vessels · hull geometry · 1.2 mm noise",
-    h1Line1: "A ship at sea.",
-    h1Line2: "A twin measured in millimetres.",
-    sub:
-      "HullSight turns routine phone footage into a measurable 3D twin of a hull — and compares every scan since launch, so corrosion, dents and cracks are caught before they become a casualty.",
+    h1Line1: "A €25,000 hull scan.",
+    h1Line2: "From cameras you already own.",
+    sub: "Phone, dock CCTV or drone footage becomes a measurable 3D hull twin. No expensive kits, no specialists.",
     ctaPrimary: "Open the live demo",
-    ctaSecondary: "Watch the film",
+    ctaSecondary: "How it works",
     ctaTertiary: "Why now",
     tags: ["Gaussian Splatting", "nearest-neighbour compare · 1.2 mm", "onboard, offline analysis"],
     videoKicker: "INSP · 2026–09–12 · DUAL USE",
     videoTitle: "Hull → twin → measurements",
-    videoTimer: "00:17",
+    videoTimer: "00:16",
     videoSub: "CAPTURE → RECONSTRUCTION → MEASUREMENT",
-    videoCap: "final demo film lands in this slot — the product works live meanwhile",
-    toast: "The demo film is being cut before the pitch. Open the live product meanwhile.",
+    videoCap: "DEMO · H.264 · 1920×1080 · HullSight 3D hull render",
+    scrollHint: "Scroll",
+    toast: "The demo film runs full-screen — muted, looping.",
     rec: "INSP",
     dateStamp: "2026–09–12",
   },
   problem: {
     kicker: "The problem",
-    title: "Hulls are the most expensive part you can't see.",
+    title: "The most expensive hull is the one you can't see.",
     subtitle:
-      "A single hull defect can mean weeks in drydock, a grounded ship, an insurance claim — or a vulnerability in critical infrastructure. Yet between inspections, a hull is effectively invisible.",
-    costLabel: "One bad crack, uncaught",
-    costValue: "≈ €1–5M",
-    costHint: "repair + downtime + insurance + liability (illustrative)",
+      "A ship drydocks about once every 5 years. In between, the most expensive part of the vessel — the hull — rots invisibly: corrosion creeps, coating peels, cracks wait. Today you catch them too late, or not at all.",
+    costLabel: "One hairline crack, uncaught",
+    costValue: "≈ PLN 4–21M",
+    costHint: "repair + downtime + insurance + liability · average hull claim ≈ PLN 6M / US$1.4M (IUMI database, ~17k claims)",
   },
   bridge: {
-    kicker: "The gap",
-    title: "The tools exist. The bottleneck was never technology — it was who can use it.",
-    subtitle: "Today's options trade capability against cost. HullSight breaks the tradeoff.",
+    kicker: "What it costs today",
+    title: "Manual: a fortune and weeks. Automated: the recording you already get.",
+    subtitle: "Every current method forces a choice between quality and cost. HullSight delivers both — with hardware you already own.",
     head: ["Method", "Cost", "Time", "Who", "Coverage", "Bottom line"],
     rows: [
-      { who: "Diver & ROV survey", cost: "€8–60k / day", speed: "days–weeks", access: "specialists only", depth: "point samples", verdict: "out of reach for routine checks" },
-      { who: "Ultrasonic gauging", cost: "€20–80k / run", speed: "days", access: "certified crew", depth: "single plates", verdict: "great where you know, blind elsewhere" },
-      { who: "Drydock inspection", cost: "€50–400k / haul", speed: "weeks", access: "drydock slot", depth: "full hull, every 5 yrs", verdict: "too rare, too late" },
-      { who: "HullSight", cost: "a phone + a walk", speed: "minutes", access: "any crew member", depth: "full surface, mm-level", verdict: "Every trip is a survey.", accent: true },
+      { who: "Diver & ROV survey", cost: "PLN 35–260k / day", speed: "days–weeks", access: "specialists only", depth: "point samples", verdict: "you pay for visits, not a picture" },
+      { who: "Ultrasonic gauging", cost: "PLN 85–350k / run", speed: "days", access: "certified crew", depth: "single plates", verdict: "blind where you don't think to look" },
+      { who: "Drydock inspection", cost: "PLN 215k–1.7M / haul", speed: "weeks", access: "open drydock slot", depth: "full hull, every 5 yrs", verdict: "too rare, too late" },
+      { who: "HullSight", cost: "cameras you already have (or a phone)", speed: "minutes", access: "no change — it records what already records", depth: "full surface, mm-level", verdict: "Every trip is a survey.", accent: true },
     ],
+    summaryLabel: "HULLSIGHT · THE HONEST BILL",
+    summaryTime: "~15 minutes of footage + a few minutes of GPU — a measurable hull twin",
+    summaryCost: "a few PLN of compute, PLN 0 of hardware — the cameras already stand there",
+    summaryNote: "No diver, no drydock slot, no survey series. A cost you can repeat on every voyage.",
   },
   how: {
     kicker: "How it works",
-    title: "Three steps. No drones. No divers. No drydock.",
-    subtitle:
-      "The pipeline is honest: capture via the base GS server (COLMAP + Gaussian Splatting), analysis on top. This product owns what happens after the scan — comparison, history and detection.",
+    title: "The machine does the hard work. Not you.",
+    subtitle: "You don't measure, calibrate or get certified. You shoot footage — registration, deviation and detection are on HullSight.",
     steps: [
-      { n: "01", t: "Walk the hull with a phone", d: "A crew member shoots the hull — a few hundred photos, minutes of walking. No special sensor, no pilot, no certification." },
-      { n: "02", t: "A 3D model is built in minutes", d: "The GS Server reconstructs the surface as a Gaussian Splatting model. HullSight registers it as the vessel's newest scan." },
-      { n: "03", t: "Compare. Detect. Decide.", d: "HullSight aligns any two scans, maps deviation from baseline, finds change clusters and proposes the defect type — with history since launch." },
+      { n: "01", t: "An ordinary recording — even one CCTV already makes", d: "A crew phone, a drone, or the camera already watching the berth — any footage the hull appears in is enough. Ten minutes of footage. No new hardware, no certifications." },
+      { n: "02", t: "The 3D model builds itself", d: "Gaussian Splatting reconstructs the surface and logs it as the vessel's newest scan. Nobody clicks, nothing gets measured." },
+      { n: "03", t: "HullSight compares. You decide.", d: "It aligns every scan to baseline, maps deviation, clusters change regions and suggests the defect type — with full history since day one." },
     ],
     tech: [
       "Nearest-neighbour 3D comparison",
@@ -254,37 +375,101 @@ const en: Copy = {
       "Deterministic demo fleet on real hull meshes",
     ],
   },
-  detect: {
-    kicker: "What HullSight sees",
-    title: "Not just a picture — measurements.",
-    subtitle: "The same pipeline that will run on real reconstructions already reads change magnitude, sign and shape from the demo fleet.",
-    gridCaption: "Hull region grid · mean deviation from the latest comparison",
-    gridLegend: ["dent", "mean", "bulge"],
-    defects: [
-      { name: "Wgniecenie", en: "Dent", sev: "Critical", mm: "−5.5 mm", d: "Sudden impact damage, stable between inspections — the kind ROV surveys are designed to find." },
-      { name: "Korozja", en: "Corrosion", sev: "Serious", mm: "−4.0 mm", d: "Growing across inspections on bottom plates. Caught early, it's a patch job. Late, it's a plate replacement." },
-      { name: "Pęknięcie", en: "Crack", sev: "Critical", mm: "−2.2 mm", d: "Linear, late-onset, flagged as structural regardless of depth. This is the one that grounds a ship." },
-      { name: "Ubytek powłoki", en: "Coating loss", sev: "Warning", mm: "−1.6 mm", d: "Early warning before corrosion takes hold — the cheapest defect to fix, when you see it." },
-      { name: "Porost biologiczny", en: "Biofouling", sev: "Warning", mm: "+3.2 mm", d: "Cyclical growth between dockings; raises drag and fuel burn for every extra day it stays." },
+  status: {
+    kicker: "Status & trust",
+    title: "Between HAT and FAT a yard holds the hull. That's where we are.",
+    subtitle: "A vessel goes through harbour acceptance (HAT) and final acceptance (FAT). In the phase between, the yard must maintain the hull at its own cost — that is exactly where HullSight works.",
+    phaseLabel: "VESSEL LIFECYCLE PHASE · HAT → FAT",
+    hatTag: "HAT",
+    hatFlag: "AFTER LAUNCH",
+    hatTitle: "Harbour Acceptance Test",
+    hatItems: ["Vessel in the yard's port — first trials on the water", "The hull's first exposure to contacts and settling", "The start of the vessel's measurement history"],
+    midTag: "BETWEEN HAT AND FAT",
+    midFlag: "HULLSIGHT APPLIES HERE",
+    midTitle: "The phase where the yard looks after the hull",
+    midItems: ["The yard maintains the hull — and pays for it", "Survey without a diver, drydock or crew: the camera already standing there", "Scans today → a measurable comparison at FAT"],
+    fatTag: "FAT",
+    fatFlag: "AT HANDOVER",
+    fatTitle: "Final Acceptance Test",
+    fatItems: ["Final handover to the owner", "Hull condition evidence from scans, not eyeballs", "A 3D twin handed over with the documentation"],
+    aceNote: "HullSight walks the same path itself: its own FAT ✓ (done) → HAT on schedule.",
+    enamorTag: "CONTRACT",
+    enamorTitle: "ENAMOR — initial contact made",
+    enamorBody: "They've signed up for the show. We're scheduling so their technical team sees the pipeline live — not slides.",
+    sunreefTag: "CONSUMER MARKET",
+    sunreefTitle: "Sunreef Yachts — awaiting their reply",
+    sunreefBody: "We sent a query about hull monitoring for yachts. Consumer is the third market for the same pipeline.",
+    modelTag: "AI MODEL",
+    modelTitle: "We train it ourselves, on open foundations",
+    modelBody: "Open Gaussian Splatting implementation + a model trained on hull data. Zero black boxes, zero per-scan licences — auditable and reproducible.",
+    craTag: "CRA",
+    craTitle: "EU Cyber Resilience Act ready — from day one",
+    craBody: "We build for CRA and vessel data security so we stay auditable and vendor-neutral. That's architecture, not a statement.",
+    craItems: [
+      "Offline, onboard analysis — footage never has to leave the vessel",
+      "Encryption at rest and in transit · roles and audit",
+      "SBOM + update registry — CRA-ready",
+      "Open-source model — auditable, re-runnable at the client",
     ],
+    quote: "We'll win this hackathon. And afterwards we stay on the water — with ENAMOR and Baltic owners on pilot.",
+  },
+  market: {
+    kicker: "Market & competition",
+    title: "Competitors send something into the water. We stay ashore — with the camera that's already there.",
+    subtitle: "The industry thinks in hardware: ROVs, cleaning robots, sonars, divers. But the camera above the waterline already exists — we just use it.",
+    claim: "To run a survey, they must dispatch a crew, a robot and logistics. We only need the footage that was recorded anyway.",
+    playersTitle: "HOW THE OTHERS PLAY",
+    players: [
+      { name: "Greensea IQ · EverClean", what: "hull-cleaning robot + ultrasonic probes", lens: "sells a robot visit on the hull" },
+      { name: "Blueye Robotics", what: "observation drones to 150 m, ~$4–5k", lens: "sells an underwater eye and an operator on crew" },
+      { name: "Subsea Tech", what: "ROV / USV for UWILD inspections", lens: "sells gear and operators by the working day" },
+      { name: "Smart Hull Sight", what: "3D photogrammetry from divers / ROV + AI", lens: "closest to us — but someone still has to go into the water" },
+    ],
+    diffHead: ["Category", "Them", "Us"],
+    diffRows: [
+      ["Tool at the hull", "ROV / robot / diver in the water", "a camera that already records — phone, CCTV, drone"],
+      ["Cost of one survey", "PLN 35–260k / day + logistics", "minutes of GPU · PLN 0 new hardware"],
+      ["Frequency", "once a year, when they decide", "every voyage is another scan"],
+      ["Scaling", "more robots and operators", "a model + GPU — accuracy grows with the client's camera"],
+    ],
+    gsdKicker: "ACCURACY GROWS WITH RESOLUTION",
+    gsdTitle: "Camera X at res Y gives accuracy Z.",
+    gsdLead: "Not magic — geometry: the denser the pixel on the hull, the smaller the detail you can read. Below, measurement resolution on the order of GSD for typical capture scenes.",
+    gsdHead: ["Capture source", "Resolution", "Distance", "Measurement resolution"],
+    gsd: [
+      ["Fleet phone (48 MP)", "48 MP", "3–4 m", "≈ 1–2 mm"],
+      ["Phone (12 MP)", "12 MP", "4–5 m", "≈ 2–4 mm"],
+      ["Berth camera 4K (8 MP)", "8 MP", "6–10 m", "≈ 4–8 mm"],
+      ["CCTV camera (2 MP)", "2 MP", "10–15 m", "≈ 8–15 mm"],
+    ],
+    gsdFormula: "GSD ≈ (sensor width ÷ pixels) × distance ÷ focal length. Validation: smartphone photogrammetry vs TLS/LiDAR ground truth — mm-level accuracy (ISPRS Archives XLVIII-2-2023, 1.1–14 m range). HullSight demo: 1.2 mm noise floor at 48 MP.",
   },
   dualuse: {
-    kicker: "Two markets, one pipeline",
-    title: "Civilian value today. Defense value on the same surface.",
-    subtitle: "One sensor, one model, one registry — two buyers.",
-    civilian: { head: "CIVILIAN", title: "Shipping that runs safer & cheaper", items: ["Periodic inspection without drydock", "Ship condition evidence for insurance & class", "Predictive maintenance scheduling", "Port & terminal hull monitoring", "Charter & resale condition reports"] },
-    defense: { head: "DUAL USE · DEFENSE", title: "Battle-damage & infrastructure awareness", items: ["Rapid hull damage assessment after incident", "Critical Baltic infrastructure hull monitoring", "Fleet readiness at base with minimal logistics", "Plate-level evidence for naval claims", "Training digital twins of own vessels"] },
-    line: "The Baltic is the frontline. The next breakthrough will live on both sides — civilian and defense.",
+    kicker: "Four markets, one pipeline",
+    title: "Four buyers purchase the same output.",
+    subtitle: "Civilian owners, Baltic defense, shipyards in warranty and luxury yachts — one sensor, one model, one registry.",
+    civilian: { head: "CIVILIAN · OWNERS", title: "Shipping that runs safer & cheaper", items: ["Inspection without drydock, divers or waiting", "Hull condition evidence for class and insurers", "Repairs scheduled before they surprise you", "Port and terminal hull monitoring", "Charter and resale condition reports"] },
+    defense: { head: "DUAL USE · DEFENSE", title: "Damage and infrastructure awareness", items: ["Rapid hull damage assessment after an incident", "Monitoring Baltic critical-infrastructure hulls", "Fleet readiness at base with no logistics drag", "Plate-level evidence for naval claims", "Training twins of your own vessels"] },
+    yard: { head: "SHIPYARDS · WARRANTY", title: "The hull a yard must look after", items: ["Newbuilds carry ~12 months of warranty — the yard maintains the hull at its own cost", "Yards are actively hunting for cheaper, better surveys", "Hull monitoring between surveys as a warranty element", "Hull condition evidence at delivery and in claims", "A 3D twin sold alongside the vessel"] },
+    consumer: { head: "CONSUMER · SUNREEF", title: "Luxury yachts — monitoring without a crew", items: ["Sunreef query sent — awaiting their reply", "A 60–120 ft yacht's hull is its core asset", "Pre-charter and resale surveys", "Yacht cameras + berthing monitoring", "Insurance claims with a 3D evidence record"] },
+    moneyTitle: "What this market already pays",
+    moneyCaption: "Numbers already in circulation — not projections.",
+    money: [
+      { big: "≈ PLN 6M", label: "average hull claim", note: "IUMI database · ~17k claims" },
+      { big: "PLN 35–260k", label: "one day of ROV / diver survey", note: "what an owner pays today" },
+      { big: "€2.5–10M", label: "a Sunreef-class yacht", note: "a survey is a fraction; a claim is the whole" },
+    ],
+    line: "Baltic critical infrastructure sits on hulls. Whoever sees them controls the game.",
   },
   proof: {
-    kicker: "Proof over promises",
-    title: "Already reading a real fleet.",
-    subtitle: "The demo data is deterministic: the same architecture, the same metrics, the same result — reproducible at any time.",
+    kicker: "Proof, not promises",
+    title: "It works — deterministically, on five vessels.",
+    subtitle: "Full scan histories, 27 defect trajectories, a documented noise floor. Reproduce any result on your own phone.",
     stats: [
       { big: "5", unit: "", label: "vessels with full scan histories", note: "demo fleet" },
-      { big: "27", unit: "", label: "defect trajectories simulated & detected", note: "deterministically" },
-      { big: "1.2", unit: "mm", label: "comparison noise floor", note: "documented" },
-      { big: "2", unit: "", label: "markets from one pipeline", note: "civilian · defense" },
+      { big: "27", unit: "", label: "defect trajectories found & described", note: "deterministically" },
+      { big: "1.2", unit: "mm", label: "documented comparison noise floor", note: "3D comparison" },
+      { big: "4", unit: "", label: "markets from one pipeline", note: "owners · defense · yards · yachts" },
     ],
     trendTitle: "Hull deviation across scan history · „M/S Neptun Bałtycki”",
     trendCaption: "mean & peak deviation per scan",
@@ -293,27 +478,28 @@ const en: Copy = {
     fleet: "The demo fleet",
     toolingTitle: "Tooling",
     toolingText: "TypeScript monorepo · React + Three.js · Express REST API · Gaussian Splatting integration (GS Server) reads true .ply models.",
-    note: "Demo data is synthetic — honestly labelled, so mentors can ask. The pipeline (NN comparison, region aggregation, cluster detection) is the real architecture, ready for live .ply ingest.",
+    note: "Demo data is synthetic — honestly labelled. The pipeline (NN comparison, region aggregation, cluster detection) is the real architecture, ready for live .ply ingest.",
   },
   objections: {
-    kicker: "Fair questions",
+    kicker: "Questions you'll hear",
     title: "Answered before you ask.",
     items: [
-      { q: "Is it accurate enough for classification?", a: "The comparison pipeline reports signed deviation with a documented 1.2 mm noise floor and a curated defect registry as ground truth. Vision aids inspection; an inspector still signs the report." },
-      { q: "Two scans don't align on their own.", a: "True — real captures need registration (ICP / reference points) before comparison. It is the single largest integration step and is already scoped in our architecture doc, not hidden." },
-      { q: "Ships operate with no internet.", a: "Analysis runs on-premise / aboard. The GS model is trained where data is captured; HullSight compares locally and syncs findings when a link exists." },
-      { q: "Why not an underwater drone?", a: "Drones win where waterline inspection is impossible. On the surface and in drydock, a phone walks the hull in minutes at ~1% of the capex — and your crew already has one." },
+      { q: "Is it accurate enough for classification?", a: "The pipeline reports signed deviation with a documented 1.2 mm noise floor and a curated defect registry as ground truth. Vision aids inspection; an inspector still signs the report." },
+      { q: "Two scans don't align on their own.", a: "True — real captures need registration (ICP / reference points) before comparison. It is the largest integration step and is already scoped in our architecture doc, not hidden." },
+      { q: "Ships operate with no internet.", a: "Analysis runs on-premise / aboard. The GS model is built where footage is captured; HullSight compares locally and syncs findings when a link exists." },
+      { q: "Why not an underwater drone?", a: "Drones win where the waterline is inaccessible. On the surface and in drydock, an ordinary recording — by phone or a camera that already stands there — covers the hull in minutes at ~1% of the capex." },
     ],
   },
   cta: {
+    vision: "The vision: the end of point samples and drydock visits. Every hull measurable — from the cameras already there.",
     kicker: "The offer",
-    title: "Put it on your hulls — and on your books.",
-    subtitle: "Book a 15-minute live demo, or open the product and scrub through five vessels yourself.",
+    title: "Your pilot slot is now — before competitors take it.",
+    subtitle: "Open the live demo and scrub through five vessels, or join the pilot and put it on your hulls.",
     primary: "Get pilot access",
     secondary: "Open the live product",
     formLabel: "Get early pilot access",
     formPlaceholder: "work email",
-    formNote: "The first yards, ports and owners get pilot access before winter — the list grows daily.",
+    formNote: "The first yards, ports and owners get pilot access before winter — ENAMOR is already scheduling a show. The list grows daily.",
     formOk: "You're on the list. We'll reach out with pilot access.",
     note: "Built in 48 hours at the Baltic Dual Use Hackathon · University of Gdansk library, Sept 2026",
   },
