@@ -702,7 +702,7 @@ export function boot() {
   function wireScrollHint() {
     const hint = document.getElementById("scrollHint");
     if (!hint) return;
-    window.setTimeout(() => hint.classList.add("show"), 8000);
+    window.setTimeout(() => hint.classList.add("show"), 3000);
     hint.addEventListener("click", () => {
       const target = document.getElementById("gap");
       if (target) target.scrollIntoView({ behavior: "smooth" });

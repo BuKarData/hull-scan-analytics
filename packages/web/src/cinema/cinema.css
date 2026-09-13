@@ -286,27 +286,27 @@ html.nav-show .hs-nav {
 }
 .hero-qr img {
   display: block;
-  width: clamp(64px, 9vw, 128px);
-  height: clamp(64px, 9vw, 128px);
-  border-radius: 14px;
+  width: clamp(96px, 13vw, 190px);
+  height: clamp(96px, 13vw, 190px);
+  border-radius: 16px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 .hero-qr-label {
-  font-size: 10.5px;
+  font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.02em;
   color: #fff;
   background: rgba(11, 15, 20, 0.55);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
-  padding: 0.22rem 0.6rem;
+  padding: 0.3rem 0.75rem;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.18);
   white-space: nowrap;
 }
 @media (min-width: 640px) {
   .hero-qr-label {
-    font-size: 12px;
+    font-size: 14px;
   }
 }
 
@@ -1961,7 +1961,6 @@ html.nav-show .hs-nav {
 
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 84px;
 }
 [id] {
   scroll-margin-top: 84px;

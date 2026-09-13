@@ -229,6 +229,12 @@ function secOffer(lang: Lang): string {
       </div>
       <div class="hud dim cta-note">${c.note}</div>
     </div>
+    <div class="offer-finale">
+      <span class="eyebrow center">${c.finaleCaption}</span>
+      <div class="vframe finale-frame">
+        <video src="/hullsight.mp4" poster="/hullsight-poster.jpg" controls loop muted playsinline preload="metadata"></video>
+      </div>
+    </div>
   </section>`;
 }
 

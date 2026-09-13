@@ -34,7 +34,7 @@ export interface Copy {
   uses: { kicker: string; title: string; subtitle: string; line: string; whyLabel: string; cases: UseCase[] };
   quiz: { kicker: string; title: string; hint: string; items: string[]; empty: string; lo: string; hi: string };
   faq: { kicker: string; title: string; items: { q: string; a: string }[] };
-  offer: { kicker: string; title: string; subtitle: string; primary: string; secondary: string; note: string };
+  offer: { kicker: string; title: string; subtitle: string; primary: string; secondary: string; note: string; finaleCaption: string };
   footer: { tag: string; sub: string; colTech: string; colCtx: string; tech1: string; tech2: string; tech3: string; tech4: string; ctx1: string; ctx2: string; ctx3: string; desc: string; lang: string; back: string };
 }
 
@@ -151,6 +151,7 @@ const pl: Copy = {
     primary: "Otwórz demo na żywo",
     secondary: "Zobacz filmy jeszcze raz",
     note: "HULLSIGHT · BALTIC DUAL USE HACKATHON 2026 · GDAŃSK · ZBUDOWANE W 48 GODZIN NA REALNYCH GEOMETRIACH",
+    finaleCaption: "Kadłub od środka, dokładnie tak jak widzi go HullSight",
   },
   footer: {
     tag: "HULLSIGHT",
@@ -283,6 +284,7 @@ const en: Copy = {
     primary: "Open the live demo",
     secondary: "Watch the films again",
     note: "HULLSIGHT · BALTIC DUAL USE HACKATHON 2026 · GDANSK · BUILT IN 48 HOURS ON REAL GEOMETRIES",
+    finaleCaption: "The hull from the inside, exactly as HullSight sees it",
   },
   footer: {
     tag: "HULLSIGHT",
